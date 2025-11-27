@@ -1,26 +1,36 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, AreaChart, Area 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, AreaChart, Area, LineChart, Line 
 } from 'recharts';
-import { TrendingUp, Info, Banknote, ShieldCheck, Coins, AlertTriangle, Baby, Landmark, ChevronDown, ExternalLink, Sparkles, Loader2 } from 'lucide-react';
+import { TrendingUp, Info, Banknote, ShieldCheck, Coins, AlertTriangle, Baby, Landmark, ChevronDown, ExternalLink, Sparkles, Loader2, ArrowRight } from 'lucide-react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // --- KONFIGURACJA API GEMINI ---
-// W środowisku produkcyjnym klucz jest wstrzykiwany automatycznie.
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-09-2025" });
 
-// --- BAZA DANYCH OBLIGACJI ---
+// --- DANE I KONFIGURACJA ---
+
+// Dane historyczne inflacji do wykresu edukacyjnego (uproszczone dane roczne)
+const INFLATION_DATA = [
+  { year: '2018', value: 1.6 },
+  { year: '2019', value: 2.3 },
+  { year: '2020', value: 3.4 },
+  { year: '2021', value: 5.1 },
+  { year: '2022', value: 14.4 },
+  { year: '2023', value: 11.4 },
+  { year: '2024', value: 5.0 }, // prognoza/średnia
+];
 
 const STANDARD_BONDS = [
   {
     id: 'OTS',
     name: 'OTS (3-miesięczne)',
     desc: 'Krótka lokata na 3 miesiące ze stałym zyskiem. Idealna na przeczekanie.',
-    rate: 3.00,
+    rate: 2.75,
     durationMonths: 3,
-    earlyExitFee: 0,
+    earlyExitFee: 0, // OTS zazwyczaj nie ma opcji wcześniejszego wykupu w standardowym sensie (trwa krótko), ale dla symulacji przyjmijmy 0
     type: 'fixed',
     capitalizationDesc: 'Wypłata całości na koniec',
     interestType: 'Stałe (wiesz ile zarobisz)',
@@ -30,7 +40,7 @@ const STANDARD_BONDS = [
     id: 'ROR',
     name: 'ROR (1-roczne)',
     desc: 'Obligacja na rok. Oprocentowanie zmienia się co miesiąc zależnie od stóp procentowych NBP.',
-    rate: 5.75, 
+    rate: 4.50, 
     durationMonths: 12,
     earlyExitFee: 0.50, 
     type: 'variable',
@@ -42,7 +52,7 @@ const STANDARD_BONDS = [
     id: 'DOR',
     name: 'DOR (2-letnie)',
     desc: 'Obligacja na 2 lata. Działa jak ROR, ale trwa dłużej i ma nieco wyższą marżę.',
-    rate: 5.90,
+    rate: 4.65,
     durationMonths: 24,
     earlyExitFee: 0.70,
     type: 'variable',
@@ -54,7 +64,7 @@ const STANDARD_BONDS = [
     id: 'TOS',
     name: 'TOS (3-letnie)',
     desc: 'Stały zysk przez 3 lata. Nie martwisz się zmianami stóp procentowych. Odsetki dopisują się do kapitału.',
-    rate: 5.95,
+    rate: 4.90,
     durationMonths: 36,
     earlyExitFee: 0.70,
     type: 'fixed',
@@ -66,7 +76,7 @@ const STANDARD_BONDS = [
     id: 'COI',
     name: 'COI (4-letnie)',
     desc: 'Bestseller. Chroni Twoje pieniądze przed inflacją. Odsetki wypłacane są co rok na Twoje konto.',
-    rate: 6.30, 
+    rate: 5.25, 
     durationMonths: 48,
     earlyExitFee: 0.70,
     type: 'indexed',
@@ -78,7 +88,7 @@ const STANDARD_BONDS = [
     id: 'EDO',
     name: 'EDO (10-letnie)',
     desc: 'Najlepsza na długi termin (np. emeryturę). Wykorzystuje procent składany i chroni przed inflacją.',
-    rate: 6.55, 
+    rate: 5.75, 
     durationMonths: 120,
     earlyExitFee: 2.00,
     type: 'indexed',
@@ -93,7 +103,7 @@ const FAMILY_BONDS = [
     id: 'ROS',
     name: 'ROS (6-letnie)',
     desc: 'Rodzinna wersja obligacji inflacyjnych. Wyższy zysk niż w standardowej ofercie.',
-    rate: 6.50, 
+    rate: 5.45, 
     durationMonths: 72,
     earlyExitFee: 0.70,
     type: 'indexed',
@@ -105,7 +115,7 @@ const FAMILY_BONDS = [
     id: 'ROD',
     name: 'ROD (12-letnie)',
     desc: 'Najwyżej oprocentowana obligacja na rynku. Długoterminowe budowanie kapitału dla dzieci.',
-    rate: 6.80, 
+    rate: 6.00, 
     durationMonths: 144,
     earlyExitFee: 2.00,
     type: 'indexed',
@@ -137,7 +147,7 @@ const Card = ({ children, className = "", selected = false, onClick, isFamily = 
   </div>
 );
 
-const InputGroup = ({ label, value, onChange, type = "number", suffix, min = 0, step = "1" }) => (
+const InputGroup = ({ label, value, onChange, type = "number", suffix, min = 0, max, step = "1", disabled=false }) => (
   <div className="flex flex-col gap-2">
     <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{label}</label>
     <div className="relative group">
@@ -146,8 +156,10 @@ const InputGroup = ({ label, value, onChange, type = "number", suffix, min = 0, 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         min={min}
+        max={max}
         step={step}
-        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-lg font-semibold rounded-xl p-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        disabled={disabled}
+        className={`w-full bg-slate-50 border border-slate-200 text-slate-900 text-lg font-semibold rounded-xl p-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       />
       {suffix && (
         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium select-none">
@@ -159,7 +171,7 @@ const InputGroup = ({ label, value, onChange, type = "number", suffix, min = 0, 
 );
 
 const formatMoney = (amount) => {
-  return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN', maximumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN', maximumFractionDigits: 2 }).format(amount);
 };
 
 const AICard = ({ text, isLoading, onClose, title = "Analiza AI" }) => {
@@ -178,7 +190,7 @@ const AICard = ({ text, isLoading, onClose, title = "Analiza AI" }) => {
         <div>
           <h4 className="font-bold text-indigo-900 text-sm mb-1">{title}</h4>
           <p className="text-indigo-800 text-sm leading-relaxed">
-            {isLoading ? "Generuję analizę Twoich finansów..." : text}
+            {isLoading ? "Generuję analizę..." : text}
           </p>
         </div>
       </div>
@@ -200,10 +212,23 @@ export default function App() {
   const [selectedBondId, setSelectedBondId] = useState('EDO');
   const [bondAmount, setBondAmount] = useState(10000);
   const [earlyExit, setEarlyExit] = useState(false);
+  const [exitMonth, setExitMonth] = useState(12);
 
   // AI State
   const [compoundAI, setCompoundAI] = useState({ text: "", loading: false });
   const [bondAI, setBondAI] = useState({ text: "", loading: false });
+
+  // Reset exit month when bond changes
+  useEffect(() => {
+    const allBonds = [...STANDARD_BONDS, ...FAMILY_BONDS];
+    const bond = allBonds.find(b => b.id === selectedBondId);
+    if (bond) {
+      // Domyślnie ustaw połowę okresu trwania przy zmianie obligacji, jeśli earlyExit jest true
+      if (exitMonth > bond.durationMonths) {
+          setExitMonth(Math.floor(bond.durationMonths / 2));
+      }
+    }
+  }, [selectedBondId]);
 
   // --- LOGIKA: Procent Składany ---
   const compoundData = useMemo(() => {
@@ -238,44 +263,65 @@ export default function App() {
 
     const units = Math.floor(bondAmount / 100); 
     const realInvested = units * 100;
-    const years = bond.durationMonths / 12;
-    let finalGross = 0;
-
-    if (bond.capitalization === 'end') {
-        const periodYears = bond.durationMonths / 12;
-        finalGross = realInvested * (1 + (bond.rate/100) * periodYears);
-    } else if (bond.capitalization === 'monthly_payout') {
-        const totalPayouts = realInvested * (bond.rate/100) * years;
-        finalGross = realInvested + totalPayouts;
-    } else if (bond.capitalization === 'yearly_payout') {
-        const totalPayouts = realInvested * (bond.rate/100) * years;
-        finalGross = realInvested + totalPayouts;
-    } else if (bond.capitalization === 'compound_year') {
-        finalGross = realInvested * Math.pow(1 + bond.rate/100, years);
-    }
-
-    let profitGross = finalGross - realInvested;
     
-    let fee = 0;
-    if (earlyExit) {
-        fee = units * bond.earlyExitFee;
-        profitGross = Math.max(0, profitGross - fee);
+    // Ustalanie rzeczywistego czasu trwania inwestycji
+    let monthsDuration = bond.durationMonths;
+    if (earlyExit && exitMonth < bond.durationMonths && exitMonth > 0) {
+        monthsDuration = parseInt(exitMonth);
+    }
+    
+    const years = monthsDuration / 12;
+    let accumulatedInterest = 0;
+
+    // Uproszczona logika naliczania odsetek dla symulacji
+    // W rzeczywistości COI/EDO mają kapitalizację roczną, a ROR miesięczną.
+    // Tutaj stosujemy przybliżenie dla potrzeb kalkulatora UX.
+    
+    if (bond.capitalization === 'monthly_payout') {
+        // ROR, DOR - proste naliczanie miesięczne
+        accumulatedInterest = realInvested * (bond.rate/100) * years;
+    } else if (bond.capitalization === 'yearly_payout' || bond.capitalization === 'end') {
+        // COI, OTS - proste naliczanie roczne (lub na koniec)
+        // Przy wcześniejszym wykupie dostajemy odsetki narosłe
+        accumulatedInterest = realInvested * (bond.rate/100) * years;
+    } else if (bond.capitalization === 'compound_year') {
+        // EDO, ROS, ROD - procent składany
+        accumulatedInterest = (realInvested * Math.pow(1 + bond.rate/100, years)) - realInvested;
     }
 
-    const tax = Math.max(0, profitGross * 0.19);
-    const profitNet = profitGross - tax;
-    const finalNet = realInvested + profitNet;
+    let profitGross = accumulatedInterest;
+    let fee = 0;
+
+    // Obsługa wcześniejszego wykupu
+    if (earlyExit && monthsDuration < bond.durationMonths) {
+        fee = units * bond.earlyExitFee;
+        // W obligacjach EDO/COI opłata może "zjeść" zysk, a nawet kapitał w pierwszym roku
+        // Wynik brutto to odsetki minus opłata. Może być ujemny.
+        profitGross = accumulatedInterest - fee;
+    }
+
+    // Podatek Belki (tylko jeśli jest zysk)
+    // Jeśli wynik brutto jest ujemny (strata), podatek wynosi 0
+    const taxBase = Math.max(0, profitGross); 
+    const tax = Number((taxBase * 0.19).toFixed(2));
+    
+    // Zysk netto
+    const profitNet = profitGross - tax; // Może być ujemny
+    const finalReturn = realInvested + profitNet;
 
     return {
-        invested: realInvested,
-        gross: profitGross,
-        tax: tax,
-        net: profitNet,
-        total: finalNet,
-        fee: fee,
-        bondDetails: bond
+      invested: realInvested,
+      gross: profitGross, // To teraz jest "Zysk przed opodatkowaniem (po odjęciu opłaty)"
+      interestOnly: accumulatedInterest, // Czyste odsetki przed opłatą
+      tax: tax,
+      net: profitNet,
+      total: finalReturn,
+      fee: fee,
+      bondDetails: bond,
+      isLoss: profitNet < 0,
+      actualMonths: monthsDuration
     };
-  }, [bondAmount, selectedBondId, earlyExit]);
+  }, [bondAmount, selectedBondId, earlyExit, exitMonth]);
 
   // --- AI HANDLERS ---
 
@@ -307,16 +353,16 @@ export default function App() {
 
     try {
       const prompt = `
-        Jesteś ekspertem od polskich obligacji skarbowych, który tłumaczy finanse prostym językiem.
+        Jesteś ekspertem od polskich obligacji skarbowych.
         Użytkownik wybrał obligację: ${selectedBondId} (${bondCalculation.bondDetails.name}).
         Kwota inwestycji: ${bondAmount} PLN.
-        Szacowany zysk netto (na rękę): ${bondCalculation.net.toFixed(2)} PLN.
-        Okres: ${bondCalculation.bondDetails.durationMonths / 12} lat.
+        Szacowany zysk netto: ${bondCalculation.net.toFixed(2)} PLN.
+        Okres inwestycji: ${bondCalculation.actualMonths / 12} lat.
+        Czy użytkownik stracił pieniądze? ${bondCalculation.isLoss ? "TAK" : "NIE"}.
 
         Oceń krótko (max 3 zdania) ten wybór. 
-        1. Czy to bezpieczne? (Tak, gwarancja skarbu państwa).
-        2. Czy to lepsze niż trzymanie pieniędzy w skarpecie?
-        3. Wspomnij o ochronie przed inflacją jeśli to obligacja indeksowana (COI, EDO, ROS, ROD).
+        Jeśli jest strata (przez wcześniejszy wykup), ostrzeż użytkownika!
+        Wspomnij o ochronie przed inflacją jeśli to obligacja indeksowana.
       `;
 
       const result = await model.generateContent(prompt);
@@ -342,6 +388,7 @@ export default function App() {
             <a href="#procent" className="hover:text-blue-600 transition-colors">Procent Składany</a>
             <a href="#edukacja" className="hover:text-blue-600 transition-colors">Edukacja</a>
             <a href="#obligacje" className="hover:text-blue-600 transition-colors">Obligacje</a>
+            <a href="#inflacja" className="hover:text-blue-600 transition-colors">Inflacja</a>
           </nav>
         </div>
       </header>
@@ -389,7 +436,6 @@ export default function App() {
                 step="0.1"
               />
               
-              {/* NOWOCZESNY SELECT */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Kapitalizacja odsetek</label>
                 <div className="relative">
@@ -424,36 +470,34 @@ export default function App() {
                     Wzrost o {((finalCompoundAmount/compoundPrincipal - 1)*100).toFixed(1)}%
                   </div>
                 </div>
-                <div className="bg-blue-50 text-blue-900 p-6 rounded-2xl flex flex-col justify-between border border-blue-100 relative">
+                <div className="bg-blue-50 text-blue-900 p-6 rounded-2xl flex flex-col border border-blue-100 relative">
                   <div>
                     <span className="text-blue-600 font-medium mb-1">Czysty zysk (Odsetki)</span>
                     <span className="text-4xl font-bold tracking-tight text-blue-600 block">+{formatMoney(totalCompoundProfit)}</span>
-                    <div className="mt-4 text-sm text-blue-700">
+                    <div className="mt-4 text-sm text-blue-700 mb-4">
                       To pieniądze wygenerowane przez czas i procent.
                     </div>
                   </div>
                   
-                  {/* AI BUTTON */}
-                  <div className="absolute bottom-6 right-6">
+                  {/* AI INTEGRATION - INSIDE CARD */}
+                  <div className="mt-auto pt-4 border-t border-blue-200/50">
                     <button 
                         onClick={handleCompoundAI}
                         disabled={compoundAI.loading}
-                        className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 text-indigo-700 font-bold text-sm hover:text-indigo-900 transition-colors disabled:opacity-50"
                     >
                         {compoundAI.loading ? <Loader2 className="animate-spin" size={16}/> : <Sparkles size={16}/>}
-                        {compoundAI.loading ? "Myślę..." : "Co to oznacza w praktyce? ✨"}
+                        {compoundAI.loading ? "Myślę..." : "Co to oznacza w praktyce? Spytaj AI"}
                     </button>
+                    <AICard 
+                        text={compoundAI.text} 
+                        isLoading={compoundAI.loading} 
+                        onClose={() => setCompoundAI(p => ({...p, text: ""}))}
+                        title="Wizualizacja zysku"
+                    />
                   </div>
                 </div>
               </div>
-
-              {/* AI RESULT CARD */}
-              <AICard 
-                text={compoundAI.text} 
-                isLoading={compoundAI.loading} 
-                onClose={() => setCompoundAI(p => ({...p, text: ""}))}
-                title="Wizualizacja zysku ✨"
-              />
 
               <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex-1 min-h-[400px]">
                 <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
@@ -461,7 +505,7 @@ export default function App() {
                   Symulacja wzrostu
                 </h3>
                 <ResponsiveContainer width="100%" height={320}>
-                  <AreaChart data={compoundData} margin={{ top: 20, right: 20, left: 10, bottom: 20 }}>
+                  <AreaChart data={compoundData} margin={{ top: 20, right: 30, left: 10, bottom: 20 }}>
                     <defs>
                       <linearGradient id="colorZysk" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#2563eb" stopOpacity={0.8}/>
@@ -476,12 +520,13 @@ export default function App() {
                       dataKey="year" 
                       stroke="#94a3b8" 
                       tickFormatter={(val) => `${val} lat`} 
-                      tickMargin={10}
+                      tickMargin={15}
                       fontSize={12}
                     />
                     <YAxis 
                       stroke="#94a3b8" 
                       tickFormatter={(val) => `${val/1000}k`} 
+                      tickMargin={10}
                       fontSize={12}
                     />
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -490,7 +535,7 @@ export default function App() {
                       itemStyle={{ color: '#fff' }}
                       formatter={(value) => formatMoney(value)}
                     />
-                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }}/>
+                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '30px' }}/>
                     <Area type="monotone" dataKey="razem" name="Kapitał z odsetkami" stroke="#2563eb" fillOpacity={1} fill="url(#colorZysk)" strokeWidth={3}/>
                     <Area type="monotone" dataKey="kapital" name="Wpłacony kapitał" stroke="#94a3b8" fillOpacity={1} fill="url(#colorWklad)" strokeWidth={2} strokeDasharray="5 5"/>
                   </AreaChart>
@@ -557,14 +602,24 @@ export default function App() {
 
         {/* SEKCJA 3: OBLIGACJE SKARBOWE */}
         <section id="obligacje" className="scroll-mt-24">
-          <div className="mb-8">
+          <div className="mb-4">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
               <ShieldCheck className="text-blue-600" size={40}/>
-              Kalkulator Obligacji
+              Symulator Zysków z Obligacji
             </h2>
-            <p className="text-slate-600 max-w-2xl text-lg">
-              Wybierz rodzaj obligacji, aby zobaczyć szczegóły. Dla beneficjentów 800+ dostępne są specjalne obligacje rodzinne z wyższym zyskiem.
-            </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <p className="text-slate-600 max-w-2xl text-lg">
+                Oblicz potencjalny zysk. Wybierz rodzaj obligacji, aby zobaczyć szczegóły. Dane poglądowe.
+                </p>
+                <a 
+                href="https://www.obligacjeskarbowe.pl/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-blue-600 font-bold hover:text-blue-800 transition-colors bg-blue-50 px-4 py-2 rounded-lg text-sm"
+                >
+                Kup oficjalnie na obligacjeskarbowe.pl <ExternalLink size={14} />
+                </a>
+            </div>
           </div>
 
           {/* Wybór kategorii obligacji */}
@@ -615,13 +670,13 @@ export default function App() {
                   <p className="text-xs text-slate-500 leading-relaxed mb-4">{bond.desc}</p>
                   
                   <div className="space-y-2 mb-4">
-                     <div className="text-[10px] uppercase font-bold text-slate-400 mb-1">Jak działa zysk?</div>
-                     <div className="text-xs bg-slate-50 p-2 rounded border border-slate-100 text-slate-700 font-medium">
+                      <div className="text-[10px] uppercase font-bold text-slate-400 mb-1">Jak działa zysk?</div>
+                      <div className="text-xs bg-slate-50 p-2 rounded border border-slate-100 text-slate-700 font-medium">
                         {bond.interestType}
-                     </div>
-                     <div className="text-xs bg-slate-50 p-2 rounded border border-slate-100 text-slate-700 font-medium">
+                      </div>
+                      <div className="text-xs bg-slate-50 p-2 rounded border border-slate-100 text-slate-700 font-medium">
                         {bond.capitalizationDesc}
-                     </div>
+                      </div>
                   </div>
                 </div>
                 <div className="mt-auto pt-4 border-t border-slate-100">
@@ -663,16 +718,38 @@ export default function App() {
                       <div className="flex-1">
                         <span className="block font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">Wcześniejszy wykup?</span>
                         <span className="text-sm text-slate-500 mt-1 block">
-                          Zaznacz, jeśli planujesz wypłacić pieniądze przed końcem {bondCalculation?.bondDetails.durationMonths / 12} lat. 
-                          Opłata (sankcja) wyniesie {bondCalculation?.bondDetails.earlyExitFee.toFixed(2)} zł od sztuki.
+                          Zaznacz, jeśli planujesz wypłacić pieniądze przed końcem.
                         </span>
                       </div>
                     </label>
+                    
+                    {/* Input do miesiąca wykupu pojawia się tylko gdy checkbox jest zaznaczony */}
+                    {earlyExit && bondCalculation && (
+                        <div className="mt-4 pt-4 border-t border-slate-100 animate-in fade-in slide-in-from-top-2">
+                            <InputGroup 
+                                label="Wypłata po miesiącu"
+                                value={exitMonth}
+                                onChange={setExitMonth}
+                                type="range"
+                                min="1"
+                                max={bondCalculation.bondDetails.durationMonths}
+                                step="1"
+                            />
+                            <div className="flex justify-between text-xs font-bold text-slate-500 mt-2">
+                                <span>1 mies.</span>
+                                <span className="text-blue-600">{exitMonth} mies. ({Math.floor(exitMonth/12)} lat)</span>
+                                <span>{bondCalculation.bondDetails.durationMonths} mies.</span>
+                            </div>
+                            <p className="text-xs text-orange-600 mt-2 font-medium">
+                                Opłata za przedwczesny wykup: {bondCalculation.bondDetails.earlyExitFee.toFixed(2)} zł od każdej obligacji (100zł).
+                            </p>
+                        </div>
+                    )}
                   </div>
                   <div className="p-4 bg-blue-50 rounded-xl text-sm text-blue-800 flex gap-3 items-start">
                     <Info className="shrink-0 mt-0.5" size={18}/>
                     <p>
-                        Pamiętaj: dla obligacji indeksowanych inflacją (COI, EDO, ROS, ROD) oprocentowanie w kolejnych latach będzie inne (zależne od inflacji). Ten kalkulator zakłada stały poziom dla uproszczenia.
+                        Dla obligacji indeksowanych inflacją (COI, EDO, ROS, ROD) oprocentowanie w kolejnych latach będzie zależało od inflacji. Ten kalkulator zakłada stały poziom dla uproszczenia.
                     </p>
                   </div>
                 </div>
@@ -690,55 +767,70 @@ export default function App() {
                             <span className="font-medium text-right text-sm">{bondCalculation.bondDetails.capitalizationDesc}</span>
                         </div>
                         <div className="flex justify-between items-center py-2 border-b border-slate-50">
-                            <span className="text-slate-600">Zysk Brutto</span>
-                            <span className="font-medium text-slate-900">{formatMoney(bondCalculation.gross)}</span>
+                            <span className="text-slate-600">Zysk Brutto (po ew. opłacie)</span>
+                            <span className={`font-medium ${bondCalculation.gross < 0 ? 'text-red-600' : 'text-slate-900'}`}>
+                                {formatMoney(bondCalculation.gross)}
+                            </span>
                         </div>
-                        <div className="flex justify-between items-center py-2 border-b border-slate-50 text-red-500">
+                        <div className="flex justify-between items-center py-2 border-b border-slate-50 text-slate-500">
                             <span className="">Podatek Belki (19%)</span>
                             <span className="font-medium">-{formatMoney(bondCalculation.tax)}</span>
                         </div>
                         {bondCalculation.fee > 0 && (
                             <div className="flex justify-between items-center py-2 border-b border-slate-50 text-orange-500">
-                                <span className="">Opłata za wcześniejszy wykup</span>
+                                <span className="">Opłata sankcyjna</span>
                                 <span className="font-medium">-{formatMoney(bondCalculation.fee)}</span>
                             </div>
                         )}
                         <div className="flex justify-between items-center pt-4">
                             <span className="text-xl font-bold text-slate-900">Zysk Netto ("na rękę")</span>
-                            <span className="text-3xl font-black text-green-600">+{formatMoney(bondCalculation.net)}</span>
+                            <span className={`text-3xl font-black ${bondCalculation.isLoss ? 'text-red-600' : 'text-green-600'}`}>
+                                {bondCalculation.isLoss ? '' : '+'}{formatMoney(bondCalculation.net)}
+                            </span>
                         </div>
+                        {bondCalculation.isLoss && (
+                            <div className="mt-2 p-2 bg-red-50 text-red-700 text-sm rounded-lg text-center font-bold">
+                                Uwaga: Strata kapitału z powodu opłaty przy szybkim wykupie!
+                            </div>
+                        )}
 
-                         {/* AI BUTTON & RESULT */}
-                         <div className="mt-4">
+                         {/* AI BUTTON & RESULT INSIDE PANEL */}
+                         <div className="mt-6 border-t border-slate-100 pt-4">
                             <button 
                                 onClick={handleBondAI}
                                 disabled={bondAI.loading}
-                                className="w-full flex justify-center items-center gap-2 bg-indigo-50 border border-indigo-200 text-indigo-700 px-4 py-3 rounded-xl text-sm font-bold hover:bg-indigo-100 transition-all disabled:opacity-50"
+                                className="w-full flex justify-center items-center gap-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg text-sm font-bold transition-all disabled:opacity-50"
                             >
                                 {bondAI.loading ? <Loader2 className="animate-spin" size={16}/> : <Sparkles size={16}/>}
-                                {bondAI.loading ? "Analizuję..." : "Opinia eksperta AI o tej obligacji ✨"}
+                                {bondAI.loading ? "Analizuję..." : "Opinia eksperta AI o tej obligacji"}
                             </button>
                             <AICard 
                                 text={bondAI.text} 
                                 isLoading={bondAI.loading} 
                                 onClose={() => setBondAI(p => ({...p, text: ""}))}
-                                title="Opinia Eksperta AI ✨"
+                                title="Opinia Eksperta AI"
                             />
                         </div>
 
                     </div>
 
-                    <div className="h-48 mt-4">
+                    <div className="h-64 mt-4">
                        <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={[
-                          { name: 'Wpłata', value: bondCalculation.invested, fill: '#cbd5e1' },
-                          { name: 'Netto', value: bondCalculation.net, fill: '#16a34a' },
-                          { name: 'Podatek', value: bondCalculation.tax, fill: '#f87171' },
-                        ]}>
+                          { name: 'Zysk brutto', value: parseFloat(bondCalculation.gross.toFixed(2)), fill: '#cbd5e1' },
+                          { name: 'Zysk netto', value: parseFloat(bondCalculation.net.toFixed(2)), fill: bondCalculation.isLoss ? '#ef4444' : '#16a34a' },
+                          { name: 'Podatek', value: parseFloat(bondCalculation.tax.toFixed(2)), fill: '#f87171' },
+                        ]} margin={{top: 20, right: 30, left: 20, bottom: 5}}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-                          <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} tickMargin={5}/>
-                          <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} formatter={(value) => formatMoney(value)}/>
-                          <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={50} />
+                          <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} tickMargin={10}/>
+                          <YAxis fontSize={12} tickMargin={10}/>
+                          <RechartsTooltip 
+                            cursor={{fill: 'transparent'}} 
+                            contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} 
+                            labelStyle={{color: '#64748b'}}
+                            formatter={(value) => [formatMoney(value), 'Wartość']}
+                          />
+                          <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={60} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -749,25 +841,57 @@ export default function App() {
           </div>
         </section>
 
+        {/* SEKCJA 4: INFLACJA - NOWA SEKCJA */}
+        <section id="inflacja" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 scroll-mt-24">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+                        <TrendingUp className="text-red-500" size={32}/>
+                        Co to jest inflacja i marża?
+                    </h2>
+                    <div className="space-y-6 text-slate-600 leading-relaxed">
+                        <p>
+                            <strong className="text-slate-900">Inflacja</strong> to wrogiem Twoich oszczędności. Oznacza, że za te same pieniądze możesz kupić coraz mniej. Jeśli trzymasz pieniądze w "skarpecie" przy inflacji 10%, realnie tracisz jedną dziesiątą ich wartości rocznie.
+                        </p>
+                        <div className="bg-slate-50 p-6 rounded-2xl border-l-4 border-blue-500">
+                            <h3 className="font-bold text-slate-900 mb-2">Jak działają obligacje indeksowane (COI, EDO)?</h3>
+                            <p className="text-sm">
+                                W pierwszym roku mają stałe oprocentowanie. Od drugiego roku ich zysk to: <br/>
+                                <span className="font-mono bg-white px-2 py-1 rounded border border-slate-200 mt-2 inline-block font-bold text-blue-700">INFLACJA + MARŻA</span>
+                            </p>
+                        </div>
+                        <p>
+                            <strong className="text-slate-900">Marża</strong> to Twój gwarantowany zysk <strong>powyżej</strong> inflacji. Jeśli inflacja wyniesie 5%, a Twoja marża to 1.50% (jak w obligacji EDO), to zarobisz 6.50%. Dzięki temu Twoje pieniądze nie tylko nie tracą na wartości, ale realnie zarabiają.
+                        </p>
+                    </div>
+                </div>
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                    <h3 className="text-lg font-bold mb-6 text-center text-slate-700">Inflacja w Polsce (2018-2024)</h3>
+                    <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={INFLATION_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/>
+                                <XAxis dataKey="year" axisLine={false} tickLine={false} tickMargin={15} stroke="#64748b" fontSize={12}/>
+                                <YAxis axisLine={false} tickLine={false} tickMargin={10} stroke="#64748b" fontSize={12} unit="%"/>
+                                <RechartsTooltip 
+                                    contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'}}
+                                    formatter={(value) => [`${value}%`, 'Inflacja']}
+                                />
+                                <Line type="monotone" dataKey="value" stroke="#ef4444" strokeWidth={3} dot={{r: 4, fill: '#ef4444', strokeWidth: 2, stroke: '#fff'}} activeDot={{r: 6}}/>
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <p className="text-center text-xs text-slate-400 mt-4">Źródło: GUS (dane roczne / szacunkowe)</p>
+                </div>
+            </div>
+        </section>
+
       </main>
 
       {/* FOOTER */}
       <footer className="bg-slate-900 text-slate-400 py-16 mt-24">
         <div className="max-w-4xl mx-auto px-6 text-center space-y-8">
           
-          <div className="flex justify-center">
-            <a 
-              href="https://www.obligacjeskarbowe.pl/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/50"
-            >
-              Oficjalna strona Obligacji Skarbowych <ExternalLink size={16} />
-            </a>
-          </div>
-
-          <div className="h-px bg-slate-800 w-full max-w-xs mx-auto"></div>
-
           <div className="space-y-4">
             <div className="flex justify-center">
                <AlertTriangle className="text-yellow-500/80" size={24} />

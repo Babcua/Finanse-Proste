@@ -1,3 +1,4 @@
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, AreaChart, Area, LineChart, Line, PieChart, Pie, Cell
@@ -436,247 +437,81 @@ const FeatureCard = ({ title, subtitle, description, icon: Icon, color, onClick,
 // --- GŁÓWNY KOMPONENT ---
 
 export default function App() {
-  // --- STATE ---
-  const [currentView, setCurrentView] = useState('home'); 
-  
+  // 1. Używamy hooków z routera zamiast useState
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // 2. Efekt: Przewijaj do góry przy każdej zmianie podstrony
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [currentView]);
+  }, [location.pathname]);
 
-  // Data State
-  const [compoundPrincipal, setCompoundPrincipal] = useState(10000);
-  const [compoundYears, setCompoundYears] = useState(10);
-  const [compoundMonths, setCompoundMonths] = useState(0);
-  const [compoundRate, setCompoundRate] = useState(5);
-  const [compoundFreq, setCompoundFreq] = useState(12);
-
-  const [activeBondType, setActiveBondType] = useState('standard');
-  const [selectedBondId, setSelectedBondId] = useState('EDO');
-  const [bondAmount, setBondAmount] = useState(10000);
-  const [earlyExit, setEarlyExit] = useState(false);
-  const [exitMonth, setExitMonth] = useState(12);
-
-  // ETF Calculator State
-  const [etfAmount, setEtfAmount] = useState(10000);
-  const [etfStartYear, setEtfStartYear] = useState(2015);
-  const [selectedEtf, setSelectedEtf] = useState('sp500');
-
-  // SALARY STATE
-  const [salaryBrutto, setSalaryBrutto] = useState(8000);
-  const [contractType, setContractType] = useState('uop');
-  const [salaryParams, setSalaryParams] = useState({
-    under26: false,
-    ppk: true,
-    ppkRate: 2.0, // Domyślna stawka PPK
-    workWhereLive: true,
-    student: false
-  });
-  const [showYearlyDetails, setShowYearlyDetails] = useState(false);
-
-  // B2B STATE
-  const [b2bRateType, setB2bRateType] = useState('monthly'); 
-  const [b2bHourlyRate, setB2bHourlyRate] = useState(100);
-  const [b2bHours, setB2bHours] = useState(160);
-  const [b2bNetto, setB2bNetto] = useState(12000);
-  const [b2bTaxType, setB2bTaxType] = useState('liniowy'); 
-  const [b2bRyczaltRate, setB2bRyczaltRate] = useState(12);
-  const [b2bZusType, setB2bZusType] = useState('duzy'); 
-  const [b2bCosts, setB2bCosts] = useState(0);
-  const [b2bIpBox, setB2bIpBox] = useState(false);
-  const [b2bSickLeave, setB2bSickLeave] = useState(true);
-  const [b2bVat, setB2bVat] = useState(true);
-
-  // AI State
-  const [compoundAI, setCompoundAI] = useState({ text: "", loading: false });
-  const [bondAI, setBondAI] = useState({ text: "", loading: false });
-
-  useEffect(() => {
-    document.title = "Finanse Proste";
-  }, []);
-
-  // Reset exit month when bond changes
-  useEffect(() => {
-    const allBonds = [...STANDARD_BONDS, ...FAMILY_BONDS];
-    const bond = allBonds.find(b => b.id === selectedBondId);
-    if (bond) {
-      if (exitMonth > bond.durationMonths) {
-          setExitMonth(Math.floor(bond.durationMonths / 2));
-      }
-    }
-  }, [selectedBondId]);
-
-  // --- MEMOS ---
-  const salaryYearlyData = useMemo(() => calculateYearlySalary(salaryBrutto, contractType, salaryParams), [salaryBrutto, contractType, salaryParams]);
-  const currentMonthNetto = salaryYearlyData[0].netto;
-  
-  // Total yearly calculation for comparison
-  const yearlyTotals = useMemo(() => {
-      const totals = salaryYearlyData.reduce((acc, curr) => ({
-          netto: acc.netto + curr.netto,
-          gross: acc.gross + curr.gross,
-          tax: acc.tax + curr.tax,
-          zus: acc.zus + curr.zus,
-          ppk: acc.ppk + curr.ppk
-      }), { netto: 0, gross: 0, tax: 0, zus: 0, ppk: 0 });
-      return totals;
-  }, [salaryYearlyData]);
-
-  // B2B Memo
-  const b2bResult = useMemo(() => {
-      return calculateB2B({
-          rateType: b2bRateType,
-          hourlyRate: b2bHourlyRate,
-          hoursCount: b2bHours,
-          monthlyNet: b2bNetto,
-          costs: b2bCosts,
-          taxType: b2bTaxType,
-          zusType: b2bZusType,
-          sickLeave: b2bSickLeave,
-          ipBox: b2bIpBox,
-          ryczaltRate: b2bRyczaltRate,
-          isVatPayer: b2bVat
-      });
-  }, [b2bRateType, b2bHourlyRate, b2bHours, b2bNetto, b2bCosts, b2bTaxType, b2bZusType, b2bSickLeave, b2bIpBox, b2bRyczaltRate, b2bVat]);
-
-  const compoundData = useMemo(() => {
-    const data = [];
-    const totalMonths = (parseInt(compoundYears) || 0) * 12 + (parseInt(compoundMonths) || 0);
-    const r = (parseFloat(compoundRate) || 0) / 100;
-    const n = parseInt(compoundFreq);
-    const step = totalMonths > 60 ? 12 : (totalMonths > 24 ? 3 : 1);
-
-    for (let m = 0; m <= totalMonths; m += step) {
-      const t = m / 12;
-      const amount = compoundPrincipal * Math.pow(1 + r/n, n * t);
-      data.push({ 
-          name: `Msc ${m}`, 
-          year: (m/12).toFixed(1), 
-          kapital: compoundPrincipal, 
-          zysk: amount - compoundPrincipal, 
-          razem: amount 
-      });
-    }
-    return data;
-  }, [compoundPrincipal, compoundYears, compoundMonths, compoundRate, compoundFreq]);
-
-  const finalCompoundAmount = compoundData[compoundData.length - 1]?.razem || compoundPrincipal;
-  const totalCompoundProfit = finalCompoundAmount - compoundPrincipal;
-
-  const bondCalculation = useMemo(() => {
-    const allBonds = [...STANDARD_BONDS, ...FAMILY_BONDS];
-    const bond = allBonds.find(b => b.id === selectedBondId);
-    if (!bond) return null;
-
-    const units = Math.floor(bondAmount / 100);
-    const realInvested = units * 100;
-    let monthsDuration = bond.durationMonths;
-    if (earlyExit && exitMonth < bond.durationMonths && exitMonth > 0) monthsDuration = parseInt(exitMonth);
-    
-    const years = monthsDuration / 12;
-    let accumulatedInterest = 0;
-    
-    if (bond.capitalization === 'monthly_payout') accumulatedInterest = realInvested * (bond.rate/100) * years;
-    else if (bond.capitalization === 'yearly_payout' || bond.capitalization === 'end') accumulatedInterest = realInvested * (bond.rate/100) * years;
-    else if (bond.capitalization === 'compound_year') accumulatedInterest = (realInvested * Math.pow(1 + bond.rate/100, years)) - realInvested;
-
-    let profitGross = accumulatedInterest;
-    let fee = 0;
-    if (earlyExit && monthsDuration < bond.durationMonths) {
-        fee = units * bond.earlyExitFee;
-        profitGross = accumulatedInterest - fee;
-    }
-
-    const taxBase = Math.max(0, profitGross);
-    const tax = Number((taxBase * 0.19).toFixed(2));
-    const profitNet = profitGross - tax;
-    
-    return { invested: realInvested, gross: profitGross, tax: tax, net: profitNet, total: realInvested + profitNet, fee: fee, bondDetails: bond, isLoss: profitNet < 0, actualMonths: monthsDuration };
-  }, [bondAmount, selectedBondId, earlyExit, exitMonth]);
-
-  // Bond Growth Calculation for Chart (Capitalization effect)
-  const bondGrowthData = useMemo(() => {
-      if (!bondCalculation) return [];
-      const bond = bondCalculation.bondDetails;
-      const data = [];
-      const years = Math.ceil(bond.durationMonths / 12);
-      
-      // Simulate growth year by year
-      let currentVal = bondCalculation.invested;
-      const rate = bond.rate / 100;
-
-      for(let y = 0; y <= years; y++) {
-          data.push({
-              year: y,
-              value: Number(currentVal.toFixed(2)),
-              invested: bondCalculation.invested
-          });
+  // 3. Główny widok (Layout)
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200 flex flex-col">
+      {/* NAGŁÓWEK */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/90">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <Link to="/" className="flex items-center gap-2 cursor-pointer group">
+            <div className="bg-blue-600 p-2 rounded-lg text-white group-hover:bg-blue-700 transition-colors"><TrendingUp size={24} /></div>
+            <h1 className="text-xl font-bold tracking-tight">Finanse <span className="text-blue-600">Proste</span></h1>
+          </Link>
           
-          if (bond.capitalization === 'compound_year') {
-              currentVal = currentVal * (1 + rate);
-          } else {
-              // For payout bonds, we assume simple accumulation for visualization or just flat invested line + payouts
-              // But user asked to see "how compound interest grows", so let's visualize the value IF it were compounding (or the specific bond mechanism)
-              // For EDO/ROS/ROD/TOS it compounds. For others it's payouts.
-              // Let's show the payouts accumulating separately for non-compound bonds to simulate "total return"
-              currentVal += (bondCalculation.invested * rate); 
-          }
-      }
-      return data;
-  }, [bondCalculation]);
+          {/* Pokazuj przycisk MENU tylko jeśli NIE jesteśmy na stronie głównej */}
+          {location.pathname !== '/' && (
+             <Link to="/" className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors bg-slate-100 px-3 py-2 rounded-lg">
+                <ChevronLeft size={16}/> Menu
+             </Link>
+          )}
+        </div>
+      </header>
 
-  // ETF Calculator Logic
-  const etfCalculation = useMemo(() => {
-      const etf = ETF_DATA_MOCK[selectedEtf];
-      const data = [];
-      let currentValue = parseFloat(etfAmount) || 0;
-      
-      const years = Object.keys(etf.returns).filter(y => y >= etfStartYear);
-      
-      data.push({ year: etfStartYear - 1, value: etfAmount, invested: etfAmount, change: 0 }); // Initial
+      {/* TREŚĆ - TU DZIEJE SIĘ MAGIA ROUTINGU */}
+      <main className="max-w-6xl w-full mx-auto px-6 py-12 flex-grow">
+        <Routes>
+          <Route path="/" element={<HomeView />} />
+          <Route path="/wynagrodzenia" element={<SalaryView />} />
+          <Route path="/b2b" element={<B2BView />} />
+          <Route path="/obligacje" element={<BondsView />} />
+          <Route path="/procent-skladany" element={<CompoundView />} />
+          <Route path="/ppk" element={<PpkView />} />
+          <Route path="/ike-ikze" element={<IkeView />} />
+          <Route path="/gielda" element={<StocksView />} />
+        </Routes>
+      </main>
 
-      years.forEach(year => {
-          const changePercent = etf.returns[year];
-          const changeAmount = currentValue * (changePercent / 100);
-          currentValue += changeAmount;
-          data.push({
-              year: year,
-              value: Number(currentValue.toFixed(2)),
-              invested: etfAmount,
-              change: changePercent
-          });
-      });
+      {/* STOPKA (Bez zmian) */}
+{/* STOPKA Z ZABEZPIECZENIEM I BEZ LINKÓW KONTAKTOWYCH */}
+      <footer className="bg-slate-900 text-slate-400 py-12 mt-auto">
+        <div className="max-w-4xl mx-auto px-6 text-center space-y-6">
+          <div className="flex justify-center"><AlertTriangle className="text-yellow-500/80" size={24} /></div>
+          
+          <div className="text-sm leading-relaxed text-slate-500 max-w-2xl mx-auto space-y-4 text-justify">
+            <p className="font-bold text-slate-400">
+              Uwaga: Treści prezentowane w serwisie nie stanowią rekomendacji inwestycyjnych ani porad finansowych, prawnych czy podatkowych.
+            </p>
+            <p>
+              Niniejszy serwis ma charakter wyłącznie edukacyjny i informacyjny. Przedstawione kalkulacje oraz symulacje są jedynie szacunkowe i zależą od wielu zmiennych rynkowych oraz indywidualnej sytuacji użytkownika.
+            </p>
+            <p>
+              Autorzy serwisu dokładają wszelkich starań, aby prezentowane dane były aktualne i rzetelne, jednak nie ponoszą odpowiedzialności za ewentualne błędy, nieścisłości lub decyzje finansowe podjęte na podstawie tych informacji.
+            </p>
+            <p>
+              Rzeczywiste obciążenia podatkowe i składkowe mogą różnić się w zależności od interpretacji przepisów. Przed podjęciem jakichkolwiek decyzji finansowych zalecamy konsultację z wykwalifikowanym doradcą.
+            </p>
+          </div>
 
-      const totalProfit = currentValue - etfAmount;
-      const totalPercent = ((totalProfit / etfAmount) * 100).toFixed(2);
-
-      return { data, totalProfit, totalPercent, finalValue: currentValue, etfDetails: etf };
-  }, [etfAmount, etfStartYear, selectedEtf]);
-
-
-  // --- AI HANDLERS ---
-  const handleCompoundAI = async () => {
-    if (compoundAI.loading) return;
-    setCompoundAI({ text: "", loading: true });
-    try {
-      const prompt = `Jesteś zabawnym i motywującym asystentem finansowym. Użytkownik oszczędzał przez ${compoundYears} lat i ${compoundMonths} miesięcy. Wpłacił: ${compoundPrincipal} PLN. Zarobił na czysto: ${totalCompoundProfit.toFixed(2)} PLN. Napisz kreatywne porównanie, co można kupić za ten zysk.`;
-      const result = await model.generateContent(prompt);
-      setCompoundAI({ text: result.response.text(), loading: false });
-    } catch (error) { setCompoundAI({ text: "Błąd AI.", loading: false }); }
-  };
-
-  const handleBondAI = async () => {
-    if (bondAI.loading) return;
-    setBondAI({ text: "", loading: true });
-    try {
-      const prompt = `Jesteś ekspertem od obligacji. Wybrano obligację: ${selectedBondId}. Kwota: ${bondAmount} PLN. Zysk netto: ${bondCalculation.net.toFixed(2)} PLN. Oceń krótko ten wybór.`;
-      const result = await model.generateContent(prompt);
-      setBondAI({ text: result.response.text(), loading: false });
-    } catch (error) { setBondAI({ text: "Błąd połączenia.", loading: false }); }
-  };
-
-  // --- VIEWS ---
-
-  const renderHome = () => (
+          <div className="pt-8 border-t border-slate-800/50 flex flex-col justify-center items-center gap-2 text-xs text-slate-600">
+             <p>&copy; 2025 Finanse Proste. Wszelkie prawa zastrzeżone.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+const HomeView = () => {
+  const navigate = useNavigate();
+  return (
       <div className="flex flex-col items-center justify-center animate-in fade-in zoom-in duration-500 pb-12">
           <div className="text-center mb-16 max-w-2xl mt-12">
               <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight">
@@ -688,7 +523,6 @@ export default function App() {
           </div>
 
           <div className="w-full max-w-6xl space-y-16">
-            
               {/* SEKCJA NARZĘDZIA */}
               <section>
                   <div className="flex items-center gap-3 mb-8 px-2">
@@ -702,7 +536,7 @@ export default function App() {
                         description="Sprawdź ile realnie zarobisz na umowie o pracę, zleceniu i dziele. Oblicz podatki, ZUS i wpływ PPK na Twoją wypłatę."
                         icon={Wallet}
                         color="green"
-                        onClick={() => setCurrentView('salary')}
+                        onClick={() => navigate('/wynagrodzenia')}
                         badge="Dla każdego"
                       />
                       <FeatureCard 
@@ -711,7 +545,7 @@ export default function App() {
                         description="Symulacja faktury, podatków (liniowy, ryczałt, skala) oraz ZUS (ulga na start, mały ZUS). Pokaże czysty zysk i VAT."
                         icon={Briefcase}
                         color="teal"
-                        onClick={() => setCurrentView('b2b')}
+                        onClick={() => navigate('/b2b')}
                         badge="Nowość"
                       />
                       <FeatureCard 
@@ -720,7 +554,7 @@ export default function App() {
                         description="Oblicz potencjalny zysk z obligacji indeksowanych inflacją (EDO, COI) oraz standardowych. Porównaj oferty."
                         icon={ShieldCheck}
                         color="blue"
-                        onClick={() => setCurrentView('bonds')}
+                        onClick={() => navigate('/obligacje')}
                       />
                       <FeatureCard 
                         title="Kalkulator procenta składanego"
@@ -728,7 +562,7 @@ export default function App() {
                         description="Zobacz jak czas działa na Twoją korzyść. Oblicz ile zgromadzisz odkładając małe kwoty regularnie."
                         icon={TrendingUp}
                         color="purple"
-                        onClick={() => setCurrentView('compound')}
+                        onClick={() => navigate('/procent-skladany')}
                       />
                   </div>
               </section>
@@ -746,7 +580,7 @@ export default function App() {
                         description="Czym są akcje i ETF? Jak działa giełda i czy trzeba być milionerem, żeby zacząć? Praktyczny przewodnik."
                         icon={Activity}
                         color="rose"
-                        onClick={() => setCurrentView('stocks')}
+                        onClick={() => navigate('/gielda')}
                         badge="Nowe"
                       />
                       <FeatureCard 
@@ -755,7 +589,7 @@ export default function App() {
                         description="Czy to się opłaca? Kiedy można wypłacić? Dowiedz się, jak zyskać 1,5% ekstra pensji od pracodawcy."
                         icon={PiggyBank}
                         color="orange"
-                        onClick={() => setCurrentView('ppk')}
+                        onClick={() => navigate('/ppk')}
                       />
                       <FeatureCard 
                         title="IKE oraz IKZE"
@@ -763,16 +597,43 @@ export default function App() {
                         description="Jak legalnie nie płacić podatku od zysków? Dowiedz się jak odzyskać podatek PIT co roku dzięki IKZE."
                         icon={Umbrella}
                         color="pink"
-                        onClick={() => setCurrentView('ike')}
+                        onClick={() => navigate('/ike-ikze')}
                       />
                   </div>
               </section>
-
           </div>
       </div>
   );
+};
+const SalaryView = () => {
+  // --- ZMIENNE ---
+  const [salaryBrutto, setSalaryBrutto] = useState(8000);
+  const [contractType, setContractType] = useState('uop');
+  const [salaryParams, setSalaryParams] = useState({
+    under26: false,
+    ppk: true,
+    ppkRate: 2.0, 
+    workWhereLive: true,
+    student: false
+  });
+  const [showYearlyDetails, setShowYearlyDetails] = useState(false);
 
-  const renderSalaryView = () => (
+  // OBLICZENIA
+  const salaryYearlyData = useMemo(() => calculateYearlySalary(salaryBrutto, contractType, salaryParams), [salaryBrutto, contractType, salaryParams]);
+  const currentMonthNetto = salaryYearlyData[0].netto;
+  
+  const yearlyTotals = useMemo(() => {
+      const totals = salaryYearlyData.reduce((acc, curr) => ({
+          netto: acc.netto + curr.netto,
+          gross: acc.gross + curr.gross,
+          tax: acc.tax + curr.tax,
+          zus: acc.zus + curr.zus,
+          ppk: acc.ppk + curr.ppk
+      }), { netto: 0, gross: 0, tax: 0, zus: 0, ppk: 0 });
+      return totals;
+  }, [salaryYearlyData]);
+
+  return (
     <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto">
         <div className="mb-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
@@ -814,25 +675,6 @@ export default function App() {
                         )}
                     </div>
                 </div>
-
-                {/* Poradnik o umowach */}
-                <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-200">
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><BookOpen size={20} className="text-slate-600"/> Przewodnik po umowach</h3>
-                    <div className="space-y-4 text-sm text-slate-600">
-                        <div className="p-3 bg-white rounded-xl border border-slate-100">
-                            <span className="font-bold text-green-700 block mb-1">Umowa o pracę (UoP)</span>
-                            Stabilność, płatny urlop, chorobowe, liczy się do emerytury. Najwyższe koszty dla pracodawcy, więc netto często niższe.
-                        </div>
-                        <div className="p-3 bg-white rounded-xl border border-slate-100">
-                            <span className="font-bold text-blue-700 block mb-1">Umowa zlecenie (UZ)</span>
-                            Elastyczność. Płatne składki ZUS (emerytura), ale urlop tylko jeśli wynegocjujesz. Dla studenta do 26 r.ż. brutto = netto (brak podatku i ZUS).
-                        </div>
-                        <div className="p-3 bg-white rounded-xl border border-slate-100">
-                            <span className="font-bold text-purple-700 block mb-1">Umowa o dzieło (UoD)</span>
-                            Tylko podatek (często niższy przez 50% KUP). Brak składek ZUS = brak ubezpieczenia zdrowotnego i emerytury. Dla "wolnych strzelców" za konkretny efekt.
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {/* PRAWA KOLUMNA */}
@@ -855,10 +697,6 @@ export default function App() {
                         <div>
                             <div className="text-sm text-green-800 font-bold mb-1">Miesięcznie na rękę (Styczeń)</div>
                             <div className="text-4xl font-black text-green-700">{formatMoney(currentMonthNetto)}</div>
-                        </div>
-                        <div className="text-right hidden sm:block">
-                            <span className="block text-xs text-green-800/70">Rocznie na rękę:</span>
-                            <span className="font-bold text-green-800 text-lg">{formatMoney(yearlyTotals.netto)}</span>
                         </div>
                     </div>
 
@@ -892,48 +730,48 @@ export default function App() {
                                             </tr>
                                         ))}
                                     </tbody>
-                                    {/* SUMA KOŃCOWA */}
-                                    <tfoot className="bg-slate-100 font-bold text-slate-900 border-t-2 border-slate-200">
-                                        <tr>
-                                            <td className="px-4 py-3">SUMA</td>
-                                            <td className="px-4 py-3 text-green-700">{formatMoney(yearlyTotals.netto)}</td>
-                                            <td className="px-4 py-3">{formatMoney(yearlyTotals.tax)}</td>
-                                            <td className="px-4 py-3">{formatMoney(yearlyTotals.zus)}</td>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                         )}
-                    </div>
-                </div>
-
-                {/* NOWOŚĆ: PORÓWNANIE UMÓW */}
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Scale size={20} className="text-purple-500"/> Porównanie roczne</h3>
-                    <p className="text-xs text-slate-500 mb-4">Ile zarobiłbyś w rok "na rękę" przy tej samej kwocie brutto ({formatMoney(salaryBrutto)}) na innych umowach?</p>
-                    
-                    <div className="grid sm:grid-cols-3 gap-4">
-                        {[
-                            { type: 'uop', label: 'Umowa o pracę', val: getYearlyNetTotal(salaryBrutto, 'uop', salaryParams) },
-                            { type: 'uz', label: 'Umowa zlecenie', val: getYearlyNetTotal(salaryBrutto, 'uz', salaryParams) },
-                            { type: 'uod', label: 'Umowa o dzieło', val: getYearlyNetTotal(salaryBrutto, 'uod', salaryParams) }
-                        ].map(item => (
-                            <div key={item.type} className={`p-4 rounded-xl border ${contractType === item.type ? 'bg-green-50 border-green-200 ring-1 ring-green-200' : 'bg-slate-50 border-slate-100'}`}>
-                                <div className="text-xs text-slate-500 font-bold uppercase mb-1">{item.label}</div>
-                                <div className={`text-lg font-black ${contractType === item.type ? 'text-green-700' : 'text-slate-700'}`}>
-                                    {formatMoney(item.val)}
-                                </div>
-                                <div className="text-[10px] text-slate-400 mt-1">rocznie netto</div>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>
         </div>
     </div>
   );
+};
+const B2BView = () => {
+  // --- ZMIENNE ---
+  const [b2bRateType, setB2bRateType] = useState('monthly'); 
+  const [b2bHourlyRate, setB2bHourlyRate] = useState(100);
+  const [b2bHours, setB2bHours] = useState(160);
+  const [b2bNetto, setB2bNetto] = useState(12000);
+  const [b2bTaxType, setB2bTaxType] = useState('liniowy'); 
+  const [b2bRyczaltRate, setB2bRyczaltRate] = useState(12);
+  const [b2bZusType, setB2bZusType] = useState('duzy'); 
+  const [b2bCosts, setB2bCosts] = useState(0);
+  const [b2bIpBox, setB2bIpBox] = useState(false);
+  const [b2bSickLeave, setB2bSickLeave] = useState(true);
+  const [b2bVat, setB2bVat] = useState(true);
 
-  const renderB2BView = () => (
+  // OBLICZENIA
+  const b2bResult = useMemo(() => {
+      return calculateB2B({
+          rateType: b2bRateType,
+          hourlyRate: b2bHourlyRate,
+          hoursCount: b2bHours,
+          monthlyNet: b2bNetto,
+          costs: b2bCosts,
+          taxType: b2bTaxType,
+          zusType: b2bZusType,
+          sickLeave: b2bSickLeave,
+          ipBox: b2bIpBox,
+          ryczaltRate: b2bRyczaltRate,
+          isVatPayer: b2bVat
+      });
+  }, [b2bRateType, b2bHourlyRate, b2bHours, b2bNetto, b2bCosts, b2bTaxType, b2bZusType, b2bSickLeave, b2bIpBox, b2bRyczaltRate, b2bVat]);
+
+  return (
     <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto">
         <div className="mb-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
@@ -949,7 +787,6 @@ export default function App() {
             {/* LEFT INPUTS */}
             <div className="lg:col-span-5 space-y-6">
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-6">
-                    {/* Rate Type Selector */}
                     <div className="flex bg-slate-50 p-1 rounded-xl">
                         <button onClick={() => setB2bRateType('monthly')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${b2bRateType === 'monthly' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}>Miesięcznie</button>
                         <button onClick={() => setB2bRateType('hourly')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${b2bRateType === 'hourly' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}>Godzinowo</button>
@@ -1062,18 +899,11 @@ export default function App() {
                         </div>
                     </div>
 
-                    {b2bVat && (
-                        <div className="mb-8 p-4 bg-blue-50 rounded-xl border border-blue-100 flex justify-between items-center text-sm">
-                            <span className="text-blue-900 font-medium">Kwota na fakturze (Brutto z VAT):</span>
-                            <span className="font-bold text-blue-700 text-lg">{formatMoney(b2bResult.grossInvoice)}</span>
-                        </div>
-                    )}
-
                     <div className="h-64 mb-6">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={[
                                 { name: 'Przychód', value: b2bResult.revenue, fill: '#cbd5e1' },
-                                { name: 'Netto', value: Math.max(0, b2bResult.netIncome), fill: '#0d9488' }, // Teal-600, limit to 0 for chart visuals
+                                { name: 'Netto', value: Math.max(0, b2bResult.netIncome), fill: '#0d9488' },
                                 { name: 'Podatek', value: b2bResult.incomeTax, fill: '#f87171' },
                                 { name: 'ZUS', value: b2bResult.totalZus, fill: '#fb923c' },
                             ]} margin={{top: 20, right: 30, left: 20, bottom: 5}}>
@@ -1090,46 +920,99 @@ export default function App() {
                         </ResponsiveContainer>
                     </div>
                 </div>
-
-                <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-200">
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Building2 className="text-teal-600" size={20}/> Porady dla przedsiębiorcy</h3>
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <h4 className="font-bold text-sm text-slate-800 mb-2">Co ustalić z kontrahentem?</h4>
-                            <ul className="text-sm text-slate-600 space-y-2 list-disc list-inside">
-                                <li>Płatne dni wolne od świadczenia usług (np. 20-26 dni - odpowiednik urlopu).</li>
-                                <li>Okres wypowiedzenia umowy (B2B można zerwać z dnia na dzień, jeśli nie ustalono inaczej).</li>
-                                <li>Sprzęt służbowy (laptop, telefon) lub zwrot kosztów.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-sm text-slate-800 mb-2">Twoja emerytura</h4>
-                            <p className="text-sm text-slate-600 mb-2">
-                                Na B2B (zwłaszcza przy małym ZUS i ryczałcie) odkładasz minimalne składki. Twoja emerytura z ZUS będzie głodowa. Musisz odkładać samodzielnie.
-                            </p>
-                            <button onClick={() => setCurrentView('ike')} className="text-teal-600 font-bold text-sm hover:underline flex items-center gap-1">
-                                Sprawdź IKE / IKZE <ArrowRight size={14}/>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-3xl border border-slate-100 flex items-center justify-between shadow-sm cursor-pointer hover:border-blue-300 transition-colors group" onClick={() => setCurrentView('salary')}>
-                    <div className="flex items-center gap-4">
-                        <div className="bg-blue-50 p-3 rounded-xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors"><Scale size={24}/></div>
-                        <div>
-                            <h4 className="font-bold text-slate-900">B2B czy umowa o pracę?</h4>
-                            <p className="text-xs text-slate-500">Porównaj wynik z etatem w Kalkulatorze Wynagrodzeń.</p>
-                        </div>
-                    </div>
-                    <ChevronLeft className="rotate-180 text-slate-300 group-hover:text-blue-600 transition-colors"/>
-                </div>
             </div>
         </div>
     </div>
   );
+};
+const BondsView = () => {
+  // --- ZMIENNE ---
+  const [activeBondType, setActiveBondType] = useState('standard');
+  const [selectedBondId, setSelectedBondId] = useState('EDO');
+  const [bondAmount, setBondAmount] = useState(10000);
+  const [earlyExit, setEarlyExit] = useState(false);
+  const [exitMonth, setExitMonth] = useState(12);
+  const [bondAI, setBondAI] = useState({ text: "", loading: false });
 
-  const renderBondsView = () => (
+  // Reset exit month when bond changes
+  useEffect(() => {
+    const allBonds = [...STANDARD_BONDS, ...FAMILY_BONDS];
+    const bond = allBonds.find(b => b.id === selectedBondId);
+    if (bond) {
+      if (exitMonth > bond.durationMonths) {
+          setExitMonth(Math.floor(bond.durationMonths / 2));
+      }
+    }
+  }, [selectedBondId]);
+
+  // OBLICZENIA
+  const bondCalculation = useMemo(() => {
+    const allBonds = [...STANDARD_BONDS, ...FAMILY_BONDS];
+    const bond = allBonds.find(b => b.id === selectedBondId);
+    if (!bond) return null;
+
+    const units = Math.floor(bondAmount / 100);
+    const realInvested = units * 100;
+    let monthsDuration = bond.durationMonths;
+    if (earlyExit && exitMonth < bond.durationMonths && exitMonth > 0) monthsDuration = parseInt(exitMonth);
+    
+    const years = monthsDuration / 12;
+    let accumulatedInterest = 0;
+    
+    if (bond.capitalization === 'monthly_payout') accumulatedInterest = realInvested * (bond.rate/100) * years;
+    else if (bond.capitalization === 'yearly_payout' || bond.capitalization === 'end') accumulatedInterest = realInvested * (bond.rate/100) * years;
+    else if (bond.capitalization === 'compound_year') accumulatedInterest = (realInvested * Math.pow(1 + bond.rate/100, years)) - realInvested;
+
+    let profitGross = accumulatedInterest;
+    let fee = 0;
+    if (earlyExit && monthsDuration < bond.durationMonths) {
+        fee = units * bond.earlyExitFee;
+        profitGross = accumulatedInterest - fee;
+    }
+
+    const taxBase = Math.max(0, profitGross);
+    const tax = Number((taxBase * 0.19).toFixed(2));
+    const profitNet = profitGross - tax;
+    
+    return { invested: realInvested, gross: profitGross, tax: tax, net: profitNet, total: realInvested + profitNet, fee: fee, bondDetails: bond, isLoss: profitNet < 0, actualMonths: monthsDuration };
+  }, [bondAmount, selectedBondId, earlyExit, exitMonth]);
+
+  const bondGrowthData = useMemo(() => {
+      if (!bondCalculation) return [];
+      const bond = bondCalculation.bondDetails;
+      const data = [];
+      const years = Math.ceil(bond.durationMonths / 12);
+      
+      let currentVal = bondCalculation.invested;
+      const rate = bond.rate / 100;
+
+      for(let y = 0; y <= years; y++) {
+          data.push({
+              year: y,
+              value: Number(currentVal.toFixed(2)),
+              invested: bondCalculation.invested
+          });
+          
+          if (bond.capitalization === 'compound_year') {
+              currentVal = currentVal * (1 + rate);
+          } else {
+              currentVal += (bondCalculation.invested * rate); 
+          }
+      }
+      return data;
+  }, [bondCalculation]);
+
+  const handleBondAI = async () => {
+    if (bondAI.loading) return;
+    setBondAI({ text: "", loading: true });
+    try {
+      const prompt = `Jesteś ekspertem od obligacji. Wybrano obligację: ${selectedBondId}. Kwota: ${bondAmount} PLN. Zysk netto: ${bondCalculation.net.toFixed(2)} PLN. Oceń krótko ten wybór.`;
+      const result = await model.generateContent(prompt);
+      setBondAI({ text: result.response.text(), loading: false });
+    } catch (error) { setBondAI({ text: "Błąd połączenia.", loading: false }); }
+  };
+
+  return (
     <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
         <div className="mb-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
@@ -1160,7 +1043,7 @@ export default function App() {
                 </div>
                 <div className="flex-grow">
                   <p className="text-xs text-slate-500 leading-relaxed mb-4">{bond.desc}</p>
-                
+                  
                   <div className="space-y-2 mb-4">
                       <div className="text-[10px] uppercase font-bold text-slate-400 mb-1">Jak działa zysk?</div>
                       <div className="text-xs bg-slate-50 p-2 rounded border border-slate-100 text-slate-700 font-medium">
@@ -1225,7 +1108,6 @@ export default function App() {
                                 </div>
                             </div>
 
-                            {/* Wykres wyników */}
                             <div className="h-32 w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={[
@@ -1241,7 +1123,6 @@ export default function App() {
                                 </ResponsiveContainer>
                             </div>
 
-                            {/* Wykres wzrostu w czasie */}
                             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                 <div className="text-xs font-bold text-slate-400 uppercase mb-2 text-left">Wzrost w czasie (Kapitalizacja)</div>
                                 <div className="h-32 w-full">
@@ -1284,7 +1165,6 @@ export default function App() {
             </div>
         </div>
 
-        {/* INFLACJA - Nowy Opis */}
         <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white overflow-hidden relative">
             <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
                 <div>
@@ -1324,8 +1204,52 @@ export default function App() {
         </div>
     </div>
   );
+};
+const CompoundView = () => {
+  // --- ZMIENNE ---
+  const [compoundPrincipal, setCompoundPrincipal] = useState(10000);
+  const [compoundYears, setCompoundYears] = useState(10);
+  const [compoundMonths, setCompoundMonths] = useState(0);
+  const [compoundRate, setCompoundRate] = useState(5);
+  const [compoundFreq, setCompoundFreq] = useState(12);
+  const [compoundAI, setCompoundAI] = useState({ text: "", loading: false });
 
-  const renderCompoundView = () => (
+  // OBLICZENIA
+  const compoundData = useMemo(() => {
+    const data = [];
+    const totalMonths = (parseInt(compoundYears) || 0) * 12 + (parseInt(compoundMonths) || 0);
+    const r = (parseFloat(compoundRate) || 0) / 100;
+    const n = parseInt(compoundFreq);
+    const step = totalMonths > 60 ? 12 : (totalMonths > 24 ? 3 : 1);
+
+    for (let m = 0; m <= totalMonths; m += step) {
+      const t = m / 12;
+      const amount = compoundPrincipal * Math.pow(1 + r/n, n * t);
+      data.push({ 
+          name: `Msc ${m}`, 
+          year: (m/12).toFixed(1), 
+          kapital: compoundPrincipal, 
+          zysk: amount - compoundPrincipal, 
+          razem: amount 
+      });
+    }
+    return data;
+  }, [compoundPrincipal, compoundYears, compoundMonths, compoundRate, compoundFreq]);
+
+  const finalCompoundAmount = compoundData[compoundData.length - 1]?.razem || compoundPrincipal;
+  const totalCompoundProfit = finalCompoundAmount - compoundPrincipal;
+
+  const handleCompoundAI = async () => {
+    if (compoundAI.loading) return;
+    setCompoundAI({ text: "", loading: true });
+    try {
+      const prompt = `Jesteś zabawnym i motywującym asystentem finansowym. Użytkownik oszczędzał przez ${compoundYears} lat i ${compoundMonths} miesięcy. Wpłacił: ${compoundPrincipal} PLN. Zarobił na czysto: ${totalCompoundProfit.toFixed(2)} PLN. Napisz kreatywne porównanie, co można kupić za ten zysk.`;
+      const result = await model.generateContent(prompt);
+      setCompoundAI({ text: result.response.text(), loading: false });
+    } catch (error) { setCompoundAI({ text: "Błąd AI.", loading: false }); }
+  };
+
+  return (
     <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto">
         <div className="mb-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Kalkulator Procentu Składanego</h2>
@@ -1395,8 +1319,42 @@ export default function App() {
         </div>
     </div>
   );
+};
+const StocksView = () => {
+  // --- ZMIENNE ---
+  const [etfAmount, setEtfAmount] = useState(10000);
+  const [etfStartYear, setEtfStartYear] = useState(2015);
+  const [selectedEtf, setSelectedEtf] = useState('sp500');
 
-  const renderStocksView = () => (
+  // OBLICZENIA
+  const etfCalculation = useMemo(() => {
+      const etf = ETF_DATA_MOCK[selectedEtf];
+      const data = [];
+      let currentValue = parseFloat(etfAmount) || 0;
+      
+      const years = Object.keys(etf.returns).filter(y => y >= etfStartYear);
+      
+      data.push({ year: etfStartYear - 1, value: etfAmount, invested: etfAmount, change: 0 }); // Initial
+
+      years.forEach(year => {
+          const changePercent = etf.returns[year];
+          const changeAmount = currentValue * (changePercent / 100);
+          currentValue += changeAmount;
+          data.push({
+              year: year,
+              value: Number(currentValue.toFixed(2)),
+              invested: etfAmount,
+              change: changePercent
+          });
+      });
+
+      const totalProfit = currentValue - etfAmount;
+      const totalPercent = ((totalProfit / etfAmount) * 100).toFixed(2);
+
+      return { data, totalProfit, totalPercent, finalValue: currentValue, etfDetails: etf };
+  }, [etfAmount, etfStartYear, selectedEtf]);
+
+  return (
     <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-12">
         <div className="mb-12 text-center">
             <h2 className="text-3xl md:text-5xl font-black mb-6 text-slate-900">Akcje i ETF</h2>
@@ -1741,10 +1699,9 @@ export default function App() {
         </div>
     </div>
   );
-
-  const renderPPKView = () => (
+};
+const PpkView = () => (
     <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
-        {/* HERO SECTION */}
         <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
                <PiggyBank size={14}/> Darmowa kasa od szefa?
@@ -1827,7 +1784,7 @@ export default function App() {
             </div>
         </div>
 
-        {/* ZARZĄDZANIE PPK (NOWE) */}
+        {/* ZARZĄDZANIE PPK */}
         <div className="mb-16">
             <h3 className="text-2xl font-bold mb-8 text-center flex items-center justify-center gap-2"><Briefcase className="text-slate-700"/> Zarządzanie Twoim PPK</h3>
             <div className="grid md:grid-cols-2 gap-8">
@@ -1955,9 +1912,9 @@ export default function App() {
             <p className="text-[10px] mt-4 opacity-60">*Szacunkowy zysk uwzględniający dopłaty pracodawcy (po potrąceniu zwrotu do ZUS i podatku) w porównaniu do wpłaty własnej.</p>
         </div>
     </div>
-  );
+);
 
-  const renderIKEView = () => (
+const IkeView = () => (
     <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
         {/* HERO SECTION */}
         <div className="text-center mb-16">
@@ -2083,8 +2040,8 @@ export default function App() {
                     </div>
                 </div>
                 <div className="bg-white/5 p-8 rounded-3xl border border-white/10 hidden md:block">
-                     {/* Prosta wizualizacja "Pudełka" */}
-                     <div className="flex flex-col items-center">
+                      {/* Prosta wizualizacja "Pudełka" */}
+                      <div className="flex flex-col items-center">
                         <div className="w-48 h-48 border-4 border-dashed border-white/30 rounded-3xl flex items-center justify-center mb-4 relative">
                             <span className="absolute -top-4 bg-slate-900 px-4 text-sm font-bold text-yellow-400 border border-yellow-400 rounded-full">Twoje IKE</span>
                             <div className="grid grid-cols-2 gap-2 p-4">
@@ -2097,7 +2054,7 @@ export default function App() {
                         <p className="text-center text-sm text-slate-400">
                             Wkładasz aktywa do środka.<br/>Urząd Skarbowy nie może tam zajrzeć (dopóki nie wypłacisz).
                         </p>
-                     </div>
+                      </div>
                 </div>
              </div>
         </div>
@@ -2137,7 +2094,7 @@ export default function App() {
                     Porównanie inwestycji 1000 zł miesięcznie przez 20 lat (7% zysku). Na zwykłym koncie podatek "zjada" część zysku przy każdej sprzedaży/dywidendzie lub na końcu.
                 </p>
                 <div className="h-64 w-full">
-                     <ResponsiveContainer width="100%" height="100%">
+                      <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={[
                             { year: 0, zw: 0, ike: 0 },
                             { year: 5, zw: 71000, ike: 73000 },
@@ -2157,7 +2114,7 @@ export default function App() {
                             <Area type="monotone" dataKey="zw" name="Zwykłe konto" stroke="#94a3b8" fill="#f1f5f9" strokeWidth={2}/>
                             <Area type="monotone" dataKey="ike" name="Konto IKE" stroke="#2563eb" fill="url(#colorIke)" strokeWidth={3}/>
                         </AreaChart>
-                     </ResponsiveContainer>
+                      </ResponsiveContainer>
                 </div>
                 <div className="text-center mt-4 font-bold text-blue-700 text-sm">
                     IKE wygrywa ok. 60 000 zł więcej "na rękę"!
@@ -2296,60 +2253,12 @@ export default function App() {
 
         {/* PRZEKIEROWANIE */}
         <div className="flex justify-center mt-12 gap-4">
-             <button onClick={() => setCurrentView('bonds')} className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
+             <button onClick={() => navigate('/obligacje')} className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
                 <ShieldCheck size={20}/> Zobacz Obligacje
              </button>
-             <button onClick={() => setCurrentView('stocks')} className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
+             <button onClick={() => navigate('/gielda')} className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
                 <Activity size={20}/> Zobacz Akcje
              </button>
         </div>
     </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200 flex flex-col">
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/90">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setCurrentView('home')}>
-            <div className="bg-blue-600 p-2 rounded-lg text-white group-hover:bg-blue-700 transition-colors"><TrendingUp size={24} /></div>
-            <h1 className="text-xl font-bold tracking-tight">Finanse <span className="text-blue-600">Proste</span></h1>
-          </div>
-          {currentView !== 'home' && (
-             <button onClick={() => setCurrentView('home')} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors bg-slate-100 px-3 py-2 rounded-lg">
-                <ChevronLeft size={16}/> Menu
-             </button>
-          )}
-        </div>
-      </header>
-
-      <main className="max-w-6xl w-full mx-auto px-6 py-12 flex-grow">
-          {currentView === 'home' && renderHome()}
-          {currentView === 'salary' && renderSalaryView()}
-          {currentView === 'b2b' && renderB2BView()}
-          {currentView === 'bonds' && renderBondsView()}
-          {currentView === 'compound' && renderCompoundView()}
-          {currentView === 'ppk' && renderPPKView()}
-          {currentView === 'ike' && renderIKEView()}
-          {currentView === 'stocks' && renderStocksView()}
-      </main>
-
-      <footer className="bg-slate-900 text-slate-400 py-12 mt-auto">
-        <div className="max-w-4xl mx-auto px-6 text-center space-y-6">
-          <div className="flex justify-center"><AlertTriangle className="text-yellow-500/80" size={24} /></div>
-          <div className="text-sm leading-relaxed text-slate-500 max-w-2xl mx-auto space-y-4">
-            <p>
-              <strong>Zastrzeżenie prawne:</strong> Niniejszy serwis ma charakter wyłącznie edukacyjny i informacyjny. Przedstawione treści, kalkulacje oraz symulacje nie stanowią porady inwestycyjnej, podatkowej ani prawnej w rozumieniu przepisów prawa.
-            </p>
-            <p>
-              Autorzy serwisu dokładają wszelkich starań, aby prezentowane dane były aktualne i rzetelne, jednak nie ponoszą odpowiedzialności za ewentualne błędy, nieścisłości lub decyzje finansowe podjęte na podstawie tych informacji. Wyniki historyczne nie gwarantują osiągnięcia podobnych zysków w przyszłości.
-            </p>
-            <p>
-              Rzeczywiste obciążenia podatkowe i składkowe mogą różnić się w zależności od indywidualnej sytuacji podatnika. Przed podjęciem jakichkolwiek decyzji finansowych zalecamy konsultację z wykwalifikowanym doradcą finansowym, doradcą podatkowym lub księgowym.
-            </p>
-          </div>
-          <p className="text-xs text-slate-600 pt-4 border-t border-slate-800/50">&copy; 2025 Finanse Proste. Wszelkie prawa zastrzeżone.</p>
-        </div>
-      </footer>
-    </div>
-  );
-}
+);

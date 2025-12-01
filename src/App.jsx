@@ -481,13 +481,29 @@ export default function App() {
       </main>
 
       {/* STOPKA (Bez zmian) */}
+{/* STOPKA Z ZABEZPIECZENIEM I BEZ LINKÓW KONTAKTOWYCH */}
       <footer className="bg-slate-900 text-slate-400 py-12 mt-auto">
         <div className="max-w-4xl mx-auto px-6 text-center space-y-6">
           <div className="flex justify-center"><AlertTriangle className="text-yellow-500/80" size={24} /></div>
-          <div className="text-sm leading-relaxed text-slate-500 max-w-2xl mx-auto space-y-4">
-            <p><strong>Zastrzeżenie prawne:</strong> Niniejszy serwis ma charakter wyłącznie edukacyjny...</p>
+          
+          <div className="text-sm leading-relaxed text-slate-500 max-w-2xl mx-auto space-y-4 text-justify">
+            <p className="font-bold text-slate-400">
+              Uwaga: Treści prezentowane w serwisie nie stanowią rekomendacji inwestycyjnych ani porad finansowych, prawnych czy podatkowych.
+            </p>
+            <p>
+              Niniejszy serwis ma charakter wyłącznie edukacyjny i informacyjny. Przedstawione kalkulacje oraz symulacje są jedynie szacunkowe i zależą od wielu zmiennych rynkowych oraz indywidualnej sytuacji użytkownika.
+            </p>
+            <p>
+              Autorzy serwisu dokładają wszelkich starań, aby prezentowane dane były aktualne i rzetelne, jednak nie ponoszą odpowiedzialności za ewentualne błędy, nieścisłości lub decyzje finansowe podjęte na podstawie tych informacji.
+            </p>
+            <p>
+              Rzeczywiste obciążenia podatkowe i składkowe mogą różnić się w zależności od interpretacji przepisów. Przed podjęciem jakichkolwiek decyzji finansowych zalecamy konsultację z wykwalifikowanym doradcą.
+            </p>
           </div>
-          <p className="text-xs text-slate-600 pt-4 border-t border-slate-800/50">&copy; 2025 Finanse Proste.</p>
+
+          <div className="pt-8 border-t border-slate-800/50 flex flex-col justify-center items-center gap-2 text-xs text-slate-600">
+             <p>&copy; 2025 Finanse Proste. Wszelkie prawa zastrzeżone.</p>
+          </div>
         </div>
       </footer>
     </div>

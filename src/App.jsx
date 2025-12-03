@@ -6,7 +6,8 @@ import {
 } from 'recharts';
 import {
   TrendingUp, Info, Banknote, ShieldCheck, Coins, AlertTriangle, Baby, Landmark, ChevronDown, ExternalLink, Sparkles, Loader2, ArrowRight,
-  Briefcase, FileSignature, PenTool, Wallet, HelpCircle, Users, PiggyBank, Home, ArrowUpRight, Lock, CheckCircle, XCircle, Shuffle, School, ChevronUp, BookOpen, Scale, Umbrella, LayoutGrid, GraduationCap, ChevronLeft, Calculator, Lightbulb, ArrowRightCircle, Target, ThumbsUp, ThumbsDown, Building2, Clock, Percent, Activity, Key, DoorOpen, BadgeCheck, Zap, Globe, Siren, CandlestickChart, ShoppingCart, FileText, Repeat
+  Briefcase, FileSignature, PenTool, Wallet, HelpCircle, Users, PiggyBank, Home, ArrowUpRight, Lock, CheckCircle, XCircle, Shuffle, School, ChevronUp, BookOpen, Scale, Umbrella, LayoutGrid, GraduationCap, ChevronLeft, Calculator, Lightbulb, ArrowRightCircle, Target, ThumbsUp, ThumbsDown, Building2, Clock, Percent, Activity, Key, DoorOpen, BadgeCheck, Zap, Globe, Siren, CandlestickChart, ShoppingCart, FileText, Repeat,
+  Cpu, Bot, Fingerprint, Car // <--- TERAZ JEST KOMPLET (Dodałem Fingerprint)
 } from 'lucide-react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -468,7 +469,7 @@ export default function App() {
       </header>
 
       {/* TREŚĆ - TU DZIEJE SIĘ MAGIA ROUTINGU */}
-      <main className="max-w-6xl w-full mx-auto px-6 py-12 flex-grow">
+<main className="max-w-6xl w-full mx-auto px-6 py-12 flex-grow">
         <Routes>
           <Route path="/" element={<HomeView />} />
           <Route path="/wynagrodzenia" element={<SalaryView />} />
@@ -478,9 +479,12 @@ export default function App() {
           <Route path="/ppk" element={<PpkView />} />
           <Route path="/ike-ikze" element={<IkeView />} />
           <Route path="/gielda" element={<StocksView />} />
+          <Route path="/oki" element={<OkiView />} />
+          <Route path="/kryptowaluty" element={<CryptoView />} />
+          <Route path="/leasing" element={<LeasingView />} />
+          <Route path="/detektor-ai" element={<AiDetectorView />} />
         </Routes>
       </main>
-
       {/* STOPKA (Bez zmian) */}
 {/* STOPKA Z ZABEZPIECZENIEM I BEZ LINKÓW KONTAKTOWYCH */}
       <footer className="bg-slate-900 text-slate-400 py-12 mt-auto">
@@ -515,8 +519,8 @@ const HomeView = () => {
   return (
     <>
       <Helmet>
-        <title>Finanse Proste - Kalkulatory i Edukacja Finansowa</title>
-        <meta name="description" content="Darmowe narzędzia: Kalkulator Wynagrodzeń, B2B, Obligacji i Giełdy. Policz swoje zyski i zadbaj o przyszłość." />
+        <title>Finanse Proste - Kalkulatory, Leasing i Edukacja</title>
+        <meta name="description" content="Darmowe narzędzia: Kalkulator Leasingu, Wynagrodzeń, B2B. Sprawdź koszty finansowania samochodu i maszyn." />
       </Helmet>
 
       <div className="flex flex-col items-center justify-center animate-in fade-in zoom-in duration-500 pb-12">
@@ -536,7 +540,7 @@ const HomeView = () => {
                       <div className="bg-slate-100 p-2 rounded-lg"><Calculator size={20} className="text-slate-700"/></div>
                       <h3 className="text-xl font-bold text-slate-800">Narzędzia i Kalkulatory</h3>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                       <FeatureCard 
                         title="Kalkulator Wynagrodzeń"
                         subtitle="Pensja Netto (Na rękę)"
@@ -571,6 +575,25 @@ const HomeView = () => {
                         color="purple"
                         onClick={() => navigate('/procent-skladany')}
                       />
+                      {/* NOWE NARZĘDZIE - LEASING */}
+                      <FeatureCard 
+                        title="Kalkulator Leasingowy"
+                        subtitle="Samochody i Maszyny"
+                        description="Oblicz ratę leasingu operacyjnego. Uwzględnij wykup, wpłatę własną, GAP i koszty podatkowe (VAT/PIT)."
+                        icon={Car}
+                        color="orange" // Używamy orange/amber
+                        onClick={() => navigate('/leasing')}
+                        badge="Dla Firm"
+                      />
+                      <FeatureCard 
+                        title="Detektor Tekstu AI"
+                        subtitle="Analiza treści"
+                        description="Wklej tekst i sprawdź, czy napisał go człowiek czy ChatGPT. Analiza stylu, powtórzeń i naturalności języka."
+                        icon={Bot}
+                        color="indigo"
+                        onClick={() => navigate('/detektor-ai')}
+                        badge="AI Tool" 
+                      />
                   </div>
               </section>
 
@@ -580,7 +603,7 @@ const HomeView = () => {
                       <div className="bg-slate-100 p-2 rounded-lg"><GraduationCap size={20} className="text-slate-700"/></div>
                       <h3 className="text-xl font-bold text-slate-800">Strefa Edukacji</h3>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                       <FeatureCard 
                         title="Akcje i ETF"
                         subtitle="Inwestowanie w firmy"
@@ -588,7 +611,6 @@ const HomeView = () => {
                         icon={Activity}
                         color="rose"
                         onClick={() => navigate('/gielda')}
-                        badge="Nowe"
                       />
                       <FeatureCard 
                         title="PPK w Praktyce"
@@ -605,6 +627,24 @@ const HomeView = () => {
                         icon={Umbrella}
                         color="pink"
                         onClick={() => navigate('/ike-ikze')}
+                      />
+                      <FeatureCard 
+                        title="OKI - Nowa Ulga"
+                        subtitle="Osobiste Konto Inwestycyjne"
+                        description="Koniec podatku Belki? Sprawdź założenia nowego programu rządowego. Limity, zasady i data startu."
+                        icon={Landmark}
+                        color="cyan"
+                        onClick={() => navigate('/oki')}
+                        badge="Wkrótce"
+                      />
+                      <FeatureCard 
+                        title="Kryptowaluty"
+                        subtitle="Bitcoin, Ethereum i inne"
+                        description="Blockchain, portfele sprzętowe i bezpieczeństwo. Kompendium wiedzy o cyfrowych aktywach."
+                        icon={Zap}
+                        color="yellow"
+                        onClick={() => navigate('/kryptowaluty')}
+                        badge="High Risk"
                       />
                   </div>
               </section>
@@ -626,45 +666,66 @@ const SalaryView = () => {
   });
   const [showYearlyDetails, setShowYearlyDetails] = useState(false);
 
-  // OBLICZENIA
+  // OBLICZENIA GŁÓWNE (DLA WYBRANEGO TYPU)
   const salaryYearlyData = useMemo(() => calculateYearlySalary(salaryBrutto, contractType, salaryParams), [salaryBrutto, contractType, salaryParams]);
   const currentMonthNetto = salaryYearlyData[0].netto;
   
+  // SUMY ROCZNE DLA WYBRANEGO TYPU
   const yearlyTotals = useMemo(() => {
-      const totals = salaryYearlyData.reduce((acc, curr) => ({
+      return salaryYearlyData.reduce((acc, curr) => ({
           netto: acc.netto + curr.netto,
           gross: acc.gross + curr.gross,
           tax: acc.tax + curr.tax,
           zus: acc.zus + curr.zus,
           ppk: acc.ppk + curr.ppk
       }), { netto: 0, gross: 0, tax: 0, zus: 0, ppk: 0 });
-      return totals;
   }, [salaryYearlyData]);
+
+  // OBLICZENIA PORÓWNAWCZE (DLA WSZYSTKICH TYPÓW JEDNOCZEŚNIE)
+  const comparisonData = useMemo(() => {
+    // 1. UoP
+    const uopData = calculateYearlySalary(salaryBrutto, 'uop', salaryParams);
+    const uopYearlyNet = uopData.reduce((acc, curr) => acc + curr.netto, 0);
+    const uopMonthlyNet = uopData[0].netto;
+
+    // 2. UZ (Przyjmujemy uproszczenie stałej kwoty x12 dla celów porównawczych)
+    const uzData = calculateSingleMonth(salaryBrutto, 'uz', salaryParams);
+    const uzMonthlyNet = uzData.netto;
+    const uzYearlyNet = uzMonthlyNet * 12;
+
+    // 3. UoD
+    const uodData = calculateSingleMonth(salaryBrutto, 'uod', salaryParams);
+    const uodMonthlyNet = uodData.netto;
+    const uodYearlyNet = uodMonthlyNet * 12;
+
+    return {
+        uop: { monthly: uopMonthlyNet, yearly: uopYearlyNet },
+        uz: { monthly: uzMonthlyNet, yearly: uzYearlyNet },
+        uod: { monthly: uodMonthlyNet, yearly: uodYearlyNet }
+    };
+  }, [salaryBrutto, salaryParams]);
 
   return (
     <>
       <Helmet>
         <title>Kalkulator Wynagrodzeń 2025 - Brutto na Netto | Finanse Proste</title>
-        <meta name="description" content="Oblicz pensję netto. Sprawdź ile dostaniesz na rękę na Umowie o Pracę, Zleceniu i Dziele." />
+        <meta name="description" content="Oblicz pensję netto. Sprawdź ile dostaniesz na rękę na Umowie o Pracę, Zleceniu i Dziele. Porównanie umów." />
       </Helmet>
 
-      <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto">
-          {/* ... tutaj reszta twojego kodu (nagłówek i kolumny) - jeśli nie chcesz kopiować wszystkiego, 
-              wystarczy że dodasz <>...</> wokół głównego diva i wstawisz Helmet na górze 
-              ALE dla pewności wklejam początek struktury: */}
+      <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-12">
+          
           <div className="mb-8">
               <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
                   <Wallet className="text-green-600" size={36}/>
                   Kalkulator Wynagrodzeń
               </h2>
-              {/* ...reszta treści... */}
               <p className="text-slate-600 max-w-3xl text-lg">
                   Precyzyjne narzędzie do wyliczania kwoty netto ("na rękę") z wynagrodzenia brutto. Uwzględnia progi podatkowe, ulgę dla młodych, koszty uzyskania przychodu oraz wpływ PPK.
               </p>
           </div>
           
-          <div className="grid lg:grid-cols-12 gap-8">
-                {/* LEWA KOLUMNA */}
+          <div className="grid lg:grid-cols-12 gap-8 mb-16">
+                {/* LEWA KOLUMNA - INPUTY */}
                 <div className="lg:col-span-5 space-y-6">
                     <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 flex gap-2">
                         <button onClick={() => setContractType('uop')} className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all ${contractType === 'uop' ? 'bg-green-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}>Umowa o pracę</button>
@@ -693,9 +754,31 @@ const SalaryView = () => {
                             )}
                         </div>
                     </div>
+
+                    {/* NOWA SEKCJA: SZYBKIE PORÓWNANIE */}
+                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200">
+                        <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><Scale size={20}/> Porównanie Netto (Na rękę)</h4>
+                        <div className="space-y-3">
+                            <div className={`flex justify-between items-center p-3 rounded-xl border ${contractType === 'uop' ? 'bg-white border-green-500 shadow-md ring-1 ring-green-500' : 'bg-white/50 border-slate-200 opacity-70'}`}>
+                                <span className="text-sm font-bold text-slate-600">Umowa o Pracę</span>
+                                <span className="font-bold text-slate-900">{formatMoney(comparisonData.uop.monthly)}</span>
+                            </div>
+                            <div className={`flex justify-between items-center p-3 rounded-xl border ${contractType === 'uz' ? 'bg-white border-green-500 shadow-md ring-1 ring-green-500' : 'bg-white/50 border-slate-200 opacity-70'}`}>
+                                <span className="text-sm font-bold text-slate-600">Zlecenie</span>
+                                <span className="font-bold text-slate-900">{formatMoney(comparisonData.uz.monthly)}</span>
+                            </div>
+                            <div className={`flex justify-between items-center p-3 rounded-xl border ${contractType === 'uod' ? 'bg-white border-green-500 shadow-md ring-1 ring-green-500' : 'bg-white/50 border-slate-200 opacity-70'}`}>
+                                <span className="text-sm font-bold text-slate-600">Dzieło</span>
+                                <span className="font-bold text-slate-900">{formatMoney(comparisonData.uod.monthly)}</span>
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-3 text-center">
+                            *Porównanie dla podanej kwoty brutto przy obecnych ustawieniach.
+                        </p>
+                    </div>
                 </div>
 
-                {/* PRAWA KOLUMNA */}
+                {/* PRAWA KOLUMNA - WYNIKI */}
                 <div className="lg:col-span-7 flex flex-col gap-6">
                     <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                         <div className="flex justify-between items-end mb-6">
@@ -704,9 +787,9 @@ const SalaryView = () => {
                                 <p className="text-slate-500 text-sm mt-1">Szacunkowe netto za bieżący miesiąc.</p>
                             </div>
                             <div className="text-right">
-                                <span className="text-xs font-bold text-slate-400 uppercase">Średnie Netto</span>
+                                <span className="text-xs font-bold text-slate-400 uppercase">Suma roczna Netto</span>
                                 <div className="text-3xl font-bold text-green-600">
-                                    {formatMoney(yearlyTotals.netto / 12)}
+                                    {formatMoney(yearlyTotals.netto)}
                                 </div>
                             </div>
                         </div>
@@ -726,7 +809,7 @@ const SalaryView = () => {
 
                             {showYearlyDetails && (
                                 <div className="overflow-x-auto mt-4 animate-in fade-in slide-in-from-top-2">
-                                    <table className="w-full text-sm text-left">
+                                    <table className="w-full text-sm text-left border-collapse">
                                         <thead className="text-xs text-slate-400 uppercase bg-slate-50">
                                             <tr>
                                                 <th className="px-4 py-3 rounded-l-lg">Miesiąc</th>
@@ -738,9 +821,13 @@ const SalaryView = () => {
                                         <tbody className="divide-y divide-slate-100">
                                             {salaryYearlyData.map((row, index) => (
                                                 <tr key={index} className={`hover:bg-blue-50/50 transition-colors ${row.thresholdCrossed ? 'bg-amber-50' : ''}`}>
-                                                    <td className="px-4 py-2 font-medium text-slate-700 flex items-center gap-2">
-                                                        {row.month}
-                                                        {row.thresholdCrossed && <span className="text-[10px] bg-amber-100 text-amber-800 px-1 py-0.5 rounded font-bold border border-amber-200">II PRÓG</span>}
+                                                    <td className="px-4 py-2 font-medium text-slate-700 flex flex-col justify-center">
+                                                        <span>{row.month}</span>
+                                                        {row.thresholdCrossed && (
+                                                            <span className="text-[10px] text-amber-600 font-bold flex items-center gap-1 mt-0.5">
+                                                                <AlertTriangle size={10}/> II PRÓG
+                                                            </span>
+                                                        )}
                                                     </td>
                                                     <td className={`px-4 py-2 font-bold ${row.thresholdCrossed ? 'text-amber-600' : 'text-green-600'}`}>{formatMoney(row.netto)}</td>
                                                     <td className="px-4 py-2 text-slate-500">{formatMoney(row.tax)}</td>
@@ -748,210 +835,375 @@ const SalaryView = () => {
                                                 </tr>
                                             ))}
                                         </tbody>
+                                        {/* PODSUMOWANIE TABELI */}
+                                        <tfoot className="bg-slate-100 font-bold text-slate-800 border-t-2 border-slate-200">
+                                            <tr>
+                                                <td className="px-4 py-4">RAZEM (ROK)</td>
+                                                <td className="px-4 py-4 text-green-700 text-base">{formatMoney(yearlyTotals.netto)}</td>
+                                                <td className="px-4 py-4">{formatMoney(yearlyTotals.tax)}</td>
+                                                <td className="px-4 py-4">{formatMoney(yearlyTotals.zus)}</td>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
-            </div>
+          </div>
+
+          {/* SEKCJA EDUKACYJNA - TYPY UMÓW */}
+          <div className="mt-16">
+              <h3 className="text-2xl font-bold mb-8 flex items-center gap-2 text-slate-800">
+                  <BookOpen className="text-blue-600"/> Kompendium Wiedzy o Umowach
+              </h3>
+              
+              <div className="grid lg:grid-cols-3 gap-6">
+                  {/* UMOWA O PRACĘ */}
+                  <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col relative overflow-hidden group hover:border-blue-300 transition-all">
+                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Building2 size={100} className="text-blue-600"/></div>
+                      <div className="mb-4 bg-blue-50 w-12 h-12 rounded-xl flex items-center justify-center text-blue-600"><Briefcase size={24}/></div>
+                      <h4 className="text-xl font-bold text-slate-900 mb-2">Umowa o Pracę (UoP)</h4>
+                      <div className="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded mb-4 w-fit uppercase">Kodeks Pracy</div>
+                      
+                      <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                          Najbardziej stabilna forma zatrudnienia. To "małżeństwo" z pracodawcą. Jesteś chroniony przez Kodeks Pracy, co daje Ci szereg przywilejów, ale też obowiązków (np. ustalone godziny i miejsce pracy).
+                      </p>
+
+                      <div className="space-y-4 text-sm mb-6 flex-grow">
+                          <div className="flex gap-2">
+                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Płatny urlop:</strong> 20 lub 26 dni w roku, kiedy nie pracujesz, a płacą Ci 100%.</span>
+                          </div>
+                          <div className="flex gap-2">
+                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Płatne chorobowe:</strong> Gdy zachorujesz, dostajesz 80% pensji.</span>
+                          </div>
+                          <div className="flex gap-2">
+                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Ochrona:</strong> Trudniej Cię zwolnić, obowiązuje okres wypowiedzenia.</span>
+                          </div>
+                          <div className="flex gap-2">
+                              <XCircle className="text-red-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Koszt:</strong> Najniższe wynagrodzenie netto przy tym samym koszcie dla firmy (wysokie podatki).</span>
+                          </div>
+                      </div>
+
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-500">
+                          <strong>Ciekawostka:</strong> Staż pracy na UoP liczy się do przyszłej emerytury. Lata studiów wliczają się do stażu urlopowego (8 lat!), dzięki czemu szybciej zyskujesz prawo do 26 dni urlopu.
+                      </div>
+                  </div>
+
+                  {/* UMOWA ZLECENIE */}
+                  <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col relative overflow-hidden group hover:border-orange-300 transition-all">
+                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><FileText size={100} className="text-orange-600"/></div>
+                      <div className="mb-4 bg-orange-50 w-12 h-12 rounded-xl flex items-center justify-center text-orange-600"><FileSignature size={24}/></div>
+                      <h4 className="text-xl font-bold text-slate-900 mb-2">Umowa Zlecenie (UZ)</h4>
+                      <div className="inline-block bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-1 rounded mb-4 w-fit uppercase">Kodeks Cywilny</div>
+                      
+                      <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                          Bardziej elastyczna forma. Zobowiązujesz się do "starannego działania" (np. obsługiwanie klientów), ale niekoniecznie pod ścisłym nadzorem. Często nazywana "śmieciówką", choć niesłusznie – dla wielu to świetny wybór.
+                      </p>
+
+                      <div className="space-y-4 text-sm mb-6 flex-grow">
+                          <div className="flex gap-2">
+                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Dla studentów:</strong> Jeśli masz mniej niż 26 lat i status studenta, nie płacisz ZUS ani podatku. Brutto = Netto!</span>
+                          </div>
+                          <div className="flex gap-2">
+                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Swoboda:</strong> Teoretycznie większa elastyczność czasu pracy niż na etacie.</span>
+                          </div>
+                          <div className="flex gap-2">
+                              <XCircle className="text-red-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Brak urlopu:</strong> Urlop płatny zależy tylko od dobrej woli zleceniodawcy (nie jest gwarantowany prawem).</span>
+                          </div>
+                          <div className="flex gap-2">
+                              <XCircle className="text-red-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Mniejsza stabilność:</strong> Można ją rozwiązać z dnia na dzień (chyba że umowa stanowi inaczej).</span>
+                          </div>
+                      </div>
+
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-500">
+                          <strong>Ciekawostka:</strong> Na zleceniu też możesz mieć chorobowe i płatne L4, ale musisz złożyć wniosek o dobrowolne ubezpieczenie chorobowe i opłacać składkę.
+                      </div>
+                  </div>
+
+                  {/* UMOWA O DZIEŁO */}
+                  <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col relative overflow-hidden group hover:border-purple-300 transition-all">
+                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><PenTool size={100} className="text-purple-600"/></div>
+                      <div className="mb-4 bg-purple-50 w-12 h-12 rounded-xl flex items-center justify-center text-purple-600"><PenTool size={24}/></div>
+                      <h4 className="text-xl font-bold text-slate-900 mb-2">Umowa o Dzieło (UoD)</h4>
+                      <div className="inline-block bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-1 rounded mb-4 w-fit uppercase">Kodeks Cywilny</div>
+                      
+                      <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                          Umowa rezultatu. Liczy się efekt (np. napisany artykuł, stworzona grafika, naprawiony stół), a nie czas spędzony nad pracą. Najbardziej opłacalna finansowo dla specjalistów.
+                      </p>
+
+                      <div className="space-y-4 text-sm mb-6 flex-grow">
+                          <div className="flex gap-2">
+                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Najwyższe Netto:</strong> Brak składek ZUS (emerytalnych, rentowych, zdrowotnych). Płacisz tylko podatek.</span>
+                          </div>
+                          <div className="flex gap-2">
+                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Koszty 50%:</strong> Jeśli przekazujesz prawa autorskie, płacisz podatek tylko od połowy zarobku!</span>
+                          </div>
+                          <div className="flex gap-2">
+                              <XCircle className="text-red-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Brak ubezpieczenia:</strong> Nie masz ubezpieczenia zdrowotnego (NFZ). Nie liczysz się do emerytury.</span>
+                          </div>
+                          <div className="flex gap-2">
+                              <XCircle className="text-red-500 shrink-0" size={16}/>
+                              <span className="text-slate-700"><strong>Ryzyko:</strong> Jeśli dzieło ma wady, zamawiający może nie zapłacić, dopóki ich nie usuniesz.</span>
+                          </div>
+                      </div>
+
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-500">
+                          <strong>Ciekawostka:</strong> To ulubiona umowa programistów, artystów i copywriterów. Uwaga: Nie można jej stosować do powtarzalnej pracy (np. codziennej obsługi sklepu).
+                      </div>
+                  </div>
+              </div>
+
+              {/* PODSUMOWANIE TABELARYCZNE */}
+              <div className="mt-8 bg-slate-900 text-white rounded-[2rem] p-8">
+                  <h4 className="font-bold mb-6 text-center">Krótka ściąga - co wybrać?</h4>
+                  <div className="overflow-x-auto">
+                      <table className="w-full text-sm text-left">
+                          <thead className="text-xs text-slate-400 uppercase border-b border-slate-700">
+                              <tr>
+                                  <th className="px-4 py-3">Cecha</th>
+                                  <th className="px-4 py-3 text-blue-400">UoP</th>
+                                  <th className="px-4 py-3 text-orange-400">Zlecenie</th>
+                                  <th className="px-4 py-3 text-purple-400">Dzieło</th>
+                              </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-800">
+                              <tr>
+                                  <td className="px-4 py-3 font-bold">Stabilność</td>
+                                  <td className="px-4 py-3">Wysoka</td>
+                                  <td className="px-4 py-3">Średnia</td>
+                                  <td className="px-4 py-3">Niska</td>
+                              </tr>
+                              <tr>
+                                  <td className="px-4 py-3 font-bold">Ubezpieczenie (NFZ)</td>
+                                  <td className="px-4 py-3 text-green-400">Tak</td>
+                                  <td className="px-4 py-3 text-green-400">Tak (zazwyczaj)</td>
+                                  <td className="px-4 py-3 text-red-400">Nie</td>
+                              </tr>
+                              <tr>
+                                  <td className="px-4 py-3 font-bold">Emerytura</td>
+                                  <td className="px-4 py-3 text-green-400">Tak</td>
+                                  <td className="px-4 py-3 text-green-400">Tak</td>
+                                  <td className="px-4 py-3 text-red-400">Nie</td>
+                              </tr>
+                              <tr>
+                                  <td className="px-4 py-3 font-bold">Płatny Urlop</td>
+                                  <td className="px-4 py-3 text-green-400">Gwarantowany</td>
+                                  <td className="px-4 py-3 text-red-400">Brak (chyba że umowny)</td>
+                                  <td className="px-4 py-3 text-red-400">Brak</td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
       </div>
     </>
   );
 };
 const B2BView = () => {
-  // ... ZMIENNE I OBLICZENIA (zostaw tak jak masz, kopiuję tylko początek i koniec returna) ...
-  // --- ZMIENNE ---
-  const [b2bRateType, setB2bRateType] = useState('monthly'); 
-  const [b2bHourlyRate, setB2bHourlyRate] = useState(100);
-  const [b2bHours, setB2bHours] = useState(160);
-  const [b2bNetto, setB2bNetto] = useState(12000);
-  const [b2bTaxType, setB2bTaxType] = useState('liniowy'); 
-  const [b2bRyczaltRate, setB2bRyczaltRate] = useState(12);
-  const [b2bZusType, setB2bZusType] = useState('duzy'); 
-  const [b2bCosts, setB2bCosts] = useState(0);
-  const [b2bIpBox, setB2bIpBox] = useState(false);
-  const [b2bSickLeave, setB2bSickLeave] = useState(true);
-  const [b2bVat, setB2bVat] = useState(true);
+// ... ZMIENNE I OBLICZENIA (zostaw tak jak masz, kopiuję tylko początek i koniec returna) ...
+// --- ZMIENNE ---
+const [b2bRateType, setB2bRateType] = useState('monthly');
+const [b2bHourlyRate, setB2bHourlyRate] = useState(100);
+const [b2bHours, setB2bHours] = useState(160);
+const [b2bNetto, setB2bNetto] = useState(12000);
+const [b2bTaxType, setB2bTaxType] = useState('liniowy');
+const [b2bRyczaltRate, setB2bRyczaltRate] = useState(12);
+const [b2bZusType, setB2bZusType] = useState('duzy');
+const [b2bCosts, setB2bCosts] = useState(0);
+const [b2bIpBox, setB2bIpBox] = useState(false);
+const [b2bSickLeave, setB2bSickLeave] = useState(true);
+const [b2bVat, setB2bVat] = useState(true);
 
-  // OBLICZENIA
-  const b2bResult = useMemo(() => {
-      return calculateB2B({
-          rateType: b2bRateType,
-          hourlyRate: b2bHourlyRate,
-          hoursCount: b2bHours,
-          monthlyNet: b2bNetto,
-          costs: b2bCosts,
-          taxType: b2bTaxType,
-          zusType: b2bZusType,
-          sickLeave: b2bSickLeave,
-          ipBox: b2bIpBox,
-          ryczaltRate: b2bRyczaltRate,
-          isVatPayer: b2bVat
-      });
-  }, [b2bRateType, b2bHourlyRate, b2bHours, b2bNetto, b2bCosts, b2bTaxType, b2bZusType, b2bSickLeave, b2bIpBox, b2bRyczaltRate, b2bVat]);
+// OBLICZENIA
+const b2bResult = useMemo(() => {
+return calculateB2B({
+rateType: b2bRateType,
+hourlyRate: b2bHourlyRate,
+hoursCount: b2bHours,
+monthlyNet: b2bNetto,
+costs: b2bCosts,
+taxType: b2bTaxType,
+zusType: b2bZusType,
+sickLeave: b2bSickLeave,
+ipBox: b2bIpBox,
+ryczaltRate: b2bRyczaltRate,
+isVatPayer: b2bVat
+});
+}, [b2bRateType, b2bHourlyRate, b2bHours, b2bNetto, b2bCosts, b2bTaxType, b2bZusType, b2bSickLeave, b2bIpBox, b2bRyczaltRate, b2bVat]);
 
-  return (
-    <>
-      <Helmet>
-        <title>Kalkulator B2B 2025 - Oblicz Zysk Netto i Podatek</title>
-        <meta name="description" content="Dla programistów i firm. Porównaj Ryczałt, Liniowy i Skalę. Oblicz ZUS i fakturę VAT." />
-      </Helmet>
+return (
+<>
+<Helmet>
+<title>Kalkulator B2B 2025 - Oblicz Zysk Netto i Podatek</title>
+<meta name="description" content="Dla programistów i firm. Porównaj Ryczałt, Liniowy i Skalę. Oblicz ZUS i fakturę VAT." />
+</Helmet>
 
-      <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto">
-          {/* ... reszta kodu B2B ... wklej tutaj to co miałeś wewnątrz div'a ... */}
-          <div className="mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
-                <Briefcase className="text-teal-600" size={36}/>
-                Kalkulator B2B
-            </h2>
-            <p className="text-slate-600 max-w-3xl text-lg">
-                Kompletne narzędzie dla przedsiębiorców. Oblicz zysk netto ("na rękę") uwzględniając formę opodatkowania, rodzaj ZUS oraz koszty.
-            </p>
-        </div>
+<div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto">
+{/* ... reszta kodu B2B ... wklej tutaj to co miałeś wewnątrz div'a ... */}
+<div className="mb-8">
+<h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
+<Briefcase className="text-teal-600" size={36}/>
+Kalkulator B2B
+</h2>
+<p className="text-slate-600 max-w-3xl text-lg">
+Kompletne narzędzie dla przedsiębiorców. Oblicz zysk netto ("na rękę") uwzględniając formę opodatkowania, rodzaj ZUS oraz koszty.
+</p>
+</div>
 
-        <div className="grid lg:grid-cols-12 gap-8">
-            {/* LEFT INPUTS */}
-            <div className="lg:col-span-5 space-y-6">
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-6">
-                    <div className="flex bg-slate-50 p-1 rounded-xl">
-                        <button onClick={() => setB2bRateType('monthly')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${b2bRateType === 'monthly' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}>Miesięcznie</button>
-                        <button onClick={() => setB2bRateType('hourly')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${b2bRateType === 'hourly' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}>Godzinowo</button>
-                    </div>
+<div className="grid lg:grid-cols-12 gap-8">
+{/* LEFT INPUTS */}
+<div className="lg:col-span-5 space-y-6">
+<div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-6">
+<div className="flex bg-slate-50 p-1 rounded-xl">
+<button onClick={() => setB2bRateType('monthly')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${b2bRateType === 'monthly' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}>Miesięcznie</button>
+<button onClick={() => setB2bRateType('hourly')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${b2bRateType === 'hourly' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}>Godzinowo</button>
+</div>
 
-                    {b2bRateType === 'monthly' ? (
-                        <InputGroup label="Przychód netto (na fakturze)" value={b2bNetto} onChange={setB2bNetto} suffix="PLN" step="100" />
-                    ) : (
-                        <div className="grid grid-cols-2 gap-4">
-                            <InputGroup label="Stawka godzinowa" value={b2bHourlyRate} onChange={setB2bHourlyRate} suffix="PLN" step="10" />
-                            <InputGroup label="Ilość godzin" value={b2bHours} onChange={setB2bHours} suffix="h" step="1" />
-                        </div>
-                    )}
+{b2bRateType === 'monthly' ? (
+<InputGroup label="Przychód netto (na fakturze)" value={b2bNetto} onChange={setB2bNetto} suffix="PLN" step="100" />
+) : (
+<div className="grid grid-cols-2 gap-4">
+<InputGroup label="Stawka godzinowa" value={b2bHourlyRate} onChange={setB2bHourlyRate} suffix="PLN" step="10" />
+<InputGroup label="Ilość godzin" value={b2bHours} onChange={setB2bHours} suffix="h" step="1" />
+</div>
+)}
 
-                    <InputGroup label="Koszty firmowe (netto)" value={b2bCosts} onChange={setB2bCosts} suffix="PLN" step="50" />
-                    
-                    <div className="space-y-4">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Forma opodatkowania</label>
-                        <div className="flex flex-col gap-2">
-                            <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${b2bTaxType === 'liniowy' ? 'bg-teal-50 border-teal-200 ring-1 ring-teal-200' : 'bg-white border-slate-200'}`}>
-                                <input type="radio" name="tax" checked={b2bTaxType === 'liniowy'} onChange={() => setB2bTaxType('liniowy')} className="text-teal-600 focus:ring-teal-500"/>
-                                <div>
-                                    <span className="block font-bold text-slate-900">Podatek liniowy (19%)</span>
-                                    <span className="text-xs text-slate-500">Stała stawka. Składka zdrowotna 4.9%. Opłacalny przy wysokich dochodach.</span>
-                                </div>
-                            </label>
-                            <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${b2bTaxType === 'skala' ? 'bg-teal-50 border-teal-200 ring-1 ring-teal-200' : 'bg-white border-slate-200'}`}>
-                                <input type="radio" name="tax" checked={b2bTaxType === 'skala'} onChange={() => setB2bTaxType('skala')} className="text-teal-600 focus:ring-teal-500"/>
-                                <div>
-                                    <span className="block font-bold text-slate-900">Skala podatkowa (12% / 32%)</span>
-                                    <span className="text-xs text-slate-500">Dobra przy niższych dochodach. Kwota wolna 30 tys. zł.</span>
-                                </div>
-                            </label>
-                            <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${b2bTaxType === 'ryczalt' ? 'bg-teal-50 border-teal-200 ring-1 ring-teal-200' : 'bg-white border-slate-200'}`}>
-                                <input type="radio" name="tax" checked={b2bTaxType === 'ryczalt'} onChange={() => setB2bTaxType('ryczalt')} className="text-teal-600 focus:ring-teal-500"/>
-                                <div className="w-full">
-                                    <span className="block font-bold text-slate-900">Ryczałt</span>
-                                    <span className="text-xs text-slate-500 mb-2 block">Podatek od przychodu (nie zysku). Brak kosztów. Niskie stawki.</span>
-                                    {b2bTaxType === 'ryczalt' && (
-                                        <select value={b2bRyczaltRate} onChange={(e) => setB2bRyczaltRate(parseFloat(e.target.value))} className="w-full text-sm p-2 border border-slate-300 rounded-lg mt-1 bg-white">
-                                            <option value={12}>12% (IT, programista)</option>
-                                            <option value={15}>15% (doradztwo, usługi)</option>
-                                            <option value={8.5}>8.5% (usługi, najem)</option>
-                                            <option value={17}>17% (wolne zawody)</option>
-                                        </select>
-                                    )}
-                                </div>
-                            </label>
-                        </div>
-                    </div>
+<InputGroup label="Koszty firmowe (netto)" value={b2bCosts} onChange={setB2bCosts} suffix="PLN" step="50" />
+<div className="space-y-4">
+<label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Forma opodatkowania</label>
+<div className="flex flex-col gap-2">
+<label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${b2bTaxType === 'liniowy' ? 'bg-teal-50 border-teal-200 ring-1 ring-teal-200' : 'bg-white border-slate-200'}`}>
+<input type="radio" name="tax" checked={b2bTaxType === 'liniowy'} onChange={() => setB2bTaxType('liniowy')} className="text-teal-600 focus:ring-teal-500"/>
+<div>
+<span className="block font-bold text-slate-900">Podatek liniowy (19%)</span>
+<span className="text-xs text-slate-500">Stała stawka. Składka zdrowotna 4.9%. Opłacalny przy wysokich dochodach.</span>
+</div>
+</label>
+<label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${b2bTaxType === 'skala' ? 'bg-teal-50 border-teal-200 ring-1 ring-teal-200' : 'bg-white border-slate-200'}`}>
+<input type="radio" name="tax" checked={b2bTaxType === 'skala'} onChange={() => setB2bTaxType('skala')} className="text-teal-600 focus:ring-teal-500"/>
+<div>
+<span className="block font-bold text-slate-900">Skala podatkowa (12% / 32%)</span>
+<span className="text-xs text-slate-500">Dobra przy niższych dochodach. Kwota wolna 30 tys. zł.</span>
+</div>
+</label>
+<label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${b2bTaxType === 'ryczalt' ? 'bg-teal-50 border-teal-200 ring-1 ring-teal-200' : 'bg-white border-slate-200'}`}>
+<input type="radio" name="tax" checked={b2bTaxType === 'ryczalt'} onChange={() => setB2bTaxType('ryczalt')} className="text-teal-600 focus:ring-teal-500"/>
+<div className="w-full">
+<span className="block font-bold text-slate-900">Ryczałt</span>
+<span className="text-xs text-slate-500 mb-2 block">Podatek od przychodu (nie zysku). Brak kosztów. Niskie stawki.</span>
+{b2bTaxType === 'ryczalt' && (
+<select value={b2bRyczaltRate} onChange={(e) => setB2bRyczaltRate(parseFloat(e.target.value))} className="w-full text-sm p-2 border border-slate-300 rounded-lg mt-1 bg-white">
+<option value={12}>12% (IT, programista)</option>
+<option value={15}>15% (doradztwo, usługi)</option>
+<option value={8.5}>8.5% (usługi, najem)</option>
+<option value={17}>17% (wolne zawody)</option>
+</select>
+)}
+</div>
+</label>
+</div>
+</div>
 
-                    <div className="space-y-4">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Składki ZUS</label>
-                        <select value={b2bZusType} onChange={(e) => setB2bZusType(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 font-bold rounded-xl p-4">
-                            <option value="ulga">Ulga na start (tylko zdrowotna)</option>
-                            <option value="maly">Preferencyjny (mały ZUS - 2 lata)</option>
-                            <option value="duzy">Duży ZUS (standard)</option>
-                        </select>
-                    </div>
+<div className="space-y-4">
+<label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Składki ZUS</label>
+<select value={b2bZusType} onChange={(e) => setB2bZusType(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 font-bold rounded-xl p-4">
+<option value="ulga">Ulga na start (tylko zdrowotna)</option>
+<option value="maly">Preferencyjny (mały ZUS - 2 lata)</option>
+<option value="duzy">Duży ZUS (standard)</option>
+</select>
+</div>
 
-                    <div className="flex flex-col gap-2 pt-2">
-                        <CheckboxGroup label="Jestem płatnikiem VAT" description="Doliczasz 23% VAT do faktury." checked={b2bVat} onChange={setB2bVat} icon={Banknote} />
-                        <CheckboxGroup label="Dobrowolne chorobowe" description="Płatne L4 (po 90 dniach). Warto przy dużym ZUS." checked={b2bSickLeave} onChange={setB2bSickLeave} icon={Target} />
-                        {(b2bTaxType === 'liniowy' || b2bTaxType === 'skala') && (
-                            <CheckboxGroup label="Ulga IP BOX (5%)" description="Dla programistów tworzących własność intelektualną." checked={b2bIpBox} onChange={setB2bIpBox} icon={Sparkles} />
-                        )}
-                    </div>
-                </div>
-            </div>
+<div className="flex flex-col gap-2 pt-2">
+<CheckboxGroup label="Jestem płatnikiem VAT" description="Doliczasz 23% VAT do faktury." checked={b2bVat} onChange={setB2bVat} icon={Banknote} />
+<CheckboxGroup label="Dobrowolne chorobowe" description="Płatne L4 (po 90 dniach). Warto przy dużym ZUS." checked={b2bSickLeave} onChange={setB2bSickLeave} icon={Target} />
+{(b2bTaxType === 'liniowy' || b2bTaxType === 'skala') && (
+<CheckboxGroup label="Ulga IP BOX (5%)" description="Dla programistów tworzących własność intelektualną." checked={b2bIpBox} onChange={setB2bIpBox} icon={Sparkles} />
+)}
+</div>
+</div>
+</div>
 
-            {/* RIGHT RESULTS */}
-            <div className="lg:col-span-7 flex flex-col gap-6">
-                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-                    <div className="flex justify-between items-end mb-8">
-                        <div>
-                            <h4 className="font-bold text-slate-900 text-xl">Wynik miesięczny</h4>
-                            <p className="text-slate-500 text-sm mt-1">Twój realny dochód na czysto.</p>
-                        </div>
-                        <div className="text-right">
-                            <span className="text-xs font-bold text-slate-400 uppercase">Dochód Netto</span>
-                            <div className={`text-4xl font-black ${b2bResult.netIncome < 0 ? 'text-red-500' : 'text-teal-600'}`}>
-                                {formatMoney(b2bResult.netIncome)}
-                            </div>
-                        </div>
-                    </div>
+{/* RIGHT RESULTS */}
+<div className="lg:col-span-7 flex flex-col gap-6">
+<div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+<div className="flex justify-between items-end mb-8">
+<div>
+<h4 className="font-bold text-slate-900 text-xl">Wynik miesięczny</h4>
+<p className="text-slate-500 text-sm mt-1">Twój realny dochód na czysto.</p>
+</div>
+<div className="text-right">
+<span className="text-xs font-bold text-slate-400 uppercase">Dochód Netto</span>
+<div className={`text-4xl font-black ${b2bResult.netIncome < 0 ? 'text-red-500' : 'text-teal-600'}`}>
+{formatMoney(b2bResult.netIncome)}
+</div>
+</div>
+</div>
 
-                    {b2bResult.netIncome < 0 && (
-                        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 font-bold text-sm flex items-center gap-2">
-                            <AlertTriangle size={18}/>
-                            Uwaga: Twoje koszty i obciążenia przewyższają przychód. Generujesz stratę.
-                        </div>
-                    )}
+{b2bResult.netIncome < 0 && (
+<div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 font-bold text-sm flex items-center gap-2">
+<AlertTriangle size={18}/>
+Uwaga: Twoje koszty i obciążenia przewyższają przychód. Generujesz stratę.
+</div>
+)}
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                            <div className="text-[10px] text-slate-500 uppercase font-bold">Przychód</div>
-                            <div className="font-bold text-slate-900">{formatMoney(b2bResult.revenue)}</div>
-                        </div>
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                            <div className="text-[10px] text-slate-500 uppercase font-bold">Koszty</div>
-                            <div className="font-bold text-slate-700">-{formatMoney(b2bResult.costs)}</div>
-                        </div>
-                        <div className="p-3 bg-red-50 rounded-xl border border-red-100 text-center">
-                            <div className="text-[10px] text-red-500 uppercase font-bold">Podatki</div>
-                            <div className="font-bold text-red-700">-{formatMoney(b2bResult.incomeTax)}</div>
-                        </div>
-                        <div className="p-3 bg-orange-50 rounded-xl border border-orange-100 text-center">
-                            <div className="text-[10px] text-orange-500 uppercase font-bold">ZUS Total</div>
-                            <div className="font-bold text-orange-700">-{formatMoney(b2bResult.totalZus)}</div>
-                        </div>
-                    </div>
+<div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+<div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+<div className="text-[10px] text-slate-500 uppercase font-bold">Przychód</div>
+<div className="font-bold text-slate-900">{formatMoney(b2bResult.revenue)}</div>
+</div>
+<div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+<div className="text-[10px] text-slate-500 uppercase font-bold">Koszty</div>
+<div className="font-bold text-slate-700">-{formatMoney(b2bResult.costs)}</div>
+</div>
+<div className="p-3 bg-red-50 rounded-xl border border-red-100 text-center">
+<div className="text-[10px] text-red-500 uppercase font-bold">Podatki</div>
+<div className="font-bold text-red-700">-{formatMoney(b2bResult.incomeTax)}</div>
+</div>
+<div className="p-3 bg-orange-50 rounded-xl border border-orange-100 text-center">
+<div className="text-[10px] text-orange-500 uppercase font-bold">ZUS Total</div>
+<div className="font-bold text-orange-700">-{formatMoney(b2bResult.totalZus)}</div>
+</div>
+</div>
 
-                    <div className="h-64 mb-6">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={[
-                                { name: 'Przychód', value: b2bResult.revenue, fill: '#cbd5e1' },
-                                { name: 'Netto', value: Math.max(0, b2bResult.netIncome), fill: '#0d9488' },
-                                { name: 'Podatek', value: b2bResult.incomeTax, fill: '#f87171' },
-                                { name: 'ZUS', value: b2bResult.totalZus, fill: '#fb923c' },
-                            ]} margin={{top: 20, right: 30, left: 20, bottom: 5}}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} tickMargin={10}/>
-                                <YAxis fontSize={12} tickMargin={10}/>
-                                <RechartsTooltip 
-                                    cursor={{fill: 'transparent'}}
-                                    contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
-                                    formatter={(value) => [formatMoney(value), 'Wartość']}
-                                />
-                                <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={60} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-            </div>
-        </div>
-      </div>
-    </>
-  );
+<div className="h-64 mb-6">
+<ResponsiveContainer width="100%" height="100%">
+<BarChart data={[
+{ name: 'Przychód', value: b2bResult.revenue, fill: '#cbd5e1' },
+{ name: 'Netto', value: Math.max(0, b2bResult.netIncome), fill: '#0d9488' },
+{ name: 'Podatek', value: b2bResult.incomeTax, fill: '#f87171' },
+{ name: 'ZUS', value: b2bResult.totalZus, fill: '#fb923c' },
+]} margin={{top: 20, right: 30, left: 20, bottom: 5}}>
+<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+<XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} tickMargin={10}/>
+<YAxis fontSize={12} tickMargin={10}/>
+<RechartsTooltip
+cursor={{fill: 'transparent'}}
+contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+formatter={(value) => [formatMoney(value), 'Wartość']}
+/>
+<Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={60} />
+</BarChart>
+</ResponsiveContainer>
+</div>
+</div>
+</div>
+</div>
+</div>
+</>
+);
 };
 const BondsView = () => {
   // --- ZMIENNE ---
@@ -1241,7 +1493,7 @@ const BondsView = () => {
   );
 };
 const CompoundView = () => {
-  // --- ZMIENNE ---
+  // --- ZMIENNE (BEZ ZMIAN) ---
   const [compoundPrincipal, setCompoundPrincipal] = useState(10000);
   const [compoundYears, setCompoundYears] = useState(10);
   const [compoundMonths, setCompoundMonths] = useState(0);
@@ -1249,7 +1501,7 @@ const CompoundView = () => {
   const [compoundFreq, setCompoundFreq] = useState(12);
   const [compoundAI, setCompoundAI] = useState({ text: "", loading: false });
 
-  // OBLICZENIA
+  // OBLICZENIA (BEZ ZMIAN)
   const compoundData = useMemo(() => {
     const data = [];
     const totalMonths = (parseInt(compoundYears) || 0) * 12 + (parseInt(compoundMonths) || 0);
@@ -1287,17 +1539,23 @@ const CompoundView = () => {
   return (
     <>
       <Helmet>
-        <title>Kalkulator Procentu Składanego - Magia Oszczędzania</title>
-        <meta name="description" content="Zobacz jak rosną Twoje oszczędności dzięki procentowi składanemu. Symulacja zysków w czasie." />
+        <title>Kalkulator Procentu Składanego - Wzór i Symulacja Zysków</title>
+        <meta name="description" content="Oblicz zysk z procentu składanego. Zrozum efekt kuli śnieżnej, poznaj wzór i zobacz jak czas pomnaża Twoje oszczędności." />
       </Helmet>
 
-      <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto">
+      <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-12">
           <div className="mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Kalkulator Procentu Składanego</h2>
-              <p className="text-slate-600 max-w-2xl text-lg">Sprawdź efekt "kuli śnieżnej". Zobacz jak rosną pieniądze, gdy odsetki zarabiają kolejne odsetki.</p>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
+                <TrendingUp className="text-purple-600" size={36}/>
+                Kalkulator Procentu Składanego
+              </h2>
+              <p className="text-slate-600 max-w-2xl text-lg">
+                Sprawdź efekt "kuli śnieżnej". Zobacz jak rosną pieniądze, gdy odsetki zarabiają kolejne odsetki. To najpotężniejsze narzędzie w budowaniu bogactwa.
+              </p>
           </div>
 
-          <div className="grid lg:grid-cols-12 gap-8 mb-12">
+          {/* --- NARZĘDZIE KALKULATORA (BEZ ZMIAN) --- */}
+          <div className="grid lg:grid-cols-12 gap-8 mb-20">
               <div className="lg:col-span-4 space-y-6 bg-white p-8 rounded-3xl shadow-sm border border-slate-100 h-fit">
                   <InputGroup label="Kwota początkowa" value={compoundPrincipal} onChange={setCompoundPrincipal} suffix="PLN" step="100" />
                   <div className="grid grid-cols-2 gap-4">
@@ -1356,6 +1614,131 @@ const CompoundView = () => {
                       <Sparkles size={16}/> {compoundAI.loading ? "Myślę..." : "Co kupię za ten zysk? (AI)"}
                   </button>
                   <AICard text={compoundAI.text} isLoading={compoundAI.loading} onClose={() => setCompoundAI(p => ({...p, text: ""}))} />
+              </div>
+          </div>
+
+          {/* --- NOWA SEKCJA EDUKACYJNA (SEO) --- */}
+          <div className="space-y-16">
+              {/* DEFINICJA I EINSTEIN */}
+              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-100 shadow-sm relative overflow-hidden">
+                  <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+                      <div>
+                          <div className="inline-flex items-center gap-2 bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+                              <BookOpen size={14}/> Baza Wiedzy
+                          </div>
+                          <h3 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">
+                              Co to jest Procent Składany?
+                          </h3>
+                          <p className="text-lg text-slate-600 mb-6 leading-relaxed">
+                              Procent składany (ang. <em>Compound Interest</em>) to mechanizm, w którym odsetki od Twojego kapitału nie są wypłacane, lecz <strong>dopisywane do puli (reinwestowane)</strong>. W kolejnym okresie odsetki naliczają się już od większej kwoty.
+                          </p>
+                          <p className="text-slate-600 leading-relaxed">
+                              Często nazywany jest "efektem kuli śnieżnej". Mała kulka (Twój kapitał) tocząc się ze zbocza (czas), zbiera coraz więcej śniegu (odsetki), stając się potężną lawiną.
+                          </p>
+                      </div>
+                      <div className="bg-purple-900 text-white p-8 rounded-[2rem] relative">
+                          <Sparkles className="absolute top-4 right-4 text-purple-400 opacity-50"/>
+                          <blockquote className="text-xl font-medium italic mb-6">
+                              "Procent składany to ósmy cud świata. Ci, którzy go rozumieją, zarabiają na nim. Ci, którzy nie rozumieją, muszą go płacić."
+                          </blockquote>
+                          <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-purple-700 rounded-full flex items-center justify-center font-bold text-xl">AE</div>
+                              <div>
+                                  <div className="font-bold">Albert Einstein</div>
+                                  <div className="text-xs text-purple-300">(Przypisywany cytat)</div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              {/* MATEMATYKA I WZÓR */}
+              <div className="grid lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-2 bg-slate-50 rounded-[2.5rem] p-8 md:p-12 border border-slate-200">
+                      <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+                          <Calculator className="text-blue-600"/> Wzór na Procent Składany
+                      </h3>
+                      
+                      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8 overflow-x-auto">
+                          <code className="text-2xl md:text-3xl font-mono text-slate-800 tracking-wider">
+                              K<span className="text-xs align-sub">n</span> = K<span className="text-xs align-sub">0</span> × (1 + <span className="text-blue-600">r</span>/<span className="text-purple-600">n</span>)<sup className="text-orange-500">n×t</sup>
+                          </code>
+                      </div>
+
+                      <div className="grid sm:grid-cols-2 gap-6">
+                          <div>
+                              <h4 className="font-bold text-slate-900 mb-2">Legenda:</h4>
+                              <ul className="space-y-3 text-sm text-slate-600">
+                                  <li className="flex gap-2"><span className="font-mono font-bold text-slate-400">Kn</span> <span>Kapitał końcowy (to co wypłacisz)</span></li>
+                                  <li className="flex gap-2"><span className="font-mono font-bold text-slate-400">K0</span> <span>Kapitał początkowy (Twoja wpłata)</span></li>
+                                  <li className="flex gap-2"><span className="font-mono font-bold text-blue-600">r</span> <span>Roczna stopa procentowa (np. 0.05 dla 5%)</span></li>
+                                  <li className="flex gap-2"><span className="font-mono font-bold text-purple-600">n</span> <span>Liczba kapitalizacji w roku (np. 12 dla miesięcznej)</span></li>
+                                  <li className="flex gap-2"><span className="font-mono font-bold text-orange-500">t</span> <span>Liczba lat inwestycji</span></li>
+                              </ul>
+                          </div>
+                          <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-900 leading-relaxed">
+                              <strong>Kluczowy wniosek:</strong> Czas (t) znajduje się w potędze! To oznacza, że wydłużenie czasu inwestycji o kilka lat daje nieproporcjonalnie gigantyczne zyski. To ważniejsze niż wpłacanie dużych kwot.
+                          </div>
+                      </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-[2.5rem] p-8 flex flex-col justify-center">
+                      <h3 className="text-xl font-bold mb-4 text-orange-400">Procent Prosty vs Składany</h3>
+                      <p className="text-sm text-slate-300 mb-6">
+                          Załóżmy 10 000 zł na 5% przez 20 lat.
+                      </p>
+                      
+                      <div className="space-y-6">
+                          <div>
+                              <div className="text-xs uppercase tracking-widest text-slate-500 mb-1">Procent Prosty (Lokata bez kapitalizacji)</div>
+                              <div className="text-2xl font-bold text-slate-400">20 000 zł</div>
+                              <div className="text-xs text-slate-500">Zysk: 10 000 zł</div>
+                          </div>
+                          <div className="relative">
+                              <div className="absolute -left-4 top-0 bottom-0 w-1 bg-orange-500 rounded-full"></div>
+                              <div className="text-xs uppercase tracking-widest text-orange-400 mb-1">Procent Składany</div>
+                              <div className="text-4xl font-black text-white">27 126 zł</div>
+                              <div className="text-xs text-orange-300 font-bold">Zysk: 17 126 zł (+71% więcej!)</div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              {/* ZASTOSOWANIE I FAQ */}
+              <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                      <h3 className="text-2xl font-bold text-slate-900">Gdzie działa procent składany?</h3>
+                      <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm hover:border-blue-300 transition-colors">
+                          <h4 className="font-bold text-blue-700 mb-2">1. Konta IKE i IKZE</h4>
+                          <p className="text-sm text-slate-600">Dzięki brakowi podatku Belki (IKE) procent składany działa z pełną mocą. Podatek nie "podgryza" Twoich odsetek co roku, więc cała kwota pracuje na kolejny zysk.</p>
+                      </div>
+                      <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm hover:border-purple-300 transition-colors">
+                          <h4 className="font-bold text-purple-700 mb-2">2. Inwestowanie Dywidendowe</h4>
+                          <p className="text-sm text-slate-600">Gdy kupujesz akcje spółek wypłacających dywidendy i zamiast je wydawać, kupujesz za nie więcej akcji – to klasyczny przykład procentu składanego na giełdzie.</p>
+                      </div>
+                      <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm hover:border-green-300 transition-colors">
+                          <h4 className="font-bold text-green-700 mb-2">3. ETFy akumulujące (Acc)</h4>
+                          <p className="text-sm text-slate-600">Fundusze typu "Accumulating" automatycznie reinwestują dywidendy wewnątrz funduszu. Nie widzisz gotówki na koncie, ale cena jednostki rośnie szybciej.</p>
+                      </div>
+                  </div>
+
+                  <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-200">
+                      <h3 className="text-2xl font-bold text-slate-900 mb-6">FAQ - Najczęstsze pytania</h3>
+                      <div className="space-y-6">
+                          <div>
+                              <h4 className="font-bold text-slate-800 text-sm mb-1">Co to jest kapitalizacja?</h4>
+                              <p className="text-xs text-slate-600 leading-relaxed">To moment, w którym bank dopisuje odsetki do Twojego konta. Im częściej to robi (np. codziennie vs raz w roku), tym lepiej dla Ciebie, bo odsetki szybciej zaczynają pracować na kolejne zyski.</p>
+                          </div>
+                          <div>
+                              <h4 className="font-bold text-slate-800 text-sm mb-1">Jak inflacja wpływa na procent składany?</h4>
+                              <p className="text-xs text-slate-600 leading-relaxed">Inflacja to "odwrócony" procent składany. Zjada wartość Twoich pieniędzy. Aby realnie się bogacić, Twoja stopa zwrotu musi być wyższa niż inflacja.</p>
+                          </div>
+                          <div>
+                              <h4 className="font-bold text-slate-800 text-sm mb-1">Kiedy najlepiej zacząć?</h4>
+                              <p className="text-xs text-slate-600 leading-relaxed">Wczoraj. A jeśli nie wczoraj, to dzisiaj. W procencie składanym czas jest ważniejszy niż kwota. 500 zł odkładane przez 40 lat da więcej niż 1000 zł odkładane przez 20 lat (przy tym samym %)!</p>
+                          </div>
+                      </div>
+                  </div>
               </div>
           </div>
       </div>
@@ -2324,6 +2707,1002 @@ const IkeView = () => {
                   <Activity size={20}/> Zobacz Akcje
                </button>
           </div>
+      </div>
+    </>
+  );
+};
+const OkiView = () => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <Helmet>
+        <title>OKI - Osobiste Konto Inwestycyjne | Kwota wolna od podatku Belki</title>
+        <meta name="description" content="Czym jest OKI? Poznaj zasady nowej ulgi w podatku od zysków kapitałowych. Limity, planowana data wdrożenia i różnice względem IKE." />
+      </Helmet>
+
+      <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
+          
+          {/* HERO SECTION */}
+          <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 bg-cyan-50 text-cyan-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border border-cyan-100">
+                 <Loader2 size={14} className="animate-spin"/> Projekt Rządowy (W przygotowaniu)
+              </div>
+              <h2 className="text-3xl md:text-5xl font-black mb-6 text-slate-900">
+                  OKI - Osobiste Konto Inwestycyjne
+              </h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                  Zapowiadana rewolucja w podatkach dla oszczędzających. Nowy mechanizm, który ma wprowadzić kwotę wolną od podatku Belki (19%) dla Twoich oszczędności i inwestycji.
+              </p>
+          </div>
+
+          {/* STATUS I DATA */}
+          <div className="bg-white rounded-[2rem] p-8 md:p-12 border border-slate-200 shadow-xl shadow-cyan-50/50 mb-16 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+              
+              <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
+                  <div>
+                      <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                          <Clock className="text-cyan-600"/> Kiedy start?
+                      </h3>
+                      <p className="text-slate-700 mb-6 leading-relaxed">
+                          Projekt jest obecnie w fazie prac w Ministerstwie Finansów. Zgodnie z zapowiedziami, nowe przepisy mają wejść w życie prawdopodobnie w <strong>2025 roku</strong> (dokładna data nie jest jeszcze uchwalona ustawą).
+                      </p>
+                      <div className="bg-cyan-50 p-4 rounded-xl border border-cyan-100 flex gap-4 items-start">
+                          <AlertTriangle className="text-cyan-600 shrink-0 mt-1" size={20}/>
+                          <div className="text-sm text-cyan-900">
+                              <strong>Uwaga:</strong> Prezentowane poniżej informacje opierają się na założeniach projektu opublikowanych przez Ministerstwo Finansów. Ostateczny kształt ustawy może ulec zmianie w toku prac legislacyjnych.
+                          </div>
+                      </div>
+                  </div>
+                  
+                  <div className="bg-slate-900 text-white p-8 rounded-3xl flex flex-col justify-center items-center text-center">
+                       <div className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Spodziewana data wdrożenia</div>
+                       <div className="text-4xl md:text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">2025 / 2026</div>
+                       <div className="text-sm text-slate-400">Status: Koncepcja / Prace analityczne</div>
+                  </div>
+              </div>
+          </div>
+
+          {/* MECHANIZM - JAK TO MA DZIAŁAĆ */}
+          <div className="mb-16">
+              <h3 className="text-2xl font-bold mb-8 text-center">Jak działa "Kwota Wolna" w OKI?</h3>
+              
+              <div className="grid lg:grid-cols-3 gap-8">
+                  <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                      <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 mb-4 font-bold text-xl">1</div>
+                      <h4 className="text-lg font-bold mb-2 text-slate-900">Limit Kapitału</h4>
+                      <p className="text-slate-600 text-sm">
+                          Ministerstwo proponuje limit kapitału w wysokości <strong>100 000 zł</strong>. Nie oznacza to, że możesz zainwestować tylko tyle. Oznacza to, że zysk wygenerowany przez taką kwotę (teoretycznie) będzie zwolniony z podatku.
+                      </p>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
+                       <div className="absolute top-0 right-0 p-4 opacity-5"><Percent size={80}/></div>
+                      <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 mb-4 font-bold text-xl">2</div>
+                      <h4 className="text-lg font-bold mb-2 text-slate-900">Mnożnik (Stopa NBP)</h4>
+                      <p className="text-slate-600 text-sm">
+                          Limit zwolnienia z podatku będzie wyliczany jako iloczyn 100 000 zł i <strong>stopy depozytowej NBP</strong> (obowiązującej w ostatnim dniu roku poprzedniego).
+                      </p>
+                      <div className="mt-4 p-2 bg-slate-50 rounded text-xs text-slate-500 font-mono">
+                          Wzór: 100 000 zł × Stopa Depozytowa NBP
+                      </div>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm border-b-4 border-b-green-500">
+                      <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600 mb-4 font-bold text-xl">3</div>
+                      <h4 className="text-lg font-bold mb-2 text-slate-900">Twój Zysk Netto</h4>
+                      <p className="text-slate-600 text-sm">
+                          Jeśli stopa depozytowa wynosi np. 5.25%, to kwota wolna od podatku wyniesie <strong>5 250 zł</strong> zysku rocznie.
+                      </p>
+                      <ul className="mt-4 space-y-1 text-sm text-slate-700">
+                          <li className="flex justify-between"><span>Zysk do 5 250 zł:</span> <span className="font-bold text-green-600">0 zł podatku</span></li>
+                          <li className="flex justify-between"><span>Zysk powyżej:</span> <span className="font-bold text-slate-400">19% podatku</span></li>
+                      </ul>
+                  </div>
+              </div>
+          </div>
+
+          {/* CZYM SIĘ RÓŻNI OD IKE/IKZE - TABELA */}
+          <div className="bg-slate-50 border border-slate-200 rounded-[2.5rem] p-8 md:p-12 mb-16">
+              <h3 className="text-2xl font-bold mb-8 text-center flex items-center justify-center gap-2">
+                  <Scale className="text-slate-700"/> OKI kontra Reszta Świata
+              </h3>
+              
+              <div className="overflow-x-auto bg-white rounded-2xl shadow-sm border border-slate-200">
+                  <table className="w-full text-sm text-left">
+                      <thead className="bg-slate-100 text-slate-500 uppercase font-bold text-xs">
+                          <tr>
+                              <th className="px-6 py-4">Cecha</th>
+                              <th className="px-6 py-4 text-cyan-600">OKI (Plan)</th>
+                              <th className="px-6 py-4 text-blue-600">IKE</th>
+                          </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                          <tr>
+                              <td className="px-6 py-4 font-bold text-slate-700">Cel</td>
+                              <td className="px-6 py-4">Oszczędzanie krótko i średnioterminowe</td>
+                              <td className="px-6 py-4">Emerytura (długi termin)</td>
+                          </tr>
+                          <tr>
+                              <td className="px-6 py-4 font-bold text-slate-700">Blokada środków</td>
+                              <td className="px-6 py-4 text-green-600 font-bold">Brak (wypłacasz kiedy chcesz)</td>
+                              <td className="px-6 py-4 text-orange-600">Do 60. roku życia (aby zachować ulgę)</td>
+                          </tr>
+                          <tr>
+                              <td className="px-6 py-4 font-bold text-slate-700">Limit ulgi</td>
+                              <td className="px-6 py-4">Kwota wolna od zysku (np. ~5000 zł)</td>
+                              <td className="px-6 py-4">Brak podatku od CAŁOŚCI zysku</td>
+                          </tr>
+                          <tr>
+                              <td className="px-6 py-4 font-bold text-slate-700">Rodzaj konta</td>
+                              <td className="px-6 py-4">Specjalne wyodrębnione konto w banku?</td>
+                              <td className="px-6 py-4">Konto maklerskie, obligacje, TFI</td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+              <p className="text-center text-xs text-slate-500 mt-4">
+                  *Ważne: OKI nie zastępuje IKE/IKZE. Będzie można posiadać wszystkie te konta jednocześnie.
+              </p>
+          </div>
+
+          {/* SZCZEGÓŁY TECHNICZNE I OGRANICZENIA */}
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+              <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <Lock className="text-red-500"/> Ograniczenia
+                  </h3>
+                  <ul className="space-y-4 text-sm text-slate-600">
+                      <li className="flex gap-3">
+                          <CheckCircle size={18} className="text-slate-400 shrink-0 mt-0.5"/>
+                          <span><strong>Jeden Bank:</strong> Prawdopodobnie będziesz mógł otworzyć OKI tylko w jednej instytucji finansowej jednocześnie (podobnie jak IKE).</span>
+                      </li>
+                      <li className="flex gap-3">
+                          <CheckCircle size={18} className="text-slate-400 shrink-0 mt-0.5"/>
+                          <span><strong>Rejestracja:</strong> Banki będą musiały raportować istnienie takiego konta, aby pilnować limitów.</span>
+                      </li>
+                      <li className="flex gap-3">
+                          <CheckCircle size={18} className="text-slate-400 shrink-0 mt-0.5"/>
+                          <span><strong>Lokaty i Obligacje:</strong> OKI ma obejmować przede wszystkim zyski z lokat bankowych i obligacji. Kwestia zysków giełdowych jest bardziej skomplikowana w rozliczeniu i trwają nad nią prace.</span>
+                      </li>
+                  </ul>
+              </div>
+
+              <div className="bg-indigo-900 text-white p-8 rounded-[2rem] relative overflow-hidden flex flex-col justify-center">
+                  <div className="relative z-10">
+                      <h3 className="text-xl font-bold mb-4 text-cyan-400">Dlaczego to ważne?</h3>
+                      <p className="mb-6 opacity-90 leading-relaxed">
+                          Obecnie, nawet jeśli zarobisz na lokacie 10 złotych, państwo zabiera Ci 1,90 zł (19% podatku Belki). To zniechęca do oszczędzania małych kwot.
+                      </p>
+                      <p className="opacity-90 leading-relaxed">
+                          OKI ma sprawić, że dla "zwykłego Kowalskiego", który posiada oszczędności do 100 000 zł, podatek od zysków kapitałowych przestanie istnieć. To realny zysk w Twojej kieszeni, który do tej pory oddawałeś fiskusowi.
+                      </p>
+                  </div>
+                  <Landmark className="absolute -bottom-10 -right-10 w-48 h-48 text-white opacity-5"/>
+              </div>
+          </div>
+
+          {/* NAWIGACJA */}
+          <div className="flex justify-center mt-12 gap-4">
+               <button onClick={() => navigate('/')} className="px-6 py-3 bg-slate-100 rounded-xl font-bold text-slate-700 hover:bg-slate-200 transition-colors">
+                  Wróć na stronę główną
+               </button>
+               <button onClick={() => navigate('/ike-ikze')} className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
+                  Zobacz obecne ulgi (IKE/IKZE)
+               </button>
+          </div>
+
+      </div>
+    </>
+  );
+};
+const CryptoView = () => {
+  const navigate = useNavigate();
+
+  // Dane do wykresu zmienności (Bitcoin vs Obligacje - symulacja)
+  const volatilityData = [
+    { year: '2017', btc: 1000, bond: 1000 },
+    { year: '2018', btc: 19000, bond: 1020 },
+    { year: '2019', btc: 3500, bond: 1045 },
+    { year: '2020', btc: 7200, bond: 1070 },
+    { year: '2021', btc: 29000, bond: 1090 },
+    { year: '2022', btc: 68000, bond: 1115 },
+    { year: '2023', btc: 16000, bond: 1140 },
+    { year: '2024', btc: 45000, bond: 1200 },
+    { year: '2025', btc: 90000, bond: 1260 },
+  ];
+
+  return (
+    <>
+      <Helmet>
+        <title>Kryptowaluty od A do Z - Bitcoin, Ethereum, Bezpieczeństwo | Finanse Proste</title>
+        <meta name="description" content="Kompendium wiedzy o kryptowalutach. Jak działa Blockchain? Czym różni się Bitcoin od Dogecoina? Historia upadków giełd (FTX, Mt. Gox) i jak bezpiecznie kupować." />
+      </Helmet>
+
+      <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
+          
+          {/* HERO SECTION - OSTRZEŻENIE */}
+          <div className="text-center mb-16 relative">
+              <div className="inline-flex items-center gap-2 bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider mb-6 shadow-lg shadow-yellow-400/30 animate-pulse">
+                 <AlertTriangle size={16}/> Aktywa Wysokiego Ryzyka
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black mb-6 text-slate-900">
+                  Świat <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-orange-600">Kryptowalut</span>
+              </h2>
+              <p className="text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                  Od buntu przeciwko bankom do globalnego rynku wartego biliony dolarów. Poznaj technologię Blockchain, historię Bitcoina i zasady bezpieczeństwa, które mogą uchronić Cię przed utratą majątku.
+              </p>
+          </div>
+
+          {/* GENEZA - BITCOIN */}
+          <div className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-16 mb-20 relative overflow-hidden">
+              <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+                  <div>
+                      <h3 className="text-3xl font-bold mb-6 flex items-center gap-3">
+                          <Globe className="text-yellow-500"/> Geneza: Rok 2008
+                      </h3>
+                      <p className="text-slate-300 mb-6 leading-relaxed">
+                          Świat pogrążony w kryzysie finansowym. Banki upadają, rządy drukują pieniądze. W Halloween 2008 roku, anonimowa postać (lub grupa) o pseudonimie <strong>Satoshi Nakamoto</strong> publikuje manifest (Whitepaper): <em>"Bitcoin: A Peer-to-Peer Electronic Cash System"</em>.
+                      </p>
+                      <div className="bg-white/10 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
+                          <h4 className="font-bold text-yellow-400 mb-2 flex items-center gap-2"><Lock size={18}/> Co to jest Blockchain?</h4>
+                          <p className="text-sm text-slate-300">
+                              Wyobraź sobie gigantyczną, cyfrową księgę rachunkową, której <strong>nie posiada żaden bank</strong>. Kopię tej księgi ma każdy użytkownik sieci. Gdy Jan przesyła Bitcoin Ali, wszyscy w sieci sprawdzają, czy Jan ma środki i dopisują transakcję do swoich ksiąg. Raz zapisanej strony (bloku) nie da się wyrwać ani zmienić. To jest właśnie łańcuch bloków.
+                          </p>
+                      </div>
+                  </div>
+                  <div className="flex flex-col items-center justify-center">
+                      <div className="w-64 h-64 bg-yellow-500 rounded-full flex items-center justify-center shadow-[0_0_100px_rgba(234,179,8,0.4)] mb-8">
+                          <span className="text-8xl font-black text-slate-900">₿</span>
+                      </div>
+                      <p className="text-center text-slate-400 text-sm italic">
+                          "Nie ufaj, weryfikuj." - dewiza Bitcoina.
+                      </p>
+                  </div>
+              </div>
+              {/* Tło dekoracyjne */}
+              <div className="absolute top-0 right-0 p-12 opacity-5 font-mono text-9xl font-black text-white pointer-events-none select-none">SHA-256</div>
+          </div>
+
+          {/* RODZAJE KRYPTOWALUT */}
+          <div className="mb-20">
+              <h3 className="text-3xl font-bold mb-10 text-center text-slate-900">Krypto-Ekosystem</h3>
+              
+              <div className="grid lg:grid-cols-3 gap-8">
+                  {/* BITCOIN */}
+                  <div className="bg-white p-8 rounded-[2rem] border-2 border-yellow-100 shadow-xl shadow-yellow-50 relative overflow-hidden group hover:-translate-y-2 transition-transform">
+                      <div className="absolute top-0 right-0 p-6 opacity-10"><Zap size={80} className="text-yellow-500"/></div>
+                      <h4 className="text-2xl font-black text-yellow-600 mb-2">Bitcoin (BTC)</h4>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6">Cyfrowe Złoto</p>
+                      <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                          Pierwsza i największa kryptowaluta. Jej podaż jest matematycznie ograniczona do <strong>21 milionów sztuk</strong>. Działa jako "magazyn wartości" (Store of Value). Jest powolny, ale najbezpieczniejszy.
+                      </p>
+                  </div>
+
+                  {/* ETHEREUM */}
+                  <div className="bg-white p-8 rounded-[2rem] border-2 border-indigo-100 shadow-xl shadow-indigo-50 relative overflow-hidden group hover:-translate-y-2 transition-transform">
+                      <div className="absolute top-0 right-0 p-6 opacity-10"><Cpu size={80} className="text-indigo-500"/></div>
+                      <h4 className="text-2xl font-black text-indigo-600 mb-2">Ethereum (ETH)</h4>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6">Programowalny Pieniądz</p>
+                      <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                          To nie tylko waluta, to platforma. Umożliwia tworzenie <strong>Inteligentnych Kontraktów</strong> (Smart Contracts) - programów, które same wykonują transakcje (np. "jeśli samolot się spóźni, wypłać odszkodowanie"). Fundament DeFi i NFT.
+                      </p>
+                  </div>
+
+                  {/* MEMECOINS & SHITCOINS */}
+                  <div className="bg-white p-8 rounded-[2rem] border-2 border-pink-100 shadow-xl shadow-pink-50 relative overflow-hidden group hover:-translate-y-2 transition-transform">
+                      <div className="absolute top-0 right-0 p-6 opacity-10"><Baby size={80} className="text-pink-500"/></div>
+                      <h4 className="text-2xl font-black text-pink-600 mb-2">Memecoins</h4>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6">Dogecoin, Shiba Inu, Pepe</p>
+                      <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                          Powstały jako żart lub satyra. Ich wartość opiera się w 99% na społeczności (community), hypie w mediach społecznościowych i tweetach celebrytów (np. Elona Muska).
+                      </p>
+                      <div className="bg-pink-50 text-pink-800 text-xs p-3 rounded-lg font-bold border border-pink-200 mt-2">
+                          ⚠️ Ekstremalne ryzyko. Możesz zarobić 1000% w dzień lub stracić 99% w godzinę.
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          {/* WYKRES ZMIENNOŚCI - VISUALIZACJA RYZYKA */}
+          <div className="bg-slate-50 border border-slate-200 rounded-[2.5rem] p-8 mb-20">
+              <div className="flex flex-col md:flex-row justify-between items-end mb-8">
+                  <div>
+                      <h3 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2"><TrendingUp className="text-red-500"/> Rollercoaster Emocji</h3>
+                      <p className="text-slate-600 max-w-xl">
+                          Porównanie hipotetycznej inwestycji 1000$ w Bitcoina (duża zmienność) vs Obligacje (stabilny wzrost). Zobacz, jak drastyczne spadki (Drawdowns) musi przetrwać inwestor krypto.
+                      </p>
+                  </div>
+                  <div className="flex gap-4 mt-4 md:mt-0 text-xs font-bold">
+                      <div className="flex items-center gap-2"><div className="w-3 h-3 bg-yellow-500 rounded-full"></div>Bitcoin</div>
+                      <div className="flex items-center gap-2"><div className="w-3 h-3 bg-slate-400 rounded-full"></div>Obligacje</div>
+                  </div>
+              </div>
+
+              <div className="h-[400px] w-full bg-white p-4 rounded-3xl border border-slate-100">
+                  <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={volatilityData} margin={{top: 20, right: 30, left: 10, bottom: 10}}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/>
+                          <XAxis dataKey="year" stroke="#94a3b8" fontSize={12}/>
+                          <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(val) => `$${val}`}/>
+                          <RechartsTooltip 
+                              contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
+                              formatter={(value) => [`$${value}`, 'Wartość']}
+                          />
+                          <Line type="monotone" dataKey="btc" stroke="#eab308" strokeWidth={3} dot={{r: 4}} activeDot={{r: 8}} />
+                          <Line type="monotone" dataKey="bond" stroke="#94a3b8" strokeWidth={3} strokeDasharray="5 5" dot={false} />
+                      </LineChart>
+                  </ResponsiveContainer>
+              </div>
+              <p className="text-center text-xs text-slate-400 mt-4 italic">*Wykres poglądowy, nie odzwierciedla idealnie historycznych cen, służy do wizualizacji skali wahań.</p>
+          </div>
+
+          {/* HISTORIA ATAKÓW I BEZPIECZEŃSTWO */}
+          <div className="mb-20">
+              <h3 className="text-3xl font-bold mb-8 text-center flex items-center justify-center gap-3">
+                  <ShieldCheck size={32} className="text-slate-800"/> Bezpieczeństwo i Skandale
+              </h3>
+              
+              <div className="grid lg:grid-cols-2 gap-12">
+                  <div className="space-y-6">
+                      <div className="bg-red-50 p-6 rounded-2xl border border-red-100">
+                          <div className="flex items-center gap-3 mb-3 text-red-800">
+                              <Siren size={24}/>
+                              <h4 className="font-bold text-lg">Mt. Gox (2014)</h4>
+                          </div>
+                          <p className="text-sm text-slate-700 leading-relaxed">
+                              W tamtym czasie giełda ta obsługiwała 70% światowego handlu Bitcoinem. Została zhakowana, a użytkownicy stracili 850 000 BTC. <strong>Lekcja:</strong> Nie trzymaj wszystkich środków na giełdzie.
+                          </p>
+                      </div>
+                      <div className="bg-red-50 p-6 rounded-2xl border border-red-100">
+                          <div className="flex items-center gap-3 mb-3 text-red-800">
+                              <Siren size={24}/>
+                              <h4 className="font-bold text-lg">Upadek FTX (2022)</h4>
+                          </div>
+                          <p className="text-sm text-slate-700 leading-relaxed">
+                              Trzecia największa giełda świata upadła w kilka dni. Okazało się, że właściciel (Sam Bankman-Fried) nielegalnie obracał środkami klientów. Giełda zbankrutowała, ludzie stracili miliardy. <strong>Lekcja:</strong> "Too big to fail" nie istnieje w krypto.
+                          </p>
+                      </div>
+                  </div>
+
+                  <div className="bg-slate-900 text-white p-8 rounded-[2rem] flex flex-col justify-center">
+                      <h4 className="text-xl font-bold mb-6 text-green-400">Jak nie stracić pieniędzy?</h4>
+                      <ul className="space-y-4">
+                          <li className="flex gap-4">
+                              <div className="bg-white/10 p-2 rounded-lg h-fit"><Key size={20}/></div>
+                              <div>
+                                  <strong className="block text-white">Not your keys, not your coins</strong>
+                                  <span className="text-sm text-slate-400">Jeśli trzymasz krypto na giełdzie (np. Binance), to giełda ma klucze. Jeśli giełda upadnie, tracisz środki. Prawdziwa własność jest tylko na prywatnym portfelu.</span>
+                              </div>
+                          </li>
+                          <li className="flex gap-4">
+                              <div className="bg-white/10 p-2 rounded-lg h-fit"><Wallet size={20}/></div>
+                              <div>
+                                  <strong className="block text-white">Portfele Sprzętowe (Cold Wallets)</strong>
+                                  <span className="text-sm text-slate-400">Najbezpieczniejsza opcja. Urządzenia przypominające pendrive (np. Ledger, Trezor), które trzymają klucze offline. Haker nie może się do nich włamać przez internet.</span>
+                              </div>
+                          </li>
+                          <li className="flex gap-4">
+                              <div className="bg-white/10 p-2 rounded-lg h-fit"><FileText size={20}/></div>
+                              <div>
+                                  <strong className="block text-white">Seed Phrase (Fraza odzyskiwania)</strong>
+                                  <span className="text-sm text-slate-400">To ciąg 12 lub 24 słów. TO JEST TWOJE HASŁO DO ŻYCIA. Zapisz na kartce, schowaj do sejfu. Nigdy nie wpisuj w komputerze, nie rób zdjęcia telefonem. Kto ma te słowa, ma Twoje pieniądze.</span>
+                              </div>
+                          </li>
+                      </ul>
+                  </div>
+              </div>
+          </div>
+
+          {/* PORADNIK INWESTORA - GDZIE KUPIĆ */}
+          <div className="mb-16">
+              <h3 className="text-2xl font-bold mb-8 text-center flex items-center justify-center gap-2">
+                  <ShoppingCart className="text-blue-600"/> Gdzie i jak kupić?
+              </h3>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                      <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-4">CEX</div>
+                      <h4 className="font-bold text-slate-900 mb-2">Giełdy Centralne</h4>
+                      <p className="text-xs text-slate-500 mb-4">Binance, Coinbase, Kraken, Zonda (PL)</p>
+                      <ul className="text-sm text-slate-600 text-left space-y-2">
+                          <li className="flex gap-2"><CheckCircle size={14} className="text-green-500 mt-1"/> Łatwe wpłaty PLN/USD</li>
+                          <li className="flex gap-2"><CheckCircle size={14} className="text-green-500 mt-1"/> Obsługa klienta</li>
+                          <li className="flex gap-2"><XCircle size={14} className="text-red-500 mt-1"/> Wymaga weryfikacji dowodem (KYC)</li>
+                      </ul>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                      <div className="w-12 h-12 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-4">DEX</div>
+                      <h4 className="font-bold text-slate-900 mb-2">Giełdy Zdecentralizowane</h4>
+                      <p className="text-xs text-slate-500 mb-4">Uniswap, PancakeSwap</p>
+                      <ul className="text-sm text-slate-600 text-left space-y-2">
+                          <li className="flex gap-2"><CheckCircle size={14} className="text-green-500 mt-1"/> Anonimowość (brak KYC)</li>
+                          <li className="flex gap-2"><CheckCircle size={14} className="text-green-500 mt-1"/> Ogromny wybór tokenów</li>
+                          <li className="flex gap-2"><XCircle size={14} className="text-red-500 mt-1"/> Trudniejsze w obsłudze, wysokie opłaty sieciowe (Gas)</li>
+                      </ul>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                      <div className="w-12 h-12 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-4">Bit</div>
+                      <h4 className="font-bold text-slate-900 mb-2">Bitomaty</h4>
+                      <p className="text-xs text-slate-500 mb-4">Fizyczne urządzenia w galeriach</p>
+                      <ul className="text-sm text-slate-600 text-left space-y-2">
+                          <li className="flex gap-2"><CheckCircle size={14} className="text-green-500 mt-1"/> Gotówka, anonimowość (do limitu)</li>
+                          <li className="flex gap-2"><XCircle size={14} className="text-red-500 mt-1"/> Bardzo wysokie prowizje (nawet 5-10%)</li>
+                      </ul>
+                  </div>
+              </div>
+          </div>
+
+          {/* SŁOWNICZEK I CIEKAWOSTKI */}
+          <div className="bg-gradient-to-br from-indigo-600 to-blue-700 text-white rounded-[2rem] p-8 md:p-12 relative overflow-hidden">
+              <div className="relative z-10">
+                  <h3 className="text-2xl font-bold mb-8">Słowniczek Krypto-Slangu</h3>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                      <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                          <div className="font-black text-yellow-400 mb-1">HODL</div>
+                          <div className="text-xs text-indigo-100">Błąd w pisowni słowa "HOLD" z 2013 roku. Oznacza trzymanie krypto mimo spadków. "Hold On for Dear Life".</div>
+                      </div>
+                      <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                          <div className="font-black text-yellow-400 mb-1">FOMO</div>
+                          <div className="text-xs text-indigo-100">"Fear Of Missing Out". Strach, że ominie nas zysk. Powód, przez który ludzie kupują na samej górce.</div>
+                      </div>
+                      <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                          <div className="font-black text-yellow-400 mb-1">FUD</div>
+                          <div className="text-xs text-indigo-100">"Fear, Uncertainty, Doubt". Rozsiewanie negatywnych informacji, by zbić cenę.</div>
+                      </div>
+                      <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                          <div className="font-black text-yellow-400 mb-1">Halving</div>
+                          <div className="text-xs text-indigo-100">Wydarzenie co 4 lata w sieci Bitcoin. Nagroda dla górników spada o połowę. Historycznie rozpoczyna hossę.</div>
+                      </div>
+                  </div>
+                  
+                  <div className="mt-8 p-4 bg-black/20 rounded-xl text-sm text-center border border-white/10">
+                      <strong>Podatki w Polsce:</strong> Pamiętaj, że zysk z kryptowalut (zamiana na walutę FIAT, np. PLN) podlega opodatkowaniu 19% (Podatek Belki). Wymiana krypto-na-krypto jest neutralna podatkowo.
+                  </div>
+              </div>
+          </div>
+
+          {/* NAWIGACJA */}
+          <div className="flex justify-center mt-12 gap-4">
+               <button onClick={() => navigate('/')} className="px-6 py-3 bg-slate-100 rounded-xl font-bold text-slate-700 hover:bg-slate-200 transition-colors">
+                  Wróć na stronę główną
+               </button>
+               <button onClick={() => navigate('/gielda')} className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
+                  Zobacz tradycyjną giełdę (Akcje)
+               </button>
+          </div>
+
+      </div>
+    </>
+  );
+}
+const AiDetectorView = () => {
+  const [inputText, setInputText] = useState('');
+  const [analysis, setAnalysis] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleAnalyze = async () => {
+    if (!inputText || inputText.length < 50) {
+      setError('Wpisz minimum 50 znaków, aby analiza była rzetelna.');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    setAnalysis(null);
+
+    try {
+      // Prompt instruujący Gemini, by działał jak detektor
+      const prompt = `
+        Przeanalizuj poniższy tekst pod kątem autorstwa (Człowiek vs AI).
+        Tekst do analizy: "${inputText}"
+        
+        Twoim zadaniem jest ocenić prawdopodobieństwo, że tekst został wygenerowany przez AI.
+        Zwróć odpowiedź TYLKO w formacie JSON (bez markdowna, bez dodatkowego tekstu), z następującymi polami:
+        - "aiScore": liczba od 0 do 100 (gdzie 100 to pewność że AI, 0 to pewność że człowiek)
+        - "humanScore": liczba od 0 do 100 (dopełnienie do 100)
+        - "verdict": krótki werdykt np. "Prawdopodobnie AI", "Raczej człowiek", "Mieszany styl"
+        - "reasoning": lista 3 krótkich punktów (stringów), co rzuciło się w oczy (np. "Zbyt idealna gramatyka", "Brak błędów interpunkcyjnych", "Naturalny, potoczny styl", "Specyficzne powtórzenia").
+      `;
+
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+      
+      // Oczyszczanie odpowiedzi z ewentualnych znaczników markdown ```json
+      const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+      const data = JSON.parse(cleanJson);
+      
+      setAnalysis(data);
+    } catch (err) {
+      console.error(err);
+      setError('Wystąpił błąd podczas analizy. Spróbuj ponownie lub skróć tekst.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Helmet>
+        <title>Darmowy Detektor AI - Sprawdź czy tekst napisał ChatGPT | Finanse Proste</title>
+        <meta name="description" content="Sprawdź wiarygodność tekstu. Nasz detektor AI analizuje styl, składnię i słownictwo, aby określić czy autorem jest człowiek czy bot." />
+      </Helmet>
+
+      <div className="animate-in slide-in-from-right duration-500 max-w-4xl mx-auto pb-16">
+          
+          <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border border-indigo-100">
+                 <Sparkles size={14}/> Beta Tester
+              </div>
+              <h2 className="text-3xl md:text-5xl font-black mb-6 text-slate-900">
+                  Detektor Treści AI
+              </h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                  Wklej dowolny artykuł, e-mail lub post z social mediów. Nasz algorytm przeanalizuje strukturę zdań i "sztywność" języka, aby ocenić, kto jest autorem.
+              </p>
+          </div>
+
+          {/* NARZĘDZIE */}
+          <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-xl shadow-indigo-50 border border-slate-200 mb-16 relative">
+              <div className="relative">
+                  <textarea
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    placeholder="Wklej tutaj tekst do sprawdzenia (min. 50 znaków)..."
+                    className="w-full h-48 p-6 bg-slate-50 rounded-2xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none text-slate-700 leading-relaxed transition-all"
+                  ></textarea>
+                  <div className="absolute bottom-4 right-4 text-xs text-slate-400 font-medium">
+                      {inputText.length} znaków
+                  </div>
+              </div>
+
+              {error && (
+                  <div className="mt-4 p-4 bg-red-50 text-red-600 rounded-xl text-sm font-bold flex items-center gap-2 animate-in fade-in">
+                      <AlertTriangle size={18}/> {error}
+                  </div>
+              )}
+
+              <div className="mt-6 flex justify-center">
+                  <button 
+                    onClick={handleAnalyze} 
+                    disabled={loading || inputText.length < 50}
+                    className="group relative flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-indigo-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                      {loading ? (
+                          <>
+                              <Loader2 className="animate-spin" size={24}/> Analizuję...
+                          </>
+                      ) : (
+                          <>
+                              <Bot size={24} className="group-hover:rotate-12 transition-transform"/> Sprawdź Autora
+                          </>
+                      )}
+                  </button>
+              </div>
+
+              {/* WYNIKI ANALIZY */}
+              {analysis && (
+                  <div className="mt-12 pt-8 border-t border-slate-100 animate-in slide-in-from-bottom-4 duration-700">
+                      <div className="text-center mb-8">
+                          <h3 className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Werdykt</h3>
+                          <div className="text-4xl font-black text-slate-900">{analysis.verdict}</div>
+                      </div>
+
+                      {/* PASEK POSTĘPU - KREATYWNA WIZUALIZACJA */}
+                      <div className="relative h-16 bg-slate-100 rounded-full overflow-hidden flex mb-8 border border-slate-200">
+                          {/* CZŁOWIEK */}
+                          <div 
+                            className="h-full bg-green-500 flex items-center justify-start pl-6 text-white font-bold transition-all duration-1000 relative"
+                            style={{ width: `${analysis.humanScore}%` }}
+                          >
+                              {analysis.humanScore > 15 && <span className="flex items-center gap-2"><Users size={20}/> {analysis.humanScore}% Człowiek</span>}
+                          </div>
+                          {/* AI */}
+                          <div 
+                            className="h-full bg-purple-600 flex items-center justify-end pr-6 text-white font-bold transition-all duration-1000 relative ml-auto"
+                            style={{ width: `${analysis.aiScore}%` }}
+                          >
+                              {analysis.aiScore > 15 && <span className="flex items-center gap-2">AI {analysis.aiScore}% <Bot size={20}/></span>}
+                          </div>
+                          
+                          {/* LINIA PODZIAŁU / VS */}
+                          <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-white/20 -translate-x-1/2 z-10 backdrop-blur-sm"></div>
+                      </div>
+
+                      <div className="grid md:grid-cols-3 gap-4">
+                          {analysis.reasoning.map((reason, idx) => (
+                              <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm text-slate-600 flex gap-3 items-start">
+                                  <div className="bg-indigo-100 text-indigo-600 rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">{idx + 1}</div>
+                                  {reason}
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+              )}
+          </div>
+
+          {/* SEKCJA EDUKACYJNA SEO */}
+          <div className="space-y-16">
+              <div className="bg-slate-900 text-white p-8 md:p-12 rounded-[2.5rem] relative overflow-hidden">
+                  <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
+                      <div>
+                          <h3 className="text-3xl font-bold mb-6">Zalew treści AI w Internecie</h3>
+                          <p className="text-slate-300 leading-relaxed mb-6">
+                              Szacuje się, że do 2026 roku nawet <strong>90% treści w Internecie</strong> może być generowanych syntetycznie. Modele językowe (LLM) takie jak GPT-4 czy Claude piszą szybciej, taniej i często poprawniej gramatycznie niż ludzie.
+                          </p>
+                          <div className="flex gap-4 text-sm font-bold text-indigo-300">
+                              <div className="flex items-center gap-2"><CheckCircle size={16}/> Fake News</div>
+                              <div className="flex items-center gap-2"><CheckCircle size={16}/> Spam SEO</div>
+                              <div className="flex items-center gap-2"><CheckCircle size={16}/> Boty</div>
+                          </div>
+                      </div>
+                      <div className="bg-white/10 p-6 rounded-3xl border border-white/10 backdrop-blur-md">
+                          <h4 className="font-bold mb-4 flex items-center gap-2"><Bot size={20}/> Jak algorytmy Google widzą AI?</h4>
+                          <p className="text-sm text-slate-300 mb-4">
+                              Oficjalne stanowisko Google: <strong>Jakość ponad pochodzenie.</strong> Nie banują AI z automatu, ale karzą treści "thin content" – czyli puste lanie wody bez wartości dodanej, typowe dla tanich generatorów.
+                          </p>
+                          <p className="text-sm text-slate-300">
+                              Nowy algorytm <em>Helpful Content Update</em> promuje treści pisane przez ekspertów, zawierające unikalne doświadczenia (E-E-A-T), których AI nie jest w stanie sfałszować.
+                          </p>
+                      </div>
+                  </div>
+                  {/* Tło */}
+                  <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl"></div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                  <div className="col-span-2 bg-white p-8 rounded-[2rem] border border-slate-200">
+                      <h3 className="text-2xl font-bold mb-6 text-slate-900">Dlaczego warto weryfikować tekst?</h3>
+                      <div className="space-y-6">
+                          <div className="flex gap-4">
+                              <div className="bg-red-50 p-3 rounded-xl h-fit text-red-600"><AlertTriangle size={24}/></div>
+                              <div>
+                                  <h4 className="font-bold text-slate-800">Halucynacje AI</h4>
+                                  <p className="text-sm text-slate-600 mt-1">Modele AI potrafią zmyślać fakty, daty, a nawet cytaty prawne z pełnym przekonaniem. Tekst może brzmieć mądrze, ale być kompletną bzdurą.</p>
+                              </div>
+                          </div>
+                          <div className="flex gap-4">
+                              <div className="bg-blue-50 p-3 rounded-xl h-fit text-blue-600"><Fingerprint size={24}/></div>
+                              <div>
+                                  <h4 className="font-bold text-slate-800">Autentyczność marki</h4>
+                                  <p className="text-sm text-slate-600 mt-1">Klienci wyczuwają sztuczność. "Plastikowy" język korporacyjny generowany przez bota buduje dystans, zamiast zaufania.</p>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 flex flex-col justify-center">
+                      <h4 className="font-bold text-slate-500 uppercase tracking-widest text-xs mb-4">Statystyki Social Media</h4>
+                      <div className="text-5xl font-black text-slate-900 mb-2">~40%</div>
+                      <p className="text-sm text-slate-600 mb-8">Ruchu w sieci to boty (tzw. "Bad Bots" i "Good Bots").</p>
+                      
+                      <div className="text-5xl font-black text-indigo-600 mb-2">15 sek</div>
+                      <p className="text-sm text-slate-600">Tyle zajmuje AI napisanie artykułu, który człowiekowi zająłby 2 godziny.</p>
+                  </div>
+              </div>
+          </div>
+
+      </div>
+    </>
+  );
+};
+const LeasingView = () => {
+  // --- ZMIENNE STANU ---
+  const [netPrice, setNetPrice] = useState(100000);
+  const [vatRate, setVatRate] = useState(23);
+  const [initialPaymentPercent, setInitialPaymentPercent] = useState(10);
+  const [durationMonths, setDurationMonths] = useState(36);
+  const [redemptionPercent, setRedemptionPercent] = useState(1);
+  const [interestRate, setInterestRate] = useState(7.5); // WIBOR + Marża
+  const [insuranceYearly, setInsuranceYearly] = useState(3000); // OC/AC
+  const [gapMonthly, setGapMonthly] = useState(50); // GAP
+
+  // --- OBLICZENIA ---
+  const leasingCalc = useMemo(() => {
+    const net = parseFloat(netPrice) || 0;
+    const initialPaymentAmount = net * (initialPaymentPercent / 100);
+    const redemptionAmount = net * (redemptionPercent / 100);
+    const amountToFinance = net - initialPaymentAmount;
+    
+    // Uproszczony wzór na ratę leasingową (kapitał + odsetki)
+    // PMT = P * r * (1+r)^n / ((1+r)^n - 1)
+    // Uwaga: W prawdziwym leasingu dochodzi dyskonto wartości końcowej, tutaj stosujemy przybliżenie finansowe.
+    // Bardziej precyzyjne dla leasingu: (Finansowane - (Wykup / (1+r)^n)) / ((1 - (1+r)^-n)/r)
+    
+    const r = (interestRate / 100) / 12; // miesięczne oprocentowanie
+    const n = durationMonths;
+    
+    let monthlyInstallmentNet = 0;
+    
+    if (interestRate === 0) {
+        monthlyInstallmentNet = (amountToFinance - redemptionAmount) / n;
+    } else {
+        const factor = (1 - Math.pow(1 + r, -n)) / r;
+        monthlyInstallmentNet = (amountToFinance - (redemptionAmount / Math.pow(1 + r, n))) / factor;
+    }
+
+    // Dodanie kosztów dodatkowych do raty (GAP)
+    const totalMonthlyNet = monthlyInstallmentNet + gapMonthly;
+
+    // Podsumowania
+    const totalCostNet = initialPaymentAmount + (totalMonthlyNet * n) + redemptionAmount;
+    const totalCostGross = totalCostNet * (1 + vatRate / 100);
+    const totalInterest = totalCostNet - net - (gapMonthly * n);
+    const leasePercent = (totalCostNet / net) * 100;
+
+    return {
+        initialPaymentAmount,
+        redemptionAmount,
+        monthlyInstallmentNet,
+        totalMonthlyNet,
+        totalMonthlyGross: totalMonthlyNet * (1 + vatRate / 100),
+        totalCostNet,
+        totalCostGross,
+        leasePercent: leasePercent.toFixed(2),
+        totalInterest
+    };
+  }, [netPrice, vatRate, initialPaymentPercent, durationMonths, redemptionPercent, interestRate, gapMonthly]);
+
+  // Komponent pomocniczy do definicji (Tooltip)
+  const Definition = ({ title, text }) => (
+      <div className="group relative inline-block ml-2 align-middle">
+          <Info size={16} className="text-slate-400 cursor-help hover:text-orange-500 transition-colors"/>
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-slate-800 text-white text-xs rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 leading-relaxed text-left">
+              <strong>{title}:</strong> {text}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-800"></div>
+          </div>
+      </div>
+  );
+
+  return (
+    <>
+      <Helmet>
+        <title>Kalkulator Leasingowy - Operacyjny i Finansowy | Finanse Proste</title>
+        <meta name="description" content="Zaawansowany kalkulator leasingu samochodowego. Oblicz ratę, wykup i koszty całkowite. Dowiedz się co to jest tarcza podatkowa i GAP." />
+      </Helmet>
+
+      <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
+          
+          <div className="mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
+                  <Car className="text-orange-600" size={36}/>
+                  Kalkulator Leasingowy
+              </h2>
+              <p className="text-slate-600 max-w-3xl text-lg">
+                  Symulacja leasingu operacyjnego (najpopularniejszego w Polsce). Narzędzie pozwala oszacować ratę miesięczną oraz całkowity koszt finansowania (np. 108%).
+              </p>
+          </div>
+
+          <div className="grid lg:grid-cols-12 gap-8 mb-16">
+              {/* LEWA KOLUMNA - PARAMETRY */}
+              <div className="lg:col-span-5 bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 space-y-6">
+                  
+                  <div>
+                      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">
+                          Wartość przedmiotu
+                          <Definition title="Cena Netto" text="Cena pojazdu lub maszyny bez podatku VAT. To od tej kwoty naliczane są odsetki. Znajdziesz ją na ofercie od dealera."/>
+                      </label>
+                      <InputGroup value={netPrice} onChange={setNetPrice} suffix="PLN" step="1000" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                      <div>
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">
+                              Opłata Wstępna (%)
+                              <Definition title="Czynsz Inicjalny" text="Wpłata własna (OW) lub czynsz inicjalny. Im wyższa wpłata, tym niższa rata i tańszy leasing. Minimum to zazwyczaj 0% lub 1%, maksimum 45%."/>
+                          </label>
+                          <input type="number" value={initialPaymentPercent} onChange={(e) => setInitialPaymentPercent(Number(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold" />
+                      </div>
+                      <div>
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">
+                              Wykup (%)
+                              <Definition title="Wartość Końcowa" text="Kwota, za którą kupujesz auto na własność po zakończeniu umowy. Wysoki wykup = niska rata miesięczna (ale duży wydatek na koniec)." />
+                          </label>
+                          <input type="number" value={redemptionPercent} onChange={(e) => setRedemptionPercent(Number(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold" />
+                      </div>
+                  </div>
+
+                  <div>
+                      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">
+                          Okres Leasingu (msc)
+                          <Definition title="Czas trwania" text="Liczba rat. Standardowo od 24 do 60 miesięcy (dla samochodów). Dla maszyn może być dłużej. Im dłuższy okres, tym wyższy koszt całkowity (więcej odsetek)." />
+                      </label>
+                      <div className="flex gap-2">
+                          {[24, 36, 48, 60].map(m => (
+                              <button key={m} onClick={() => setDurationMonths(m)} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${durationMonths === m ? 'bg-orange-500 text-white shadow-lg shadow-orange-200' : 'bg-slate-50 text-slate-500'}`}>{m}</button>
+                          ))}
+                      </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100">
+                      <h4 className="font-bold text-slate-800 mb-4 text-sm flex items-center gap-2">Parametry finansowe <Definition title="WIBOR i Koszty" text="Zmienne wpływające na całkowity koszt leasingu."/></h4>
+                      
+                      <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                              <label className="text-sm text-slate-600">Oprocentowanie roczne (%)</label>
+                              <div className="w-24">
+                                  <input type="number" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} className="w-full text-right bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-bold" step="0.1"/>
+                              </div>
+                          </div>
+                          <p className="text-[10px] text-slate-400 text-right -mt-2">Suma: WIBOR (np. 5.8%) + Marża leasingodawcy (np. 2%)</p>
+
+                          <div className="flex items-center justify-between">
+                              <label className="text-sm text-slate-600">Ubezpieczenie GAP (miesięcznie)</label>
+                              <div className="w-24">
+                                  <input type="number" value={gapMonthly} onChange={(e) => setGapMonthly(Number(e.target.value))} className="w-full text-right bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-bold" step="10"/>
+                              </div>
+                          </div>
+                          <p className="text-[10px] text-slate-400 text-right -mt-2">GAP chroni przed utratą wartości auta w razie kradzieży/szkody całkowitej.</p>
+                      </div>
+                  </div>
+
+              </div>
+
+              {/* PRAWA KOLUMNA - WYNIKI */}
+              <div className="lg:col-span-7 flex flex-col gap-6">
+                  
+                  {/* GŁÓWNA KARTA WYNIKU */}
+                  <div className="bg-orange-500 text-white rounded-[2.5rem] p-8 relative overflow-hidden shadow-xl shadow-orange-200">
+                      <div className="absolute top-0 right-0 p-8 opacity-10"><Car size={120}/></div>
+                      <div className="relative z-10">
+                          <div className="flex justify-between items-start mb-8">
+                              <div>
+                                  <div className="text-orange-100 font-bold uppercase tracking-wider text-xs mb-1">Miesięczna Rata Netto</div>
+                                  <div className="text-5xl font-black">{formatMoney(leasingCalc.totalMonthlyNet)}</div>
+                                  <div className="text-sm text-orange-100 mt-1">+ VAT = {formatMoney(leasingCalc.totalMonthlyGross)} brutto</div>
+                              </div>
+                              <div className="text-right">
+                                  <div className="text-orange-100 font-bold uppercase tracking-wider text-xs mb-1">Koszt Całkowity</div>
+                                  <div className="text-3xl font-bold">{leasingCalc.leasePercent}%</div>
+                              </div>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-4 border-t border-white/20 pt-6">
+                              <div>
+                                  <div className="text-xs text-orange-200 mb-1">Wpłata ({initialPaymentPercent}%)</div>
+                                  <div className="font-bold text-lg">{formatMoney(leasingCalc.initialPaymentAmount)}</div>
+                              </div>
+                              <div>
+                                  <div className="text-xs text-orange-200 mb-1">Suma rat ({durationMonths})</div>
+                                  <div className="font-bold text-lg">{formatMoney(leasingCalc.totalMonthlyNet * durationMonths)}</div>
+                              </div>
+                              <div>
+                                  <div className="text-xs text-orange-200 mb-1">Wykup ({redemptionPercent}%)</div>
+                                  <div className="font-bold text-lg">{formatMoney(leasingCalc.redemptionAmount)}</div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* WYKRES KOSZTÓW */}
+                  <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex-grow">
+                      <h4 className="font-bold text-slate-800 mb-6 text-center">Struktura Kosztów Leasingu (Netto)</h4>
+                      <div className="h-64 w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                              <BarChart layout="vertical" data={[
+                                  { name: 'Kapitał (Auto)', value: netPrice, fill: '#cbd5e1' },
+                                  { name: 'Odsetki i Koszty', value: leasingCalc.totalInterest + (gapMonthly * durationMonths), fill: '#f97316' },
+                              ]} margin={{top: 0, right: 30, left: 40, bottom: 0}} barSize={30}>
+                                  <XAxis type="number" hide />
+                                  <YAxis dataKey="name" type="category" width={100} tick={{fontSize: 12, fontWeight: 'bold'}} axisLine={false} tickLine={false}/>
+                                  <RechartsTooltip cursor={{fill: 'transparent'}} formatter={(val) => [formatMoney(val), 'Kwota']}/>
+                                  <Bar dataKey="value" radius={[0, 4, 4, 0]} label={{ position: 'right', fill: '#64748b', fontSize: 12, formatter: (val) => formatMoney(val) }}/>
+                              </BarChart>
+                          </ResponsiveContainer>
+                      </div>
+                      <div className="mt-4 text-center text-sm text-slate-500">
+                          Całkowita suma opłat (Netto): <strong>{formatMoney(leasingCalc.totalCostNet)}</strong>
+                      </div>
+                  </div>
+
+              </div>
+          </div>
+
+          {/* --- SEKCJA EDUKACYJNA (SEO) --- */}
+          <div className="space-y-16">
+              
+              {/* DEFINICJA I HISTORIA */}
+              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-100 shadow-sm relative overflow-hidden">
+                  <div className="relative z-10">
+                      <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+                          <BookOpen size={14}/> Kompendium Wiedzy
+                      </div>
+                      
+                      <div className="grid lg:grid-cols-2 gap-12">
+                          <div>
+                              <h3 className="text-3xl font-black text-slate-900 mb-4">Czym jest Leasing?</h3>
+                              <p className="text-slate-600 leading-relaxed mb-6">
+                                  Leasing to specyficzna forma finansowania, będąca hybrydą kredytu i dzierżawy. W świetle prawa, właścicielem przedmiotu (samochodu, maszyny) przez cały okres trwania umowy jest <strong>Finansujący (Leasingodawca)</strong>. Ty, jako <strong>Korzystający (Leasingobiorca)</strong>, płacisz miesięczne raty za prawo do użytkowania tego przedmiotu.
+                              </p>
+                              <p className="text-slate-600 leading-relaxed">
+                                  Dopiero po opłaceniu ostatniej raty i tzw. <strong>Wykupu</strong>, prawo własności przechodzi na Ciebie. To kluczowa różnica względem kredytu, gdzie od razu jesteś właścicielem.
+                              </p>
+                          </div>
+                          <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200">
+                              <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Globe size={18}/> Krótka Historia</h4>
+                              <p className="text-xs text-slate-600 mb-3 leading-relaxed">
+                                  Korzenie leasingu sięgają starożytności! Już w 2000 r. p.n.e. w Sumerze kapłani "leasingowali" ziemię rolnikom. Babilończycy (kodeks Hammurabiego) mieli przepisy dotyczące wynajmu łodzi i zwierząt.
+                              </p>
+                              <p className="text-xs text-slate-600 leading-relaxed">
+                                  Współczesny leasing narodził się w USA w latach 50. XX wieku (firma U.S. Leasing Corp.), a do Polski trafił po 1989 roku, stając się kołem zamachowym dla rozwijających się firm, które nie miały gotówki na zakup maszyn.
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              {/* RODZAJE LEASINGU - TABELA */}
+              <div className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
+                  <h3 className="text-2xl font-bold mb-8 text-center">Operacyjny vs Finansowy</h3>
+                  <div className="overflow-x-auto">
+                      <table className="w-full text-sm text-left">
+                          <thead className="text-xs text-slate-400 uppercase border-b border-slate-700">
+                              <tr>
+                                  <th className="px-6 py-4">Cecha</th>
+                                  <th className="px-6 py-4 text-orange-400">Leasing Operacyjny (Popularny)</th>
+                                  <th className="px-6 py-4 text-blue-400">Leasing Finansowy</th>
+                              </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-800">
+                              <tr>
+                                  <td className="px-6 py-4 font-bold text-slate-300">Własność</td>
+                                  <td className="px-6 py-4">Pojazd jest składnikiem majątku Leasingodawcy.</td>
+                                  <td className="px-6 py-4">Pojazd jest składnikiem majątku Twojego (wpisujesz do ewidencji).</td>
+                              </tr>
+                              <tr>
+                                  <td className="px-6 py-4 font-bold text-slate-300">Amortyzacja</td>
+                                  <td className="px-6 py-4">Odpisuje firma leasingowa.</td>
+                                  <td className="px-6 py-4">Odpisujesz Ty (Leasingobiorca).</td>
+                              </tr>
+                              <tr>
+                                  <td className="px-6 py-4 font-bold text-slate-300">Koszty uzyskania przychodu (PIT/CIT)</td>
+                                  <td className="px-6 py-4">Cała rata (kapitał + odsetki) oraz wpłata wstępna.</td>
+                                  <td className="px-6 py-4">Tylko część odsetkowa raty + odpisy amortyzacyjne.</td>
+                              </tr>
+                              <tr>
+                                  <td className="px-6 py-4 font-bold text-slate-300">VAT</td>
+                                  <td className="px-6 py-4">Doliczany do każdej raty (płacisz go "na raty").</td>
+                                  <td className="px-6 py-4">Płatny z góry od całej wartości pojazdu!</td>
+                              </tr>
+                              <tr>
+                                  <td className="px-6 py-4 font-bold text-slate-300">Dla kogo?</td>
+                                  <td className="px-6 py-4">Dla 80-90% firm (tarcza podatkowa).</td>
+                                  <td className="px-6 py-4">Dla rolników (ryczałt), firm na fakturę VAT marża, przy niskim VAT (np. medyczny).</td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+
+              {/* SEKRETY I TIPY */}
+              <div className="grid md:grid-cols-3 gap-8">
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-orange-300 transition-colors">
+                      <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4"><ShieldCheck size={20}/></div>
+                      <h4 className="font-bold text-slate-900 mb-2">Co to jest GAP?</h4>
+                      <p className="text-sm text-slate-600">
+                          Must-have! Zwykłe AC zwraca wartość rynkową auta w dniu szkody. GAP pokrywa różnicę między odszkodowaniem a wartością faktury zakupu. Dzięki temu przy kradzieży nie zostajesz z długiem w leasingu.
+                      </p>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-orange-300 transition-colors">
+                      <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4"><Percent size={20}/></div>
+                      <h4 className="font-bold text-slate-900 mb-2">Limit 150 000 zł</h4>
+                      <p className="text-sm text-slate-600">
+                          Samochody osobowe spalinowe/hybrydowe wrzucisz w koszty tylko do limitu 150 tys. zł (proporcja). Dla elektryków limit wynosi 225 tys. zł. Odsetki są kosztem w 100%!
+                      </p>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-orange-300 transition-colors">
+                      <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4"><FileSignature size={20}/></div>
+                      <h4 className="font-bold text-slate-900 mb-2">Wykup Prywatny</h4>
+                      <p className="text-sm text-slate-600">
+                          Po zmianach w Polskim Ładzie, wykup auta z leasingu do majątku prywatnego (bez VAT) wiąże się z koniecznością zapłaty podatku dochodowego przy sprzedaży, jeśli sprzedasz auto przed upływem 6 lat.
+                      </p>
+                  </div>
+              </div>
+
+          </div>
+
       </div>
     </>
   );

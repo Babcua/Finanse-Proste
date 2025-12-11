@@ -10,7 +10,12 @@ import {
   Cpu, Bot, Fingerprint, Car // <--- TERAZ JEST KOMPLET (Dodałem Fingerprint)
 } from 'lucide-react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { MortgageView } from './MortgageView'; // <--- WKLEJ TĘ LINIJKĘ TUTAJ
+import { B2BView } from './B2BView';
 
+// --- KONFIGURACJA API GEMINI ---
+
+// --- KONFIGURACJA API GEMINI ---
 // --- KONFIGURACJA API GEMINI ---
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -384,6 +389,7 @@ const FeatureCard = ({ title, subtitle, description, icon: Icon, color, onClick,
             overflow-hidden h-full
         `}
     >
+        {/* TŁO (GRADIENT) - Tutaj dodajemy obsługę INDIGO */}
         <div className={`
             absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 blur-2xl opacity-10
             ${color === 'blue' ? 'bg-blue-500' : ''}
@@ -393,6 +399,9 @@ const FeatureCard = ({ title, subtitle, description, icon: Icon, color, onClick,
             ${color === 'orange' ? 'bg-orange-500' : ''}
             ${color === 'teal' ? 'bg-teal-500' : ''}
             ${color === 'rose' ? 'bg-rose-500' : ''}
+            ${color === 'indigo' ? 'bg-indigo-500' : ''} 
+            ${color === 'yellow' ? 'bg-yellow-500' : ''}
+            ${color === 'cyan' ? 'bg-cyan-500' : ''}
         `}></div>
 
         {badge && (
@@ -401,6 +410,7 @@ const FeatureCard = ({ title, subtitle, description, icon: Icon, color, onClick,
             </span>
         )}
 
+        {/* IKONA - Tutaj też dodajemy INDIGO */}
         <div className={`
             w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-colors shadow-sm
             ${color === 'blue' ? 'bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white' : ''}
@@ -410,6 +420,9 @@ const FeatureCard = ({ title, subtitle, description, icon: Icon, color, onClick,
             ${color === 'orange' ? 'bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white' : ''}
             ${color === 'teal' ? 'bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white' : ''}
             ${color === 'rose' ? 'bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white' : ''}
+            ${color === 'indigo' ? 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white' : ''}
+            ${color === 'yellow' ? 'bg-yellow-50 text-yellow-600 group-hover:bg-yellow-600 group-hover:text-white' : ''}
+            ${color === 'cyan' ? 'bg-cyan-50 text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white' : ''}
         `}>
             <Icon size={28} />
         </div>
@@ -421,6 +434,7 @@ const FeatureCard = ({ title, subtitle, description, icon: Icon, color, onClick,
             {description}
         </p>
         
+        {/* PRZYCISK - Tutaj też dodajemy INDIGO */}
         <div className="mt-auto flex items-center gap-2 text-sm font-bold opacity-60 group-hover:opacity-100 transition-opacity">
             <span className={`
                 ${color === 'blue' ? 'text-blue-600' : ''}
@@ -430,6 +444,9 @@ const FeatureCard = ({ title, subtitle, description, icon: Icon, color, onClick,
                 ${color === 'orange' ? 'text-orange-600' : ''}
                 ${color === 'teal' ? 'text-teal-600' : ''}
                 ${color === 'rose' ? 'text-rose-600' : ''}
+                ${color === 'indigo' ? 'text-indigo-600' : ''}
+                ${color === 'yellow' ? 'text-yellow-600' : ''}
+                ${color === 'cyan' ? 'text-cyan-600' : ''}
             `}>Otwórz</span>
             <ArrowRight size={16} />
         </div>
@@ -482,6 +499,7 @@ export default function App() {
           <Route path="/oki" element={<OkiView />} />
           <Route path="/kryptowaluty" element={<CryptoView />} />
           <Route path="/leasing" element={<LeasingView />} />
+          <Route path="/nadplata-kredytu" element={<MortgageView />} /> 
         </Routes>
       </main>
       {/* STOPKA (Bez zmian) */}
@@ -535,11 +553,22 @@ const HomeView = () => {
           <div className="w-full max-w-6xl space-y-16">
               {/* SEKCJA NARZĘDZIA */}
               <section>
+
                   <div className="flex items-center gap-3 mb-8 px-2">
                       <div className="bg-slate-100 p-2 rounded-lg"><Calculator size={20} className="text-slate-700"/></div>
                       <h3 className="text-xl font-bold text-slate-800">Narzędzia i Kalkulatory</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <FeatureCard 
+                    title="Nadpłata Kredytu"
+                    subtitle="Hipoteka i Wakacje"
+                    description="Czy nadpłacać kredyt? Sprawdź o ile lat skrócisz kredyt i ile zaoszczędzisz tysięcy złotych na odsetkach."
+                    icon={Home}
+                    color="indigo"
+                    onClick={() => navigate('/nadplata-kredytu')}
+                    badge="Bestseller"
+                  />
+                  {/* Poniżej powinny być stare karty: Kalkulator Wynagrodzeń itd. */}
                       <FeatureCard 
                         title="Kalkulator Wynagrodzeń"
                         subtitle="Pensja Netto (Na rękę)"
@@ -699,6 +728,24 @@ const SalaryView = () => {
     <>
       <Helmet>
         <title>Kalkulator Wynagrodzeń 2025 - Brutto na Netto | Finanse Proste</title>
+        <script type="application/ld+json">
+{`
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Kalkulator Wynagrodzeń 2025 - Brutto Netto",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "description": "Oblicz pensję netto z brutto dla Umowy o Pracę, Zlecenie i Dzieło. Sprawdź koszty pracodawcy, PPK i ulgę dla młodych.",
+    "featureList": "Porównanie umów, Ulga dla Młodych, Polski Ład, Koszty pracodawcy"
+  }
+`}
+</script>
         <meta name="description" content="Oblicz pensję netto. Sprawdź ile dostaniesz na rękę na Umowie o Pracę, Zleceniu i Dziele. Porównanie umów." />
       </Helmet>
 
@@ -1002,199 +1049,6 @@ const SalaryView = () => {
     </>
   );
 };
-const B2BView = () => {
-// ... ZMIENNE I OBLICZENIA (zostaw tak jak masz, kopiuję tylko początek i koniec returna) ...
-// --- ZMIENNE ---
-const [b2bRateType, setB2bRateType] = useState('monthly');
-const [b2bHourlyRate, setB2bHourlyRate] = useState(100);
-const [b2bHours, setB2bHours] = useState(160);
-const [b2bNetto, setB2bNetto] = useState(12000);
-const [b2bTaxType, setB2bTaxType] = useState('liniowy');
-const [b2bRyczaltRate, setB2bRyczaltRate] = useState(12);
-const [b2bZusType, setB2bZusType] = useState('duzy');
-const [b2bCosts, setB2bCosts] = useState(0);
-const [b2bIpBox, setB2bIpBox] = useState(false);
-const [b2bSickLeave, setB2bSickLeave] = useState(true);
-const [b2bVat, setB2bVat] = useState(true);
-
-// OBLICZENIA
-const b2bResult = useMemo(() => {
-return calculateB2B({
-rateType: b2bRateType,
-hourlyRate: b2bHourlyRate,
-hoursCount: b2bHours,
-monthlyNet: b2bNetto,
-costs: b2bCosts,
-taxType: b2bTaxType,
-zusType: b2bZusType,
-sickLeave: b2bSickLeave,
-ipBox: b2bIpBox,
-ryczaltRate: b2bRyczaltRate,
-isVatPayer: b2bVat
-});
-}, [b2bRateType, b2bHourlyRate, b2bHours, b2bNetto, b2bCosts, b2bTaxType, b2bZusType, b2bSickLeave, b2bIpBox, b2bRyczaltRate, b2bVat]);
-
-return (
-<>
-<Helmet>
-<title>Kalkulator B2B 2025 - Oblicz Zysk Netto i Podatek</title>
-<meta name="description" content="Dla programistów i firm. Porównaj Ryczałt, Liniowy i Skalę. Oblicz ZUS i fakturę VAT." />
-</Helmet>
-
-<div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto">
-{/* ... reszta kodu B2B ... wklej tutaj to co miałeś wewnątrz div'a ... */}
-<div className="mb-8">
-<h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
-<Briefcase className="text-teal-600" size={36}/>
-Kalkulator B2B
-</h2>
-<p className="text-slate-600 max-w-3xl text-lg">
-Kompletne narzędzie dla przedsiębiorców. Oblicz zysk netto ("na rękę") uwzględniając formę opodatkowania, rodzaj ZUS oraz koszty.
-</p>
-</div>
-
-<div className="grid lg:grid-cols-12 gap-8">
-{/* LEFT INPUTS */}
-<div className="lg:col-span-5 space-y-6">
-<div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-6">
-<div className="flex bg-slate-50 p-1 rounded-xl">
-<button onClick={() => setB2bRateType('monthly')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${b2bRateType === 'monthly' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}>Miesięcznie</button>
-<button onClick={() => setB2bRateType('hourly')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${b2bRateType === 'hourly' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}>Godzinowo</button>
-</div>
-
-{b2bRateType === 'monthly' ? (
-<InputGroup label="Przychód netto (na fakturze)" value={b2bNetto} onChange={setB2bNetto} suffix="PLN" step="100" />
-) : (
-<div className="grid grid-cols-2 gap-4">
-<InputGroup label="Stawka godzinowa" value={b2bHourlyRate} onChange={setB2bHourlyRate} suffix="PLN" step="10" />
-<InputGroup label="Ilość godzin" value={b2bHours} onChange={setB2bHours} suffix="h" step="1" />
-</div>
-)}
-
-<InputGroup label="Koszty firmowe (netto)" value={b2bCosts} onChange={setB2bCosts} suffix="PLN" step="50" />
-<div className="space-y-4">
-<label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Forma opodatkowania</label>
-<div className="flex flex-col gap-2">
-<label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${b2bTaxType === 'liniowy' ? 'bg-teal-50 border-teal-200 ring-1 ring-teal-200' : 'bg-white border-slate-200'}`}>
-<input type="radio" name="tax" checked={b2bTaxType === 'liniowy'} onChange={() => setB2bTaxType('liniowy')} className="text-teal-600 focus:ring-teal-500"/>
-<div>
-<span className="block font-bold text-slate-900">Podatek liniowy (19%)</span>
-<span className="text-xs text-slate-500">Stała stawka. Składka zdrowotna 4.9%. Opłacalny przy wysokich dochodach.</span>
-</div>
-</label>
-<label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${b2bTaxType === 'skala' ? 'bg-teal-50 border-teal-200 ring-1 ring-teal-200' : 'bg-white border-slate-200'}`}>
-<input type="radio" name="tax" checked={b2bTaxType === 'skala'} onChange={() => setB2bTaxType('skala')} className="text-teal-600 focus:ring-teal-500"/>
-<div>
-<span className="block font-bold text-slate-900">Skala podatkowa (12% / 32%)</span>
-<span className="text-xs text-slate-500">Dobra przy niższych dochodach. Kwota wolna 30 tys. zł.</span>
-</div>
-</label>
-<label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${b2bTaxType === 'ryczalt' ? 'bg-teal-50 border-teal-200 ring-1 ring-teal-200' : 'bg-white border-slate-200'}`}>
-<input type="radio" name="tax" checked={b2bTaxType === 'ryczalt'} onChange={() => setB2bTaxType('ryczalt')} className="text-teal-600 focus:ring-teal-500"/>
-<div className="w-full">
-<span className="block font-bold text-slate-900">Ryczałt</span>
-<span className="text-xs text-slate-500 mb-2 block">Podatek od przychodu (nie zysku). Brak kosztów. Niskie stawki.</span>
-{b2bTaxType === 'ryczalt' && (
-<select value={b2bRyczaltRate} onChange={(e) => setB2bRyczaltRate(parseFloat(e.target.value))} className="w-full text-sm p-2 border border-slate-300 rounded-lg mt-1 bg-white">
-<option value={12}>12% (IT, programista)</option>
-<option value={15}>15% (doradztwo, usługi)</option>
-<option value={8.5}>8.5% (usługi, najem)</option>
-<option value={17}>17% (wolne zawody)</option>
-</select>
-)}
-</div>
-</label>
-</div>
-</div>
-
-<div className="space-y-4">
-<label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Składki ZUS</label>
-<select value={b2bZusType} onChange={(e) => setB2bZusType(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 font-bold rounded-xl p-4">
-<option value="ulga">Ulga na start (tylko zdrowotna)</option>
-<option value="maly">Preferencyjny (mały ZUS - 2 lata)</option>
-<option value="duzy">Duży ZUS (standard)</option>
-</select>
-</div>
-
-<div className="flex flex-col gap-2 pt-2">
-<CheckboxGroup label="Jestem płatnikiem VAT" description="Doliczasz 23% VAT do faktury." checked={b2bVat} onChange={setB2bVat} icon={Banknote} />
-<CheckboxGroup label="Dobrowolne chorobowe" description="Płatne L4 (po 90 dniach). Warto przy dużym ZUS." checked={b2bSickLeave} onChange={setB2bSickLeave} icon={Target} />
-{(b2bTaxType === 'liniowy' || b2bTaxType === 'skala') && (
-<CheckboxGroup label="Ulga IP BOX (5%)" description="Dla programistów tworzących własność intelektualną." checked={b2bIpBox} onChange={setB2bIpBox} icon={Sparkles} />
-)}
-</div>
-</div>
-</div>
-
-{/* RIGHT RESULTS */}
-<div className="lg:col-span-7 flex flex-col gap-6">
-<div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-<div className="flex justify-between items-end mb-8">
-<div>
-<h4 className="font-bold text-slate-900 text-xl">Wynik miesięczny</h4>
-<p className="text-slate-500 text-sm mt-1">Twój realny dochód na czysto.</p>
-</div>
-<div className="text-right">
-<span className="text-xs font-bold text-slate-400 uppercase">Dochód Netto</span>
-<div className={`text-4xl font-black ${b2bResult.netIncome < 0 ? 'text-red-500' : 'text-teal-600'}`}>
-{formatMoney(b2bResult.netIncome)}
-</div>
-</div>
-</div>
-
-{b2bResult.netIncome < 0 && (
-<div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 font-bold text-sm flex items-center gap-2">
-<AlertTriangle size={18}/>
-Uwaga: Twoje koszty i obciążenia przewyższają przychód. Generujesz stratę.
-</div>
-)}
-
-<div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-<div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-<div className="text-[10px] text-slate-500 uppercase font-bold">Przychód</div>
-<div className="font-bold text-slate-900">{formatMoney(b2bResult.revenue)}</div>
-</div>
-<div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-<div className="text-[10px] text-slate-500 uppercase font-bold">Koszty</div>
-<div className="font-bold text-slate-700">-{formatMoney(b2bResult.costs)}</div>
-</div>
-<div className="p-3 bg-red-50 rounded-xl border border-red-100 text-center">
-<div className="text-[10px] text-red-500 uppercase font-bold">Podatki</div>
-<div className="font-bold text-red-700">-{formatMoney(b2bResult.incomeTax)}</div>
-</div>
-<div className="p-3 bg-orange-50 rounded-xl border border-orange-100 text-center">
-<div className="text-[10px] text-orange-500 uppercase font-bold">ZUS Total</div>
-<div className="font-bold text-orange-700">-{formatMoney(b2bResult.totalZus)}</div>
-</div>
-</div>
-
-<div className="h-64 mb-6">
-<ResponsiveContainer width="100%" height="100%">
-<BarChart data={[
-{ name: 'Przychód', value: b2bResult.revenue, fill: '#cbd5e1' },
-{ name: 'Netto', value: Math.max(0, b2bResult.netIncome), fill: '#0d9488' },
-{ name: 'Podatek', value: b2bResult.incomeTax, fill: '#f87171' },
-{ name: 'ZUS', value: b2bResult.totalZus, fill: '#fb923c' },
-]} margin={{top: 20, right: 30, left: 20, bottom: 5}}>
-<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-<XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} tickMargin={10}/>
-<YAxis fontSize={12} tickMargin={10}/>
-<RechartsTooltip
-cursor={{fill: 'transparent'}}
-contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
-formatter={(value) => [formatMoney(value), 'Wartość']}
-/>
-<Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={60} />
-</BarChart>
-</ResponsiveContainer>
-</div>
-</div>
-</div>
-</div>
-</div>
-</>
-);
-};
 const BondsView = () => {
   // --- ZMIENNE ---
   const [activeBondType, setActiveBondType] = useState('standard');
@@ -1286,6 +1140,30 @@ const BondsView = () => {
     <>
       <Helmet>
         <title>Kalkulator Obligacji Skarbowych (EDO, COI, TOS) | Finanse Proste</title>
+        <script type="application/ld+json">
+{`
+  {
+    "@context": "https://schema.org",
+    "@type": "FinancialProduct",
+    "name": "Kalkulator Obligacji Skarbowych (EDO, COI, TOS)",
+    "description": "Symulator zysków z obligacji skarbowych indeksowanych inflacją. Porównaj obligacje 4-letnie, 10-letnie i rodzinne.",
+    "brand": {
+      "@type": "Brand",
+      "name": "Skarb Państwa"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "interestRate": {
+      "@type": "QuantitativeValue",
+      "value": 7.0,
+      "unitText": "PERCENT"
+    }
+  }
+`}
+</script>
         <meta name="description" content="Symulator zysków z obligacji. Sprawdź ile zarobisz na obligacjach antyinflacyjnych EDO i COI." />
       </Helmet>
 
@@ -1530,6 +1408,24 @@ const CompoundView = () => {
     <>
       <Helmet>
         <title>Kalkulator Procentu Składanego - Wzór i Symulacja Zysków</title>
+        <script type="application/ld+json">
+{`
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Kalkulator Procentu Składanego",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "description": "Symulacja zysków z inwestycji długoterminowych. Zobacz efekt kuli śnieżnej i reinwestowania odsetek.",
+    "featureList": "Kapitalizacja miesięczna/roczna, podatek Belki, inflacja"
+  }
+`}
+</script>
         <meta name="description" content="Oblicz zysk z procentu składanego. Zrozum efekt kuli śnieżnej, poznaj wzór i zobacz jak czas pomnaża Twoje oszczędności." />
       </Helmet>
 
@@ -3240,6 +3136,22 @@ const LeasingView = () => {
     <>
       <Helmet>
         <title>Kalkulator Leasingowy - Operacyjny i Finansowy | Finanse Proste</title>
+        <script type="application/ld+json">
+{`
+  {
+    "@context": "https://schema.org",
+    "@type": "FinancialProduct",
+    "name": "Kalkulator Leasingowy Samochodu",
+    "description": "Oblicz ratę leasingu operacyjnego. Uwzględnij wykup, wpłatę własną, GAP i tarczę podatkową.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "featureList": "Leasing operacyjny, finansowy, GAP, Limit 150 tys. zł"
+  }
+`}
+</script>
         <meta name="description" content="Zaawansowany kalkulator leasingu samochodowego. Oblicz ratę, wykup i koszty całkowite. Dowiedz się co to jest tarcza podatkowa i GAP." />
       </Helmet>
 

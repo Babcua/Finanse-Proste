@@ -4,7 +4,7 @@ import {
   Calculator, Home, TrendingUp, TrendingDown, DollarSign,
   AlertTriangle, CheckCircle, HelpCircle, Info, Calendar,
   PieChart, ArrowRight, ShieldCheck, XCircle, FileText, CreditCard,
-  Briefcase, Lock, Percent, Search, BarChart3, Activity, FileCheck, Coins
+  Briefcase, Lock, Percent, Search, BarChart3, Activity, FileCheck, Coins, Sparkles
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -365,6 +365,45 @@ export const MortgageView = () => {
                             </p>
                         </div>
                     </div>
+                </div>
+
+                {/* --- NOWY ELEMENT: WYPEŁNIACZ PUSTEJ PRZESTRZENI (TIP INWESTYCYJNY) --- */}
+                <div className="bg-gradient-to-br from-slate-50 to-indigo-50/50 border border-indigo-100 p-8 rounded-3xl relative overflow-hidden">
+                    <div className="relative z-10">
+                        <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <Sparkles size={20} className="text-indigo-500"/>
+                            Sekret: Nadpłata to "Super-Lokata"
+                        </h4>
+                        
+                        <div className="space-y-4 text-sm text-slate-600 leading-relaxed">
+                            <p>
+                                Czy wiesz, że nadpłacając kredyt z oprocentowaniem <strong>{rate}%</strong>, zyskujesz tyle samo, co na lokacie bankowej oprocentowanej na:
+                            </p>
+                            
+                            <div className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm flex items-center justify-between">
+                                <span className="font-bold text-slate-500">Twój ekwiwalent lokaty:</span>
+                                <span className="font-black text-2xl text-indigo-600">
+                                    {((parseFloat(rate) / 0.81)).toFixed(2)}%
+                                </span>
+                            </div>
+
+                            <p className="text-xs text-slate-500">
+                                <strong>Dlaczego aż tyle?</strong> Ponieważ zysk z nadpłaty (zaoszczędzone odsetki) jest zwolniony z 19% podatku Belki. Żaden bank nie da Ci takiej gwarancji zysku bez ryzyka!
+                            </p>
+
+                            <div className="pt-4 border-t border-indigo-100 mt-4">
+                                <h5 className="font-bold text-slate-800 mb-2 text-xs uppercase tracking-wider flex items-center gap-2">
+                                    <TrendingDown size={14} className="text-red-500"/> Inflacja a Twój Dług
+                                </h5>
+                                <p className="text-xs text-slate-500">
+                                    Wysoka inflacja sprawia, że realna wartość Twojego długu maleje (1000 zł dziś jest warte mniej niż 1000 zł za 10 lat). Jednak rosnące stopy procentowe (WIBOR) zwiększają koszt obsługi tego długu. Nadpłata to jedyna ucieczka z tej pułapki.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Ozdobne tło */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-orange-500/5 rounded-full blur-2xl -ml-10 -mb-10"></div>
                 </div>
             </div>
         </div>

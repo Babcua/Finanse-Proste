@@ -213,6 +213,7 @@ export const B2BView = () => {
 `}
 </script>
                 <meta name="description" content="Kompendium wiedzy dla samozatrudnionych. Oblicz zysk netto, ZUS i podatki. Dowiedz się co wrzucić w koszty, jak wybrać księgową i ubezpieczenie OC." />
+            <link rel="canonical" href="https://www.finanse-proste.pl/b2b" />
             </Helmet>
 
             <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">

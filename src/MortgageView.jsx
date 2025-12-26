@@ -188,6 +188,7 @@ export const MortgageView = () => {
 `}
 </script>
         <meta name="description" content="Czy warto nadpłacać kredyt? Sprawdź ile zaoszczędzisz. Dowiedz się jak wykreślić hipotekę i czym jest WIBOR." />
+     <link rel="canonical" href="https://www.finanse-proste.pl/nadplata-kredytu" />
       </Helmet>
 
       <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">

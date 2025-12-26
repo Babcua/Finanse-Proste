@@ -2,16 +2,25 @@ import { Helmet } from 'react-helmet-async';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, AreaChart, Area, LineChart, Line, PieChart, Pie, Cell
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, AreaChart, Area, LineChart, Line, PieChart as PieChartIcon, Pie, Cell
 } from 'recharts';
 import {
   TrendingUp, Info, Banknote, ShieldCheck, Coins, AlertTriangle, Baby, Landmark, ChevronDown, ExternalLink, Sparkles, Loader2, ArrowRight,
-  Briefcase, FileSignature, PenTool, Wallet, HelpCircle, Users, PiggyBank, Home, ArrowUpRight, Lock, CheckCircle, XCircle, Shuffle, School, ChevronUp, BookOpen, Scale, Umbrella, LayoutGrid, GraduationCap, ChevronLeft, Calculator, Lightbulb, ArrowRightCircle, Target, ThumbsUp, ThumbsDown, Building2, Clock, Percent, Activity, Key, DoorOpen, BadgeCheck, Zap, Globe, Siren, CandlestickChart, ShoppingCart, FileText, Repeat,
-  Cpu, Bot, Fingerprint, Car // <--- TERAZ JEST KOMPLET (Dodałem Fingerprint)
+  Briefcase, FileSignature, PenTool, Wallet, HelpCircle, Users, PiggyBank, Flame, Home, ArrowUpRight, Lock, CheckCircle, XCircle, Shuffle, School, ChevronUp, BookOpen, Scale, Umbrella, LayoutGrid, GraduationCap, ChevronLeft, Calculator, Lightbulb, ArrowRightCircle, Target, ThumbsUp, ThumbsDown, Building2, Clock, Percent, Activity, Key, DoorOpen, BadgeCheck, Zap, Globe, Siren, CandlestickChart, ShoppingCart, FileText, Repeat,
+  Cpu, Bot, Fingerprint, Car, ArrowDown // <--- TERAZ JEST KOMPLET (Dodałem Fingerprint)
 } from 'lucide-react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { MortgageView } from './MortgageView'; // <--- WKLEJ TĘ LINIJKĘ TUTAJ
+import { MortgageView } from './MortgageView'; 
 import { B2BView } from './B2BView';
+import { SalaryView } from './SalaryView';
+import { GoldView } from './GoldView'; 
+import CookieBanner from './CookieBanner';
+import { RentVsBuyView } from './RentVsBuyView';
+import { FireView } from './FireView';
+import { PrivacyPolicyView } from './PrivacyPolicyView';
+import { VatView } from './VatView';
+
+
 
 // --- KONFIGURACJA API GEMINI ---
 
@@ -86,106 +95,7 @@ const ETF_DATA_MOCK = {
     }
 };
 
-// --- LOGIKA KALKULATORA WYNAGRODZEŃ (ROCZNA) ---
-
-const calculateYearlySalary = (brutto, type, params) => {
-  const amount = parseFloat(brutto) || 0;
-  const THRESHOLD_TAX = 120000;
-  const LIMIT_ZUS_30 = 234720;
-  const KUP_STANDARD = 250;
-  const KUP_ELEVATED = 300;
-  const TAX_FREE_REDUCTION = 300;
-
-  let accumulatedTaxBase = 0;
-  let accumulatedRetirementBase = 0;
-  const yearlyBreakdown = [];
-
-  for (let i = 0; i < 12; i++) {
-    let currentBrutto = amount;
-    let zusSocial = 0, zusHealth = 0, tax = 0, ppk = 0, ppkEmployer = 0;
-    
-    const isZusCapped = accumulatedRetirementBase >= LIMIT_ZUS_30;
-    let zusRate = 0.1371; // E+R+Ch
-    
-    if (type === 'uop') {
-        let baseForZus = currentBrutto;
-        if (isZusCapped) zusRate = 0.0245; // Tylko chorobowe
-        
-        zusSocial = baseForZus * zusRate;
-        accumulatedRetirementBase += baseForZus;
-
-        const baseForHealth = currentBrutto - zusSocial;
-        zusHealth = baseForHealth * 0.09;
-
-        const kup = params.workWhereLive ? KUP_STANDARD : KUP_ELEVATED;
-        const taxBase = Math.max(0, currentBrutto - zusSocial - kup);
-        
-        let calculatedTax = 0;
-        if (accumulatedTaxBase > THRESHOLD_TAX) {
-            calculatedTax = taxBase * 0.32;
-        } else if (accumulatedTaxBase + taxBase > THRESHOLD_TAX) {
-            const inFirstBracket = THRESHOLD_TAX - accumulatedTaxBase;
-            const inSecondBracket = taxBase - inFirstBracket;
-            calculatedTax = (inFirstBracket * 0.12) + (inSecondBracket * 0.32);
-        } else {
-            calculatedTax = taxBase * 0.12;
-        }
-        
-        if (accumulatedTaxBase < THRESHOLD_TAX) calculatedTax -= TAX_FREE_REDUCTION;
-        if (params.under26 && accumulatedTaxBase < 85528) calculatedTax = 0;
-        
-        tax = Math.max(0, Math.round(calculatedTax));
-        accumulatedTaxBase += taxBase;
-
-        if (params.ppk) {
-            ppk = currentBrutto * (params.ppkRate / 100);
-            ppkEmployer = currentBrutto * 0.015;
-            tax += (ppkEmployer * 0.12);
-        }
-
-        const netto = currentBrutto - zusSocial - zusHealth - tax - ppk;
-        yearlyBreakdown.push({
-            month: MONTHS[i], netto, gross: currentBrutto, tax, zus: zusSocial + zusHealth, ppk,
-            thresholdCrossed: accumulatedTaxBase > THRESHOLD_TAX && (accumulatedTaxBase - taxBase) <= THRESHOLD_TAX
-        });
-
-    } else {
-        const singleMonth = calculateSingleMonth(amount, type, params);
-        yearlyBreakdown.push({ month: MONTHS[i], ...singleMonth, thresholdCrossed: false });
-    }
-  }
-  return yearlyBreakdown;
-};
-
-// Helper dla UZ/UoD
-const calculateSingleMonth = (amount, type, params) => {
-    let netto = 0, tax = 0, zus = 0, ppk = 0;
-    const HEALTH_RATE = 0.09;
-    
-    if (type === 'uz') {
-        if (params.under26 && params.student) {
-            netto = amount;
-        } else {
-            const zusSocial = amount * 0.1126;
-            const baseHealth = amount - zusSocial;
-            const zusHealth = baseHealth * HEALTH_RATE;
-            zus = zusSocial + zusHealth;
-            
-            const kup = (amount - zusSocial) * 0.20;
-            const taxBase = Math.round(amount - zusSocial - kup);
-            let cTax = (taxBase * 0.12) - 300;
-            if (params.under26) cTax = 0;
-            tax = Math.max(0, cTax);
-            netto = amount - zus - tax;
-        }
-    } else if (type === 'uod') {
-        const kup = amount * 0.20;
-        const taxBase = Math.round(amount - kup);
-        tax = Math.max(0, taxBase * 0.12);
-        netto = amount - tax;
-    }
-    return { netto, tax, zus, ppk };
-};
+// --- GŁÓWNY KOMPONENT WIDOKU ---
 
 // Helper do sumowania rocznego netto dla porównań
 const getYearlyNetTotal = (brutto, type, params) => {
@@ -482,6 +392,7 @@ export default function App() {
                 <ChevronLeft size={16}/> Menu
              </Link>
           )}
+          
         </div>
       </header>
 
@@ -500,10 +411,14 @@ export default function App() {
           <Route path="/kryptowaluty" element={<CryptoView />} />
           <Route path="/leasing" element={<LeasingView />} />
           <Route path="/nadplata-kredytu" element={<MortgageView />} /> 
+          <Route path="/zloto" element={<GoldView />} /> 
+          <Route path="/kalkulator-fire" element={<FireView />} />
+          <Route path="/wynajem-czy-kupno" element={<RentVsBuyView />} />
+          <Route path="/kalkulator-vat" element={<VatView />} />
+          <Route path="/polityka-prywatnosci" element={<PrivacyPolicyView />} />
         </Routes>
       </main>
-      {/* STOPKA (Bez zmian) */}
-{/* STOPKA Z ZABEZPIECZENIEM I BEZ LINKÓW KONTAKTOWYCH */}
+      {/* STOPKA */}
       <footer className="bg-slate-900 text-slate-400 py-12 mt-auto">
         <div className="max-w-4xl mx-auto px-6 text-center space-y-6">
           <div className="flex justify-center"><AlertTriangle className="text-yellow-500/80" size={24} /></div>
@@ -523,533 +438,409 @@ export default function App() {
             </p>
           </div>
 
-          <div className="pt-8 border-t border-slate-800/50 flex flex-col justify-center items-center gap-2 text-xs text-slate-600">
+          <div className="pt-8 border-t border-slate-800/50 flex flex-col justify-center items-center gap-3 text-xs text-slate-600">
              <p>&copy; 2025 Finanse Proste. Wszelkie prawa zastrzeżone.</p>
+
+             {/* LINK DO POLITYKI PRYWATNOŚCI */}
+             <Link to="/polityka-prywatnosci" className="hover:text-slate-400 transition-colors underline decoration-slate-700 underline-offset-4">
+                Polityka Prywatności i Cookies
+             </Link>
           </div>
         </div>
       </footer>
+      
+      {/* BANER CIASTECZEK */}
+      <CookieBanner />
+
     </div>
   );
 }
+// --- NOWA WERSJA HOMEVIEW (SEO + TREŚĆ) ---
 const HomeView = () => {
   const navigate = useNavigate();
+
+  const scrollToTools = () => {
+    const element = document.getElementById('narzedzia');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <Helmet>
-        <title>Finanse Proste - Kalkulatory, Leasing i Edukacja</title>
-        <meta name="description" content="Darmowe narzędzia: Kalkulator Leasingu, Wynagrodzeń, B2B. Sprawdź koszty finansowania samochodu i maszyn." />
+        <title>Kalkulatory Finansowe 2026 - B2B, Leasing, Kredyt, Podatki | Finanse Proste</title>
+        <meta name="description" content="Niezależny portal finansowy. Policz zysk netto B2B, koszty leasingu i nadpłatę kredytu. Sprawdź opłacalność obligacji skarbowych i IKE. Aktualne wskaźniki 2026." />
+        <link rel="canonical" href="https://www.finanse-proste.pl/" />
       </Helmet>
 
       <div className="flex flex-col items-center justify-center animate-in fade-in zoom-in duration-500 pb-12">
-          <div className="text-center mb-16 max-w-2xl mt-12">
-              <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight">
-                  Finanse <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">zrozumiałe</span>
-              </h2>
-              <p className="text-lg text-slate-500 leading-relaxed">
-                  Profesjonalne narzędzia do analizy Twoich pieniędzy i prosta edukacja. Wybierz, czego potrzebujesz.
-              </p>
+          
+          {/* --- HERO SECTION: CZYSTY & PROFESJONALNY --- */}
+          <div className="text-center mb-24 max-w-5xl mt-16 px-4 relative">
+              <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest mb-8 shadow-xl shadow-slate-200">
+                 <Sparkles size={14} className="text-blue-400"/> Prognozy i stawki: 2026
+              </div>
+              
+              <h1 className="text-5xl md:text-7xl font-black text-slate-900 mb-8 tracking-tight leading-[1.1]">
+                  Twoje finanse. <br/>
+                  <span className="text-blue-600">Policzone precyzyjnie.</span>
+              </h1>
+              
+              <div className="space-y-6 text-lg text-slate-600 leading-relaxed max-w-3xl mx-auto mb-12">
+                <p>
+                  W gąszczu przepisów podatkowych i ofert bankowych matematyka jest jedynym obiektywnym doradcą. 
+                  Stworzyliśmy ekosystem narzędzi, który obejmuje <strong>podatki firmowe</strong> (B2B/Leasing), 
+                  <strong> rynek nieruchomości</strong> oraz <strong>budowanie kapitału</strong>.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                  <button 
+                    onClick={scrollToTools}
+                    className="group relative inline-flex items-center justify-center gap-3 bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 hover:-translate-y-1"
+                  >
+                    <span>Wybierz kalkulator</span>
+                    <ArrowDown className="animate-bounce" size={20}/>
+                  </button>
+                  <button 
+                    onClick={() => document.getElementById('kompendium-seo').scrollIntoView({ behavior: 'smooth' })}
+                    className="inline-flex items-center justify-center gap-3 bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-slate-50 transition-all hover:border-slate-300 shadow-sm"
+                  >
+                    <span>Czytaj analizy</span>
+                    <BookOpen size={20}/>
+                  </button>
+              </div>
           </div>
 
-          <div className="w-full max-w-6xl space-y-16">
-              {/* SEKCJA NARZĘDZIA */}
-              <section>
-
-                  <div className="flex items-center gap-3 mb-8 px-2">
-                      <div className="bg-slate-100 p-2 rounded-lg"><Calculator size={20} className="text-slate-700"/></div>
-                      <h3 className="text-xl font-bold text-slate-800">Narzędzia i Kalkulatory</h3>
+          <div className="w-full max-w-7xl space-y-32 px-4">
+            
+              {/* --- 1. NARZĘDZIA ANALITYCZNE (GRID) --- */}
+              <section id="narzedzia" className="scroll-mt-28">
+                  <div className="mb-12 border-b border-slate-100 pb-8">
+                      <div className="flex items-center gap-4 mb-4">
+                          <div className="h-10 w-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 shadow-sm">
+                            <Calculator size={24}/>
+                          </div>
+                          <h2 className="text-3xl font-bold text-slate-900">Kalkulatory i Narzędzia</h2>
+                      </div>
+                      <p className="text-slate-500 text-lg max-w-3xl">
+                          Wybierz odpowiedni moduł. Każde narzędzie zawiera nie tylko wynik, ale też <strong>szczegółowe wyjaśnienie prawne i podatkowe.</strong>
+                      </p>
                   </div>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <FeatureCard 
-                    title="Nadpłata Kredytu"
-                    subtitle="Hipoteka i Wakacje"
-                    description="Czy nadpłacać kredyt? Sprawdź o ile lat skrócisz kredyt i ile zaoszczędzisz tysięcy złotych na odsetkach."
-                    icon={Home}
-                    color="indigo"
-                    onClick={() => navigate('/nadplata-kredytu')}
-                    badge="Bestseller"
-                  />
-                  {/* Poniżej powinny być stare karty: Kalkulator Wynagrodzeń itd. */}
-                      <FeatureCard 
-                        title="Kalkulator Wynagrodzeń"
-                        subtitle="Pensja Netto (Na rękę)"
-                        description="Sprawdź ile realnie zarobisz na umowie o pracę, zleceniu i dziele. Oblicz podatki, ZUS i wpływ PPK na Twoją wypłatę."
-                        icon={Wallet}
-                        color="green"
-                        onClick={() => navigate('/wynagrodzenia')}
-                        badge="Dla każdego"
-                      />
-                      <FeatureCard 
-                        title="Kalkulator B2B"
-                        subtitle="Dla przedsiębiorców"
-                        description="Symulacja faktury, podatków (liniowy, ryczałt, skala) oraz ZUS (ulga na start, mały ZUS). Pokaże czysty zysk i VAT."
-                        icon={Briefcase}
-                        color="teal"
-                        onClick={() => navigate('/b2b')}
-                        badge="Nowość"
-                      />
-                      <FeatureCard 
-                        title="Kalkulator Obligacji Skarbowych"
-                        subtitle="Symulator Zysków"
-                        description="Oblicz potencjalny zysk z obligacji indeksowanych inflacją (EDO, COI) oraz standardowych. Porównaj oferty."
+                    {/* Bestsellery */}
+                                        <FeatureCard 
+                        title="Obligacje skarbowe"
+                        subtitle="EDO / COI / TOS"
+                        description="Symulator zysków z obligacji antyinflacyjnych. Zobacz, ile zarobisz bezpiecznie pożyczając pieniądze państwu."
                         icon={ShieldCheck}
                         color="blue"
                         onClick={() => navigate('/obligacje')}
-                      />
-                      <FeatureCard 
-                        title="Kalkulator procenta składanego"
-                        subtitle="Symulator Inwestycji"
-                        description="Zobacz jak czas działa na Twoją korzyść. Oblicz ile zgromadzisz odkładając małe kwoty regularnie."
+                        badge="Nasz wybór"
+                    />
+                                        <FeatureCard 
+                        title="Kalkulator wynagrodzeń"
+                        subtitle="Pensja netto"
+                        description="Ile na rękę? Przelicz brutto na netto dla umowy o pracę, zlecenia i dzieła. Uwzględnia PPK i ulgę dla młodych."
+                        icon={Wallet}
+                        color="green"
+                        onClick={() => navigate('/wynagrodzenia')}
+                    />
+                    <FeatureCard 
+                        title="Kalkulator leasingu"
+                        subtitle="Samochody i maszyny"
+                        description="Oblicz rzeczywisty koszt leasingu operacyjnego (np. 108%). Sprawdź wpływ wykupu, wpłaty własnej i limitu 150 tys. zł."
+                        icon={Car}
+                        color="orange"
+                        onClick={() => navigate('/leasing')}
+                        badge="Dla firm"
+                    />
+                                                            <FeatureCard 
+                        title="Kalkulator B2B"
+                        subtitle="Dla przedsiębiorców"
+                        description="Porównaj B2B z etatem. Symulacja faktury, wyliczenie składki zdrowotnej (Polski Ład), podatku liniowego i ryczałtu."
+                        icon={Briefcase}
+                        color="teal"
+                        onClick={() => navigate('/b2b')}
+                        badge="Top dla IT"
+                    />
+                    <FeatureCard 
+                        title="Kalkulator VAT"
+                        subtitle="Netto ↔ Brutto"
+                        description="Szybko przelicz kwoty na fakturze. Oblicz VAT od netto lub wyciągnij podatek z kwoty brutto (metoda 'w stu')."
+                        icon={Percent}
+                        color="cyan"
+                        onClick={() => navigate('/kalkulator-vat')}
+                    />
+
+                    <FeatureCard 
+                        title="Nadpłata kredytu"
+                        subtitle="Hipoteka i wakacje"
+                        description="Czy nadpłacać kredyt? Sprawdź o ile lat skrócisz hipotekę i ile tysięcy złotych odsetek zostanie w Twojej kieszeni."
+                        icon={Home}
+                        color="indigo"
+                        onClick={() => navigate('/nadplata-kredytu')}
+                        badge="Bestseller"
+                    />
+                    <FeatureCard 
+                        title="Wynajem czy kupno?"
+                        subtitle="Analiza opłacalności"
+                        description="Wielki pojedynek: Kredyt hipoteczny vs Wynajem i inwestowanie różnicy. Co da Ci większy majątek po 20 latach?"
+                        icon={Scale}
+                        color="indigo"
+                        onClick={() => navigate('/wynajem-czy-kupno')}
+                        badge="Decyzja życia"
+                    />
+                    
+                    {/* Finanse Osobiste */}
+
+
+                    {/* Inwestycje */}
+
+                    <FeatureCard 
+                        title="Kalkulator złota"
+                        subtitle="Inwestycje fizyczne"
+                        description="Czy opłaca się kupić sztabkę? Sprawdź ukryte marże dealerów (spread) i oblicz próg rentowności inwestycji."
+                        icon={Coins}
+                        color="yellow"
+                        onClick={() => navigate('/zloto')}
+                    />
+                    <FeatureCard 
+                        title="Procent składany"
+                        subtitle="Symulator inwestycji"
+                        description="Zobacz efekt kuli śnieżnej. Jak małe kwoty odkładane regularnie zamieniają się w fortunę dzięki reinwestycji."
                         icon={TrendingUp}
                         color="purple"
                         onClick={() => navigate('/procent-skladany')}
-                      />
-                      {/* NOWE NARZĘDZIE - LEASING */}
-                      <FeatureCard 
-                        title="Kalkulator Leasingowy"
-                        subtitle="Samochody i Maszyny"
-                        description="Oblicz ratę leasingu operacyjnego. Uwzględnij wykup, wpłatę własną, GAP i koszty podatkowe (VAT/PIT)."
-                        icon={Car}
-                        color="orange" // Używamy orange/amber
-                        onClick={() => navigate('/leasing')}
-                        badge="Dla Firm"
-                      />
+                    />
+                    <FeatureCard 
+                        title="Kalkulator FIRE"
+                        subtitle="Wolność finansowa"
+                        description="Kiedy rzucisz etat? Oblicz, ile kapitału potrzebujesz, aby żyć wyłącznie z odsetek (reguła 4%)."
+                        icon={Flame} 
+                        color="rose"
+                        onClick={() => navigate('/kalkulator-fire')}
+                        badge="Motywacja"
+                    />
                   </div>
               </section>
 
-              {/* SEKCJA EDUKACJA */}
+              {/* --- 2. BAZA WIEDZY (GRID) - PRZYWRÓCONA --- */}
               <section>
-                  <div className="flex items-center gap-3 mb-8 px-2">
-                      <div className="bg-slate-100 p-2 rounded-lg"><GraduationCap size={20} className="text-slate-700"/></div>
-                      <h3 className="text-xl font-bold text-slate-800">Strefa Edukacji</h3>
+                  <div className="mb-12 border-b border-slate-100 pb-8">
+                      <div className="flex items-center gap-4 mb-4">
+                          <div className="h-10 w-10 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 shadow-sm">
+                            <BookOpen size={24}/>
+                          </div>
+                          <h2 className="text-3xl font-bold text-slate-900">Baza Wiedzy i Poradniki</h2>
+                      </div>
+                      <p className="text-slate-500 text-lg max-w-3xl">
+                          Teoria, która przekłada się na zysk. Kliknij w temat, aby przeczytać kompletny przewodnik (pisany prostym językiem, bez bankowego żargonu).
+                      </p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                       <FeatureCard 
                         title="Akcje i ETF"
-                        subtitle="Inwestowanie w firmy"
-                        description="Czym są akcje i ETF? Jak działa giełda i czy trzeba być milionerem, żeby zacząć? Praktyczny przewodnik."
+                        subtitle="Giełda dla początkujących"
+                        description="Jak zacząć inwestować pasywnie? Czym jest ETF i dlaczego wygrywa z funduszami w banku?"
                         icon={Activity}
                         color="rose"
                         onClick={() => navigate('/gielda')}
                       />
                       <FeatureCard 
-                        title="PPK w Praktyce"
-                        subtitle="Pracownicze Plany Kapitałowe"
-                        description="Czy to się opłaca? Kiedy można wypłacić? Dowiedz się, jak zyskać 1,5% ekstra pensji od pracodawcy."
-                        icon={PiggyBank}
-                        color="orange"
-                        onClick={() => navigate('/ppk')}
-                      />
-                      <FeatureCard 
                         title="IKE oraz IKZE"
-                        subtitle="Tarcza Podatkowa"
-                        description="Jak legalnie nie płacić podatku od zysków? Dowiedz się jak odzyskać podatek PIT co roku dzięki IKZE."
+                        subtitle="Optymalizacja podatkowa"
+                        description="Jak legalnie nie płacić podatku Belki? Poradnik o kontach emerytalnych, które dają wolność."
                         icon={Umbrella}
                         color="pink"
                         onClick={() => navigate('/ike-ikze')}
                       />
                       <FeatureCard 
-                        title="OKI - Nowa Ulga"
-                        subtitle="Osobiste Konto Inwestycyjne"
-                        description="Koniec podatku Belki? Sprawdź założenia nowego programu rządowego. Limity, zasady i data startu."
-                        icon={Landmark}
-                        color="cyan"
-                        onClick={() => navigate('/oki')}
-                        badge="Wkrótce"
+                        title="PPK w praktyce"
+                        subtitle="Darmowa kasa?"
+                        description="Czy warto zostać w PPK? Analiza dopłat pracodawcy i państwa vs prywatne inwestowanie."
+                        icon={PiggyBank}
+                        color="orange"
+                        onClick={() => navigate('/ppk')}
                       />
                       <FeatureCard 
                         title="Kryptowaluty"
-                        subtitle="Bitcoin, Ethereum i inne"
-                        description="Blockchain, portfele sprzętowe i bezpieczeństwo. Kompendium wiedzy o cyfrowych aktywach."
+                        subtitle="Blockchain i Bitcoin"
+                        description="Wstęp do cyfrowych aktywów. Jak bezpiecznie kupić Bitcoina i nie dać się oszukać?"
                         icon={Zap}
                         color="yellow"
                         onClick={() => navigate('/kryptowaluty')}
-                        badge="High Risk"
                       />
                   </div>
               </section>
+
+              {/* --- 3. KOMPENDIUM SEO (WIELKA SEKCJ MERYTORYCZNA) --- */}
+              {/* Układ: Pełna szerokość, wyraźne sekcje, dużo treści, słowa kluczowe */}
+              <section id="kompendium-seo" className="pt-20 border-t border-slate-200">
+                 
+                 <div className="text-center mb-24">
+                    <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6">Kompendium Finansowe 2026</h2>
+                    <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                        Poznaj mechanizmy, które decydują o Twoim majątku. Poniżej znajdziesz dogłębną analizę trzech kluczowych filarów finansów: firmy, nieruchomości i inwestycji.
+                    </p>
+                 </div>
+
+                 <div className="space-y-32">
+                    
+                    {/* FILAR 1: PRZEDSIĘBIORCZOŚĆ I PODATKI */}
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <div className="order-2 lg:order-1">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="p-3 bg-teal-100 text-teal-700 rounded-xl"><Briefcase size={32}/></div>
+                                <h3 className="text-3xl font-bold text-slate-900">Optymalizacja Podatkowa Firmy</h3>
+                            </div>
+                            
+                            <div className="prose prose-lg text-slate-600 leading-relaxed space-y-6">
+                                <p>
+                                    Prowadzenie jednoosobowej działalności gospodarczej (JDG) w Polsce wymaga ciągłej analizy. Kluczowym wyzwaniem na rok 2026 jest wybór formy opodatkowania w kontekście <strong>składki zdrowotnej</strong>, która po wprowadzeniu Polskiego Ładu stała się de facto nowym podatkiem. 
+                                </p>
+                                <p>
+                                    Wielu przedsiębiorców IT i B2B zadaje sobie pytanie: <strong>Ryczałt czy Podatek Liniowy?</strong> Ryczałt (12% lub 8.5%) kusi niską stawką, ale uniemożliwia odliczanie kosztów. Z kolei podatek liniowy (19%) pozwala na wrzucenie w koszty leasingu samochodu czy sprzętu, ale obciążony jest 4.9% składką zdrowotną. Nasz <strong className="text-teal-700 font-bold cursor-pointer hover:underline" onClick={() => navigate('/b2b')}>Kalkulator B2B</strong> symuluje te scenariusze co do złotówki.
+                                </p>
+                                <div className="bg-teal-50 p-6 rounded-2xl border border-teal-100">
+                                    <h4 className="font-bold text-teal-900 mb-2">Kluczowe pojęcia:</h4>
+                                    <ul className="space-y-2 text-sm text-teal-800">
+                                        <li className="flex gap-2"><CheckCircle size={16} className="mt-1"/> <strong>Limit leasingu:</strong> Amortyzacja aut osobowych tylko do 150 000 zł (spalinowe).</li>
+                                        <li className="flex gap-2"><CheckCircle size={16} className="mt-1"/> <strong>Ulga na start:</strong> Przez 6 miesięcy płacisz tylko składkę zdrowotną.</li>
+                                        <li className="flex gap-2"><CheckCircle size={16} className="mt-1"/> <strong>Wykup prywatny:</strong> Sprzedaż auta po wykupie bez podatku możliwa dopiero po 6 latach.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="order-1 lg:order-2 bg-slate-50 p-8 rounded-[3rem] border border-slate-200 shadow-lg rotate-1 hover:rotate-0 transition-transform duration-500">
+                            {/* Wizualizacja - Kafelki */}
+                            <div className="space-y-4">
+                                <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center">
+                                    <span className="font-bold text-slate-700">Przychód</span>
+                                    <span className="font-mono text-slate-900">20 000 PLN</span>
+                                </div>
+                                <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center">
+                                    <span className="font-bold text-slate-700">ZUS + Zdrowotna</span>
+                                    <span className="font-mono text-red-500">- 2 500 PLN</span>
+                                </div>
+                                <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center">
+                                    <span className="font-bold text-slate-700">Podatek (Ryczałt 12%)</span>
+                                    <span className="font-mono text-red-500">- 2 100 PLN</span>
+                                </div>
+                                <div className="bg-teal-600 p-4 rounded-xl shadow-lg text-white flex justify-between items-center mt-4 transform scale-105">
+                                    <span className="font-bold">Zysk "na rękę"</span>
+                                    <span className="font-mono text-xl">15 400 PLN</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* FILAR 2: NIERUCHOMOŚCI I KREDYTY */}
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <div className="bg-slate-50 p-8 rounded-[3rem] border border-slate-200 shadow-lg -rotate-1 hover:rotate-0 transition-transform duration-500">
+                             <div className="space-y-6 text-center">
+                                 <div className="text-6xl font-black text-indigo-200">360</div>
+                                 <div className="text-xl font-bold text-slate-700">Rat do spłacenia (30 lat)</div>
+                                 <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                                     <div className="h-full bg-indigo-500 w-[10%]"></div>
+                                 </div>
+                                 <div className="bg-white p-6 rounded-2xl border border-indigo-100 text-left">
+                                     <p className="text-sm text-slate-600 mb-2">Efekt nadpłaty 500 zł/msc:</p>
+                                     <strong className="text-indigo-600 text-2xl block">- 7 lat kredytu</strong>
+                                     <strong className="text-green-600 text-lg block">+ 84 000 zł oszczędności</strong>
+                                 </div>
+                             </div>
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="p-3 bg-indigo-100 text-indigo-700 rounded-xl"><Home size={32}/></div>
+                                <h3 className="text-3xl font-bold text-slate-900">Inteligentna Hipoteka</h3>
+                            </div>
+                            
+                            <div className="prose prose-lg text-slate-600 leading-relaxed space-y-6">
+                                <p>
+                                    Kredyt hipoteczny to dla większości Polaków największe zobowiązanie w życiu. Niestety, mechanizm rat równych sprawia, że w pierwszych latach spłacasz głównie <strong>odsetki dla banku</strong>, a kapitał maleje bardzo powoli. Zmienny wskaźnik WIBOR (lub nadchodzący WIRON) wprowadza ryzyko wzrostu raty.
+                                </p>
+                                <p>
+                                    Najskuteczniejszą metodą walki z kosztami kredytu jest <strong>nadpłata kapitału</strong>. Nasz symulator <strong className="text-indigo-700 font-bold cursor-pointer hover:underline" onClick={() => navigate('/nadplata-kredytu')}>Nadpłaty Kredytu</strong> pokazuje, jak nawet niewielkie, regularne wpłaty mogą skrócić okres kredytowania o lata i zaoszczędzić setki tysięcy złotych.
+                                </p>
+                                <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
+                                    <h4 className="font-bold text-indigo-900 mb-2">Dylemat: Wynajem czy Kupno?</h4>
+                                    <p className="text-sm text-indigo-800">
+                                        Wbrew powszechnej opinii, kupno nie zawsze się opłaca. Przy wysokich stopach procentowych, koszt odsetek i remontów może przewyższyć koszt najmu. Jeśli różnicę w racie zainwestujesz na giełdzie lub w obligacje, po 20 latach możesz mieć większy majątek jako najemca. Sprawdź to w naszym kalkulatorze <strong>Wynając czy kupić</strong>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* FILAR 3: INWESTOWANIE I KAPITAŁ */}
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <div className="order-2 lg:order-1">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="p-3 bg-purple-100 text-purple-700 rounded-xl"><TrendingUp size={32}/></div>
+                                <h3 className="text-3xl font-bold text-slate-900">Ochrona i Budowanie Majątku</h3>
+                            </div>
+                            
+                            <div className="prose prose-lg text-slate-600 leading-relaxed space-y-6">
+                                <p>
+                                    Trzymanie oszczędności na koncie ROR to gwarantowana strata przez inflację. Aby zachować siłę nabywczą pieniądza, należy korzystać z aktywów antyinflacyjnych. Podstawą bezpieczeństwa są <strong>Obligacje Skarbowe EDO</strong> (10-letnie), które od drugiego roku gwarantują zysk powyżej inflacji.
+                                </p>
+                                <p>
+                                    Dla osób budujących kapitał długoterminowo (np. na emeryturę lub wolność finansową FIRE), kluczowe jest uniknięcie <strong>Podatku Belki (19%)</strong>. Umożliwiają to konta IKE oraz IKZE. Dzięki procentowi składanemu, brak podatku na koniec inwestycji oznacza zysk wyższy o kilkadziesiąt tysięcy złotych.
+                                </p>
+                                <div className="bg-purple-50 p-6 rounded-2xl border border-purple-100">
+                                    <h4 className="font-bold text-purple-900 mb-2">Alternatywy: Złoto i ETF</h4>
+                                    <p className="text-sm text-purple-800">
+                                        Fizyczne złoto (monety bulionowe, sztabki) to ubezpieczenie od upadku walut. Z kolei fundusze ETF (Exchange Traded Funds) pozwalają tanio kupić "kawałek światowej gospodarki" (np. indeks S&P 500). Wszystkie te aktywa przeanalizujesz w naszych narzędziach.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="order-1 lg:order-2 bg-slate-50 p-8 rounded-[3rem] border border-slate-200 shadow-lg rotate-1 hover:rotate-0 transition-transform duration-500">
+                            {/* Wizualizacja - Procent Składany */}
+                            <div className="relative h-64 flex items-end justify-between gap-2 px-4 pb-4 border-b border-slate-200">
+                                <div className="w-1/5 bg-slate-300 h-[20%] rounded-t-lg relative group">
+                                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">Start</span>
+                                </div>
+                                <div className="w-1/5 bg-slate-400 h-[35%] rounded-t-lg"></div>
+                                <div className="w-1/5 bg-purple-400 h-[55%] rounded-t-lg"></div>
+                                <div className="w-1/5 bg-purple-500 h-[80%] rounded-t-lg relative group">
+                                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white text-xs font-bold">IKE</span>
+                                </div>
+                                <div className="w-1/5 bg-purple-600 h-[100%] rounded-t-lg relative shadow-lg shadow-purple-200">
+                                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 font-black text-purple-600 bg-white px-2 py-1 rounded-lg text-sm border border-purple-100">Efekt kuli śnieżnej</span>
+                                </div>
+                            </div>
+                            <p className="text-center text-sm text-slate-500 mt-4 font-medium">Czas + Procent Składany = Bogactwo</p>
+                        </div>
+                    </div>
+
+                 </div>
+
+                 {/* FINALNE CTA */}
+                 <div className="mt-32 text-center">
+                    <h3 className="text-2xl font-bold text-slate-900 mb-6">Zacznij liczyć swoje pieniądze już dziś</h3>
+                    <div className="flex justify-center gap-4">
+                        <button onClick={scrollToTools} className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl">
+                            Przejdź do kalkulatorów
+                        </button>
+                    </div>
+                 </div>
+
+              </section>
+
           </div>
       </div>
     </>
   );
 };
-const SalaryView = () => {
-  // --- ZMIENNE ---
-  const [salaryBrutto, setSalaryBrutto] = useState(8000);
-  const [contractType, setContractType] = useState('uop');
-  const [salaryParams, setSalaryParams] = useState({
-    under26: false,
-    ppk: true,
-    ppkRate: 2.0, 
-    workWhereLive: true,
-    student: false
-  });
-  const [showYearlyDetails, setShowYearlyDetails] = useState(false);
-
-  // OBLICZENIA GŁÓWNE (DLA WYBRANEGO TYPU)
-  const salaryYearlyData = useMemo(() => calculateYearlySalary(salaryBrutto, contractType, salaryParams), [salaryBrutto, contractType, salaryParams]);
-  const currentMonthNetto = salaryYearlyData[0].netto;
-  
-  // SUMY ROCZNE DLA WYBRANEGO TYPU
-  const yearlyTotals = useMemo(() => {
-      return salaryYearlyData.reduce((acc, curr) => ({
-          netto: acc.netto + curr.netto,
-          gross: acc.gross + curr.gross,
-          tax: acc.tax + curr.tax,
-          zus: acc.zus + curr.zus,
-          ppk: acc.ppk + curr.ppk
-      }), { netto: 0, gross: 0, tax: 0, zus: 0, ppk: 0 });
-  }, [salaryYearlyData]);
-
-  // OBLICZENIA PORÓWNAWCZE (DLA WSZYSTKICH TYPÓW JEDNOCZEŚNIE)
-  const comparisonData = useMemo(() => {
-    // 1. UoP
-    const uopData = calculateYearlySalary(salaryBrutto, 'uop', salaryParams);
-    const uopYearlyNet = uopData.reduce((acc, curr) => acc + curr.netto, 0);
-    const uopMonthlyNet = uopData[0].netto;
-
-    // 2. UZ (Przyjmujemy uproszczenie stałej kwoty x12 dla celów porównawczych)
-    const uzData = calculateSingleMonth(salaryBrutto, 'uz', salaryParams);
-    const uzMonthlyNet = uzData.netto;
-    const uzYearlyNet = uzMonthlyNet * 12;
-
-    // 3. UoD
-    const uodData = calculateSingleMonth(salaryBrutto, 'uod', salaryParams);
-    const uodMonthlyNet = uodData.netto;
-    const uodYearlyNet = uodMonthlyNet * 12;
-
-    return {
-        uop: { monthly: uopMonthlyNet, yearly: uopYearlyNet },
-        uz: { monthly: uzMonthlyNet, yearly: uzYearlyNet },
-        uod: { monthly: uodMonthlyNet, yearly: uodYearlyNet }
-    };
-  }, [salaryBrutto, salaryParams]);
-
-  return (
-    <>
-      <Helmet>
-        <title>Kalkulator Wynagrodzeń 2025 - Brutto na Netto | Finanse Proste</title>
-        <script type="application/ld+json">
-{`
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Kalkulator Wynagrodzeń 2025 - Brutto Netto",
-    "applicationCategory": "FinanceApplication",
-    "operatingSystem": "Web",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "PLN"
-    },
-    "description": "Oblicz pensję netto z brutto dla Umowy o Pracę, Zlecenie i Dzieło. Sprawdź koszty pracodawcy, PPK i ulgę dla młodych.",
-    "featureList": "Porównanie umów, Ulga dla Młodych, Polski Ład, Koszty pracodawcy"
-  }
-`}
-</script>
-        <meta name="description" content="Oblicz pensję netto. Sprawdź ile dostaniesz na rękę na Umowie o Pracę, Zleceniu i Dziele. Porównanie umów." />
-      </Helmet>
-
-      <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-12">
-          
-          <div className="mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
-                  <Wallet className="text-green-600" size={36}/>
-                  Kalkulator Wynagrodzeń
-              </h2>
-              <p className="text-slate-600 max-w-3xl text-lg">
-                  Precyzyjne narzędzie do wyliczania kwoty netto ("na rękę") z wynagrodzenia brutto. Uwzględnia progi podatkowe, ulgę dla młodych, koszty uzyskania przychodu oraz wpływ PPK.
-              </p>
-          </div>
-          
-          <div className="grid lg:grid-cols-12 gap-8 mb-16">
-                {/* LEWA KOLUMNA - INPUTY */}
-                <div className="lg:col-span-5 space-y-6">
-                    <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 flex gap-2">
-                        <button onClick={() => setContractType('uop')} className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all ${contractType === 'uop' ? 'bg-green-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}>Umowa o pracę</button>
-                        <button onClick={() => setContractType('uz')} className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all ${contractType === 'uz' ? 'bg-green-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}>Zlecenie</button>
-                        <button onClick={() => setContractType('uod')} className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all ${contractType === 'uod' ? 'bg-green-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}>Dzieło</button>
-                    </div>
-
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-6">
-                        <InputGroup label="Kwota Brutto (Miesięcznie)" value={salaryBrutto} onChange={setSalaryBrutto} suffix="PLN" step="100" />
-                        
-                        <div className="flex flex-col gap-4">
-                            {contractType === 'uop' && (
-                                <>
-                                    <CheckboxGroup label="Praca w miejscu zamieszkania" description="Zwykłe koszty uzyskania (250 zł)." checked={salaryParams.workWhereLive} onChange={(v) => setSalaryParams({...salaryParams, workWhereLive: v})} icon={Home} />
-                                    <CheckboxGroup label="PPK" description="Oszczędzanie z pracodawcą." checked={salaryParams.ppk} onChange={(v) => setSalaryParams({...salaryParams, ppk: v})} icon={PiggyBank}>
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between text-xs font-bold text-slate-500"><span>Twoja wpłata: {salaryParams.ppkRate}%</span></div>
-                                            <input type="range" min="0.5" max="4.0" step="0.5" value={salaryParams.ppkRate} onChange={(e) => setSalaryParams({...salaryParams, ppkRate: parseFloat(e.target.value)})} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-green-600" />
-                                        </div>
-                                    </CheckboxGroup>
-                                </>
-                            )}
-                            <CheckboxGroup label="Wiek < 26 lat" description="Zerowy PIT do 85 528 zł." checked={salaryParams.under26} onChange={(v) => setSalaryParams({...salaryParams, under26: v})} icon={Baby} />
-                            {contractType === 'uz' && salaryParams.under26 && (
-                                <CheckboxGroup label="Status studenta" description="Brutto = Netto." checked={salaryParams.student} onChange={(v) => setSalaryParams({...salaryParams, student: v})} icon={School} />
-                            )}
-                        </div>
-                    </div>
-
-                    {/* NOWA SEKCJA: SZYBKIE PORÓWNANIE */}
-                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200">
-                        <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><Scale size={20}/> Porównanie Netto (Na rękę)</h4>
-                        <div className="space-y-3">
-                            <div className={`flex justify-between items-center p-3 rounded-xl border ${contractType === 'uop' ? 'bg-white border-green-500 shadow-md ring-1 ring-green-500' : 'bg-white/50 border-slate-200 opacity-70'}`}>
-                                <span className="text-sm font-bold text-slate-600">Umowa o Pracę</span>
-                                <span className="font-bold text-slate-900">{formatMoney(comparisonData.uop.monthly)}</span>
-                            </div>
-                            <div className={`flex justify-between items-center p-3 rounded-xl border ${contractType === 'uz' ? 'bg-white border-green-500 shadow-md ring-1 ring-green-500' : 'bg-white/50 border-slate-200 opacity-70'}`}>
-                                <span className="text-sm font-bold text-slate-600">Zlecenie</span>
-                                <span className="font-bold text-slate-900">{formatMoney(comparisonData.uz.monthly)}</span>
-                            </div>
-                            <div className={`flex justify-between items-center p-3 rounded-xl border ${contractType === 'uod' ? 'bg-white border-green-500 shadow-md ring-1 ring-green-500' : 'bg-white/50 border-slate-200 opacity-70'}`}>
-                                <span className="text-sm font-bold text-slate-600">Dzieło</span>
-                                <span className="font-bold text-slate-900">{formatMoney(comparisonData.uod.monthly)}</span>
-                            </div>
-                        </div>
-                        <p className="text-[10px] text-slate-400 mt-3 text-center">
-                            *Porównanie dla podanej kwoty brutto przy obecnych ustawieniach.
-                        </p>
-                    </div>
-                </div>
-
-                {/* PRAWA KOLUMNA - WYNIKI */}
-                <div className="lg:col-span-7 flex flex-col gap-6">
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                        <div className="flex justify-between items-end mb-6">
-                            <div>
-                                <h4 className="font-bold text-slate-900 text-xl">Twoja wypłata</h4>
-                                <p className="text-slate-500 text-sm mt-1">Szacunkowe netto za bieżący miesiąc.</p>
-                            </div>
-                            <div className="text-right">
-                                <span className="text-xs font-bold text-slate-400 uppercase">Suma roczna Netto</span>
-                                <div className="text-3xl font-bold text-green-600">
-                                    {formatMoney(yearlyTotals.netto)}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-green-50 p-6 rounded-2xl border border-green-100 mb-6 flex justify-between items-center">
-                            <div>
-                                <div className="text-sm text-green-800 font-bold mb-1">Miesięcznie na rękę (Styczeń)</div>
-                                <div className="text-4xl font-black text-green-700">{formatMoney(currentMonthNetto)}</div>
-                            </div>
-                        </div>
-
-                        <div className="border-t border-slate-100 pt-4">
-                            <button onClick={() => setShowYearlyDetails(!showYearlyDetails)} className="flex items-center justify-between w-full p-4 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors font-bold text-slate-700 text-sm">
-                                <span className="flex items-center gap-2"><BookOpen size={18} className="text-blue-600"/> Symulacja roczna</span>
-                                {showYearlyDetails ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}
-                            </button>
-
-                            {showYearlyDetails && (
-                                <div className="overflow-x-auto mt-4 animate-in fade-in slide-in-from-top-2">
-                                    <table className="w-full text-sm text-left border-collapse">
-                                        <thead className="text-xs text-slate-400 uppercase bg-slate-50">
-                                            <tr>
-                                                <th className="px-4 py-3 rounded-l-lg">Miesiąc</th>
-                                                <th className="px-4 py-3 text-green-700 font-bold">Netto</th>
-                                                <th className="px-4 py-3">Podatek</th>
-                                                <th className="px-4 py-3 rounded-r-lg">ZUS</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {salaryYearlyData.map((row, index) => (
-                                                <tr key={index} className={`hover:bg-blue-50/50 transition-colors ${row.thresholdCrossed ? 'bg-amber-50' : ''}`}>
-                                                    <td className="px-4 py-2 font-medium text-slate-700 flex flex-col justify-center">
-                                                        <span>{row.month}</span>
-                                                        {row.thresholdCrossed && (
-                                                            <span className="text-[10px] text-amber-600 font-bold flex items-center gap-1 mt-0.5">
-                                                                <AlertTriangle size={10}/> II PRÓG
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                    <td className={`px-4 py-2 font-bold ${row.thresholdCrossed ? 'text-amber-600' : 'text-green-600'}`}>{formatMoney(row.netto)}</td>
-                                                    <td className="px-4 py-2 text-slate-500">{formatMoney(row.tax)}</td>
-                                                    <td className="px-4 py-2 text-slate-500">{formatMoney(row.zus)}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                        {/* PODSUMOWANIE TABELI */}
-                                        <tfoot className="bg-slate-100 font-bold text-slate-800 border-t-2 border-slate-200">
-                                            <tr>
-                                                <td className="px-4 py-4">RAZEM (ROK)</td>
-                                                <td className="px-4 py-4 text-green-700 text-base">{formatMoney(yearlyTotals.netto)}</td>
-                                                <td className="px-4 py-4">{formatMoney(yearlyTotals.tax)}</td>
-                                                <td className="px-4 py-4">{formatMoney(yearlyTotals.zus)}</td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-          </div>
-
-          {/* SEKCJA EDUKACYJNA - TYPY UMÓW */}
-          <div className="mt-16">
-              <h3 className="text-2xl font-bold mb-8 flex items-center gap-2 text-slate-800">
-                  <BookOpen className="text-blue-600"/> Kompendium Wiedzy o Umowach
-              </h3>
-              
-              <div className="grid lg:grid-cols-3 gap-6">
-                  {/* UMOWA O PRACĘ */}
-                  <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col relative overflow-hidden group hover:border-blue-300 transition-all">
-                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Building2 size={100} className="text-blue-600"/></div>
-                      <div className="mb-4 bg-blue-50 w-12 h-12 rounded-xl flex items-center justify-center text-blue-600"><Briefcase size={24}/></div>
-                      <h4 className="text-xl font-bold text-slate-900 mb-2">Umowa o Pracę (UoP)</h4>
-                      <div className="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded mb-4 w-fit uppercase">Kodeks Pracy</div>
-                      
-                      <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-                          Najbardziej stabilna forma zatrudnienia. To "małżeństwo" z pracodawcą. Jesteś chroniony przez Kodeks Pracy, co daje Ci szereg przywilejów, ale też obowiązków (np. ustalone godziny i miejsce pracy).
-                      </p>
-
-                      <div className="space-y-4 text-sm mb-6 flex-grow">
-                          <div className="flex gap-2">
-                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Płatny urlop:</strong> 20 lub 26 dni w roku, kiedy nie pracujesz, a płacą Ci 100%.</span>
-                          </div>
-                          <div className="flex gap-2">
-                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Płatne chorobowe:</strong> Gdy zachorujesz, dostajesz 80% pensji.</span>
-                          </div>
-                          <div className="flex gap-2">
-                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Ochrona:</strong> Trudniej Cię zwolnić, obowiązuje okres wypowiedzenia.</span>
-                          </div>
-                          <div className="flex gap-2">
-                              <XCircle className="text-red-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Koszt:</strong> Najniższe wynagrodzenie netto przy tym samym koszcie dla firmy (wysokie podatki).</span>
-                          </div>
-                      </div>
-
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-500">
-                          <strong>Ciekawostka:</strong> Staż pracy na UoP liczy się do przyszłej emerytury. Lata studiów wliczają się do stażu urlopowego (8 lat!), dzięki czemu szybciej zyskujesz prawo do 26 dni urlopu.
-                      </div>
-                  </div>
-
-                  {/* UMOWA ZLECENIE */}
-                  <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col relative overflow-hidden group hover:border-orange-300 transition-all">
-                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><FileText size={100} className="text-orange-600"/></div>
-                      <div className="mb-4 bg-orange-50 w-12 h-12 rounded-xl flex items-center justify-center text-orange-600"><FileSignature size={24}/></div>
-                      <h4 className="text-xl font-bold text-slate-900 mb-2">Umowa Zlecenie (UZ)</h4>
-                      <div className="inline-block bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-1 rounded mb-4 w-fit uppercase">Kodeks Cywilny</div>
-                      
-                      <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-                          Bardziej elastyczna forma. Zobowiązujesz się do "starannego działania" (np. obsługiwanie klientów), ale niekoniecznie pod ścisłym nadzorem. Często nazywana "śmieciówką", choć niesłusznie – dla wielu to świetny wybór.
-                      </p>
-
-                      <div className="space-y-4 text-sm mb-6 flex-grow">
-                          <div className="flex gap-2">
-                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Dla studentów:</strong> Jeśli masz mniej niż 26 lat i status studenta, nie płacisz ZUS ani podatku. Brutto = Netto!</span>
-                          </div>
-                          <div className="flex gap-2">
-                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Swoboda:</strong> Teoretycznie większa elastyczność czasu pracy niż na etacie.</span>
-                          </div>
-                          <div className="flex gap-2">
-                              <XCircle className="text-red-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Brak urlopu:</strong> Urlop płatny zależy tylko od dobrej woli zleceniodawcy (nie jest gwarantowany prawem).</span>
-                          </div>
-                          <div className="flex gap-2">
-                              <XCircle className="text-red-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Mniejsza stabilność:</strong> Można ją rozwiązać z dnia na dzień (chyba że umowa stanowi inaczej).</span>
-                          </div>
-                      </div>
-
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-500">
-                          <strong>Ciekawostka:</strong> Na zleceniu też możesz mieć chorobowe i płatne L4, ale musisz złożyć wniosek o dobrowolne ubezpieczenie chorobowe i opłacać składkę.
-                      </div>
-                  </div>
-
-                  {/* UMOWA O DZIEŁO */}
-                  <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col relative overflow-hidden group hover:border-purple-300 transition-all">
-                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><PenTool size={100} className="text-purple-600"/></div>
-                      <div className="mb-4 bg-purple-50 w-12 h-12 rounded-xl flex items-center justify-center text-purple-600"><PenTool size={24}/></div>
-                      <h4 className="text-xl font-bold text-slate-900 mb-2">Umowa o Dzieło (UoD)</h4>
-                      <div className="inline-block bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-1 rounded mb-4 w-fit uppercase">Kodeks Cywilny</div>
-                      
-                      <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-                          Umowa rezultatu. Liczy się efekt (np. napisany artykuł, stworzona grafika, naprawiony stół), a nie czas spędzony nad pracą. Najbardziej opłacalna finansowo dla specjalistów.
-                      </p>
-
-                      <div className="space-y-4 text-sm mb-6 flex-grow">
-                          <div className="flex gap-2">
-                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Najwyższe Netto:</strong> Brak składek ZUS (emerytalnych, rentowych, zdrowotnych). Płacisz tylko podatek.</span>
-                          </div>
-                          <div className="flex gap-2">
-                              <CheckCircle className="text-green-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Koszty 50%:</strong> Jeśli przekazujesz prawa autorskie, płacisz podatek tylko od połowy zarobku!</span>
-                          </div>
-                          <div className="flex gap-2">
-                              <XCircle className="text-red-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Brak ubezpieczenia:</strong> Nie masz ubezpieczenia zdrowotnego (NFZ). Nie liczysz się do emerytury.</span>
-                          </div>
-                          <div className="flex gap-2">
-                              <XCircle className="text-red-500 shrink-0" size={16}/>
-                              <span className="text-slate-700"><strong>Ryzyko:</strong> Jeśli dzieło ma wady, zamawiający może nie zapłacić, dopóki ich nie usuniesz.</span>
-                          </div>
-                      </div>
-
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-500">
-                          <strong>Ciekawostka:</strong> To ulubiona umowa programistów, artystów i copywriterów. Uwaga: Nie można jej stosować do powtarzalnej pracy (np. codziennej obsługi sklepu).
-                      </div>
-                  </div>
-              </div>
-
-              {/* PODSUMOWANIE TABELARYCZNE */}
-              <div className="mt-8 bg-slate-900 text-white rounded-[2rem] p-8">
-                  <h4 className="font-bold mb-6 text-center">Krótka ściąga - co wybrać?</h4>
-                  <div className="overflow-x-auto">
-                      <table className="w-full text-sm text-left">
-                          <thead className="text-xs text-slate-400 uppercase border-b border-slate-700">
-                              <tr>
-                                  <th className="px-4 py-3">Cecha</th>
-                                  <th className="px-4 py-3 text-blue-400">UoP</th>
-                                  <th className="px-4 py-3 text-orange-400">Zlecenie</th>
-                                  <th className="px-4 py-3 text-purple-400">Dzieło</th>
-                              </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-800">
-                              <tr>
-                                  <td className="px-4 py-3 font-bold">Stabilność</td>
-                                  <td className="px-4 py-3">Wysoka</td>
-                                  <td className="px-4 py-3">Średnia</td>
-                                  <td className="px-4 py-3">Niska</td>
-                              </tr>
-                              <tr>
-                                  <td className="px-4 py-3 font-bold">Ubezpieczenie (NFZ)</td>
-                                  <td className="px-4 py-3 text-green-400">Tak</td>
-                                  <td className="px-4 py-3 text-green-400">Tak (zazwyczaj)</td>
-                                  <td className="px-4 py-3 text-red-400">Nie</td>
-                              </tr>
-                              <tr>
-                                  <td className="px-4 py-3 font-bold">Emerytura</td>
-                                  <td className="px-4 py-3 text-green-400">Tak</td>
-                                  <td className="px-4 py-3 text-green-400">Tak</td>
-                                  <td className="px-4 py-3 text-red-400">Nie</td>
-                              </tr>
-                              <tr>
-                                  <td className="px-4 py-3 font-bold">Płatny Urlop</td>
-                                  <td className="px-4 py-3 text-green-400">Gwarantowany</td>
-                                  <td className="px-4 py-3 text-red-400">Brak (chyba że umowny)</td>
-                                  <td className="px-4 py-3 text-red-400">Brak</td>
-                              </tr>
-                          </tbody>
-                      </table>
-                  </div>
-              </div>
-          </div>
-      </div>
-    </>
-  );
-};
+//
 const BondsView = () => {
+  const navigate = useNavigate();
+
   // --- ZMIENNE ---
   const [activeBondType, setActiveBondType] = useState('standard');
   const [selectedBondId, setSelectedBondId] = useState('EDO');
@@ -1069,6 +860,11 @@ const BondsView = () => {
     }
   }, [selectedBondId]);
 
+  // Sprawdzenie, czy wybrana obligacja jest indeksowana inflacją
+  const isInflationIndexed = useMemo(() => {
+    return ['EDO', 'COI', 'ROD', 'ROS'].some(id => selectedBondId.startsWith(id));
+  }, [selectedBondId]);
+
   // OBLICZENIA
   const bondCalculation = useMemo(() => {
     const allBonds = [...STANDARD_BONDS, ...FAMILY_BONDS];
@@ -1083,6 +879,8 @@ const BondsView = () => {
     const years = monthsDuration / 12;
     let accumulatedInterest = 0;
     
+    // UWAGA: Dla uproszczenia symulacji, kalkulator używa stałej stopy 'bond.rate' dla całego okresu.
+    // Dla obligacji indeksowanych inflacją jest to TYLKO szacunek.
     if (bond.capitalization === 'monthly_payout') accumulatedInterest = realInvested * (bond.rate/100) * years;
     else if (bond.capitalization === 'yearly_payout' || bond.capitalization === 'end') accumulatedInterest = realInvested * (bond.rate/100) * years;
     else if (bond.capitalization === 'compound_year') accumulatedInterest = (realInvested * Math.pow(1 + bond.rate/100, years)) - realInvested;
@@ -1140,38 +938,17 @@ const BondsView = () => {
     <>
       <Helmet>
         <title>Kalkulator Obligacji Skarbowych (EDO, COI, TOS) | Finanse Proste</title>
-        <script type="application/ld+json">
-{`
-  {
-    "@context": "https://schema.org",
-    "@type": "FinancialProduct",
-    "name": "Kalkulator Obligacji Skarbowych (EDO, COI, TOS)",
-    "description": "Symulator zysków z obligacji skarbowych indeksowanych inflacją. Porównaj obligacje 4-letnie, 10-letnie i rodzinne.",
-    "brand": {
-      "@type": "Brand",
-      "name": "Skarb Państwa"
-    },
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "PLN"
-    },
-    "interestRate": {
-      "@type": "QuantitativeValue",
-      "value": 7.0,
-      "unitText": "PERCENT"
-    }
-  }
-`}
-</script>
-        <meta name="description" content="Symulator zysków z obligacji. Sprawdź ile zarobisz na obligacjach antyinflacyjnych EDO i COI." />
+        <meta name="description" content="Kompendium wiedzy o obligacjach skarbowych. Poznaj rodzaje (EDO, COI), dowiedz się jak działa indeksacja inflacją, rolowanie obligacji i jak uniknąć podatku Belki." />
+        <link rel="canonical" href="https://www.finanse-proste.pl/obligacje" />
       </Helmet>
 
       <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
+          
+          {/* --- HERO SECTION --- */}
           <div className="mb-8">
               <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
                 <ShieldCheck className="text-blue-600" size={36}/>
-                Obligacje Skarbowe
+                Obligacje skarbowe
               </h2>
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <p className="text-slate-600 max-w-2xl text-lg">
@@ -1183,6 +960,7 @@ const BondsView = () => {
               </div>
           </div>
 
+          {/* --- SEKCJA KALKULATORA --- */}
           <div className="flex gap-4 mb-8">
               <button onClick={() => setActiveBondType('standard')} className={`px-6 py-3 rounded-xl font-bold transition-all ${activeBondType === 'standard' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}`}>Standardowe</button>
               <button onClick={() => setActiveBondType('family')} className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeBondType === 'family' ? 'bg-pink-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}`}><Baby size={18}/> Rodzinne 800+</button>
@@ -1262,6 +1040,22 @@ const BondsView = () => {
                                   </div>
                               </div>
 
+                              {/* --- DISCLAIMER OBLIGACJI INDEKSOWANYCH INFLACJĄ --- */}
+                              {isInflationIndexed && (
+                                  <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-left text-sm text-slate-600 flex items-start gap-3">
+                                      <Info size={20} className="text-blue-500 shrink-0 mt-1" />
+                                      <div>
+                                          <p className="font-bold text-blue-800 mb-1">Ważna informacja o symulacji</p>
+                                          <p>
+                                              To jest <strong>szacunkowa symulacja</strong>. Oprocentowanie tej obligacji w kolejnych latach zależy od przyszłej inflacji, której nie da się przewidzieć.
+                                          </p>
+                                          <p className="mt-2 text-xs">
+                                              Dla uproszczenia, kalkulator przyjmuje stałą stopę zwrotu (np. z pierwszego okresu odsetkowego) dla całego okresu inwestycji. <strong>Rzeczywisty wynik będzie inny</strong> i będzie zależał od faktycznych odczytów inflacji GUS w przyszłości.
+                                          </p>
+                                      </div>
+                                  </div>
+                              )}
+
                               <div className="h-32 w-full">
                                   <ResponsiveContainer width="100%" height="100%">
                                       <BarChart data={[
@@ -1319,42 +1113,293 @@ const BondsView = () => {
               </div>
           </div>
 
-          <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white overflow-hidden relative">
-              <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
-                  <div>
-                      <h3 className="text-3xl font-bold mb-4 flex items-center gap-3"><TrendingUp className="text-red-500"/> Wróg nr 1: Inflacja</h3>
-                      <p className="text-slate-300 leading-relaxed mb-6">
-                          Inflacja to proces utraty siły nabywczej pieniądza. Oznacza to, że za tę samą kwotę (np. 100 zł) możesz kupić mniej towarów i usług niż rok wcześniej. Jest mierzona wskaźnikiem CPI (Consumer Price Index) przez Główny Urząd Statystyczny.
-                      </p>
-                      <div className="bg-white/10 p-6 rounded-2xl border border-white/10 mb-6 space-y-4">
-                          <h4 className="font-bold text-yellow-400 flex items-center gap-2"><ShieldCheck size={18}/> Jak chronią obligacje (EDO/COI/ROD)?</h4>
-                          <p className="text-sm text-slate-300 leading-relaxed">
-                              Te obligacje posiadają mechanizm <strong>indeksacji inflacją</strong>. Ich oprocentowanie w kolejnych latach nie jest stałe, lecz jest sumą dwóch składników:
+          {/* =================================================================================================
+              WIELKA ENCYKLOPEDIA OBLIGACJI (SEO & CONTENT HUB)
+              =================================================================================================
+          */}
+          <div className="space-y-16">
+              
+              {/* TYTUŁ GŁÓWNY SEKCJI WIEDZY */}
+              <div className="text-center max-w-4xl mx-auto mb-12">
+                  <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+                      <BookOpen size={14}/> Strefa Wiedzy
+                  </div>
+                  <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6">
+                      Obligacje od A do Z <br/><span className="text-blue-600">Jak bezpiecznie pomnażać kapitał?</span>
+                  </h2>
+                  <p className="text-lg text-slate-600 leading-relaxed">
+                      Kompleksowy przewodnik dla początkujących i zaawansowanych. Dowiedz się, jak działają obligacje antyinflacyjne, jak uniknąć podatku Belki i dlaczego są fundamentem bezpiecznego portfela.
+                  </p>
+              </div>
+
+              {/* ROZDZIAŁ 1: FUNDAMENTY */}
+              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm">
+                  <div className="flex items-center gap-4 mb-8">
+                      <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center font-bold text-xl">1</div>
+                      <h3 className="text-2xl font-bold text-slate-900">Fundamenty: co to właściwie jest?</h3>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 gap-12">
+                      <div>
+                          <h4 className="font-bold text-lg text-slate-800 mb-4">Definicja "na chłopski rozum"</h4>
+                          <p className="text-slate-600 leading-relaxed mb-4">
+                              Obligacja to w najprostszym ujęciu <strong>dług</strong>. Ty pożyczasz swoje pieniądze (emitentowi), a on obiecuje Ci je oddać w określonym terminie wraz z odsetkami (procentem).
                           </p>
-                          <ul className="text-sm text-slate-300 space-y-2 list-disc list-inside">
-                              <li><strong>Wskaźnik inflacji:</strong> Jeśli inflacja wyniesie 5%, oprocentowanie wzrośnie o te 5%. To gwarantuje, że kapitał "goni" rosnące ceny.</li>
-                              <li><strong>Stała marża:</strong> Dodatkowy zysk (np. 1.25% czy 2.00%) ponad inflację. To Twój realny zarobek.</li>
+                          <div className="bg-blue-50 p-4 rounded-xl border-l-4 border-blue-500 text-sm text-blue-900">
+                              <strong>Różnica:</strong> Kupując <Link to="/gielda" className="underline font-bold">akcje</Link>, stajesz się współwłaścicielem firmy. Kupując obligacje, stajesz się jej wierzycielem (bankiem).
+                          </div>
+                      </div>
+                      <div>
+                          <h4 className="font-bold text-lg text-slate-800 mb-4">Kto emituje dług? (Rodzaje)</h4>
+                          <ul className="space-y-4">
+                              <li className="flex gap-3">
+                                  <div className="mt-1"><ShieldCheck size={20} className="text-green-500"/></div>
+                                  <div>
+                                      <strong className="block text-slate-900">Skarbowe (Rządowe)</strong>
+                                      <span className="text-sm text-slate-600">Emitowane przez Ministra Finansów. Gwarantem jest całe państwo. Ryzyko utraty pieniędzy jest bliskie zeru.</span>
+                                  </div>
+                              </li>
+                              <li className="flex gap-3">
+                                  <div className="mt-1"><Building2 size={20} className="text-orange-500"/></div>
+                                  <div>
+                                      <strong className="block text-slate-900">Korporacyjne</strong>
+                                      <span className="text-sm text-slate-600">Emitowane przez firmy (np. Orlen, Kruk). Oferują wyższy zysk, ale wiążą się z ryzykiem upadłości firmy.</span>
+                                  </div>
+                              </li>
                           </ul>
-                          <div className="p-3 bg-green-500/20 rounded-lg text-green-300 text-xs font-bold border border-green-500/30">
-                              Wzór: Inflacja (np. 6%) + Marża (2%) = 8% zysku w kolejnym roku.
+                      </div>
+                  </div>
+              </div>
+
+              {/* ROZDZIAŁ 2: POLSKIE OBLIGACJE SKARBOWE */}
+              <div className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-12 opacity-5 font-black text-9xl text-white pointer-events-none select-none">EDO</div>
+                  
+                  <div className="relative z-10">
+                      <div className="flex items-center gap-4 mb-10">
+                          <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center font-bold text-xl">2</div>
+                          <h3 className="text-2xl font-bold">Polskie obligacje skarbowe (detaliczne)</h3>
+                      </div>
+
+                      <div className="grid lg:grid-cols-3 gap-6">
+                          <div className="bg-white/10 p-6 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+                              <div className="text-xs font-bold text-green-400 uppercase mb-2">Bestseller</div>
+                              <h4 className="text-xl font-bold mb-2">EDO (10-letnie)</h4>
+                              <p className="text-sm text-slate-300 mb-4">"Królowa obligacji". Najwyższa marża i procent składany. Idealna na emeryturę.</p>
+                              <ul className="text-sm space-y-2">
+                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> Indeksowane inflacją</li>
+                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> <Link to="/procent-skladany" className="underline hover:text-green-300">Kapitalizacja roczna</Link></li>
+                              </ul>
+                          </div>
+
+                          <div className="bg-white/10 p-6 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+                              <div className="text-xs font-bold text-blue-400 uppercase mb-2">Popularne</div>
+                              <h4 className="text-xl font-bold mb-2">COI (4-letnie)</h4>
+                              <p className="text-sm text-slate-300 mb-4">Złoty środek. Chroni przed inflacją, ale wypłaca odsetki na konto.</p>
+                              <ul className="text-sm space-y-2">
+                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> Indeksowane inflacją</li>
+                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> Coroczna wypłata zysku</li>
+                              </ul>
+                          </div>
+
+                          <div className="bg-white/10 p-6 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+                              <div className="text-xs font-bold text-orange-400 uppercase mb-2">Stały Zysk</div>
+                              <h4 className="text-xl font-bold mb-2">TOS (3-letnie)</h4>
+                              <p className="text-sm text-slate-300 mb-4">Gwarancja stałego oprocentowania niezależnie od inflacji i stóp procentowych.</p>
+                              <ul className="text-sm space-y-2">
+                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> Stałe oprocentowanie</li>
+                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> Kapitalizacja roczna</li>
+                              </ul>
                           </div>
                       </div>
                   </div>
-                  <div className="bg-white/5 p-6 rounded-3xl border border-white/5 h-[350px]">
-                      <h4 className="text-center text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">Inflacja w Polsce (r/r)</h4>
-                      <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={INFLATION_DATA} margin={{top: 20, right: 30, left: 0, bottom: 0}}>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155"/>
-                              <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fill: '#94a3b8'}} tickMargin={10}/>
-                              <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8'}} unit="%" width={40} tickMargin={10}/>
-                              <RechartsTooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff'}}/>
-                              <Bar dataKey="value" fill="#ef4444" radius={[4, 4, 0, 0]}>
-                                  <div className="text-white font-bold text-xs text-center mt-2">X</div>
-                              </Bar>
-                          </BarChart>
-                      </ResponsiveContainer>
+              </div>
+
+              {/* ROZDZIAŁ 3: GDZIE KUPIĆ? (NOWA SEKCJA) */}
+              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm">
+                  <div className="flex items-center gap-4 mb-8">
+                      <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center font-bold text-xl">3</div>
+                      <h3 className="text-2xl font-bold text-slate-900">Gdzie i jak kupić obligacje?</h3>
+                  </div>
+                  
+                  <p className="text-slate-600 mb-6 leading-relaxed">
+                      Skarb Państwa udzielił wyłączności na sprzedaż obligacji detalicznych dwóm bankom: <strong>PKO BP</strong> oraz <strong>Pekao S.A.</strong>. Nie kupisz ich w mBanku, ING czy Santanderze (tam dostępne są tylko obligacje notowane na giełdzie, które podlegają wahaniom kursu).
+                  </p>
+
+                  <div className="grid md:grid-cols-2 gap-8">
+                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                          <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Globe size={18}/> Opcja Online (Najwygodniejsza)</h4>
+                          <p className="text-sm text-slate-600 mb-4">
+                              Wejdź na stronę <strong>obligacjeskarbowe.pl</strong> (obsługiwaną przez PKO BP) lub stronę Biura Maklerskiego Pekao. Założenie konta zajmuje kilka minut i wymaga potwierdzenia tożsamości.
+                          </p>
+                          <div className="text-xs font-bold text-green-600 flex items-center gap-1"><CheckCircle size={12}/> Bez wychodzenia z domu</div>
+                      </div>
+                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                          <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Landmark size={18}/> W oddziale</h4>
+                          <p className="text-sm text-slate-600 mb-4">
+                              Możesz udać się do dowolnego oddziału PKO BP lub Punktu Obsługi Klienta Biura Maklerskiego Pekao. Pamiętaj o zabraniu dowodu osobistego.
+                          </p>
+                          <div className="text-xs font-bold text-blue-600 flex items-center gap-1"><CheckCircle size={12}/> Pomoc doradcy na miejscu</div>
+                      </div>
                   </div>
               </div>
+
+              {/* ROZDZIAŁ 4: MECHANIZMY ZYSKU */}
+              <div className="grid lg:grid-cols-2 gap-8">
+                  {/* LEWA: Indeksacja */}
+                  <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200">
+                      <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2"><TrendingUp className="text-blue-600"/> Jak działa indeksacja inflacją?</h3>
+                      
+                      <div className="space-y-6">
+                          <p className="text-slate-600 text-sm">
+                              Obligacje EDO i COI w pierwszym roku mają stałe, z góry znane oprocentowanie. Dopiero od drugiego roku wchodzi mechanizm ochronny.
+                          </p>
+                          
+                          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center">
+                              <div className="text-xs font-bold text-slate-400 uppercase mb-2">Wzór na zysk (od 2. roku)</div>
+                              <div className="text-2xl md:text-3xl font-black text-slate-900 mb-2">
+                                  <span className="text-red-500">Inflacja</span> + <span className="text-green-600">Marża</span>
+                              </div>
+                              <p className="text-xs text-slate-500">
+                                  Przykład: Inflacja 10% + Marża 1.25% = <strong>11.25%</strong> oprocentowania w danym roku.
+                              </p>
+                          </div>
+
+                          <div className="bg-white p-4 rounded-2xl h-[250px] border border-slate-100 relative">
+                              <div className="absolute top-2 left-4 text-xs font-bold text-slate-400 uppercase tracking-widest pointer-events-none">Inflacja w Polsce (historyczna)</div>
+                              <ResponsiveContainer width="100%" height="100%">
+                                  <BarChart data={INFLATION_DATA} margin={{top: 30, right: 10, left: -20, bottom: 0}}>
+                                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+                                      <XAxis dataKey="year" tick={{fill: '#64748b', fontSize: 10}} axisLine={false} tickLine={false}/>
+                                      <YAxis tick={{fill: '#64748b', fontSize: 10}} axisLine={false} tickLine={false}/>
+                                      <RechartsTooltip 
+                                        cursor={{fill: '#f8fafc'}}
+                                        formatter={(value) => [`${value}%`, 'Inflacja']}
+                                        contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+                                      />
+                                      <Bar dataKey="value" fill="#f87171" radius={[4, 4, 0, 0]}/>
+                                  </BarChart>
+                              </ResponsiveContainer>
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* PRAWA: Wcześniejszy Wykup */}
+                  <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200">
+                      <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2"><Lock className="text-orange-600"/> Wcześniejszy wykup (mit zamrożenia)</h3>
+                      
+                      <div className="prose prose-sm text-slate-600 leading-relaxed mb-6">
+                          <p>
+                              Wiele osób boi się "zamrażać" pieniądze na 10 lat. To błąd! Obligacje skarbowe są bardzo płynne. Możesz je sprzedać (oddać do Ministerstwa) w <strong>każdej chwili</strong>.
+                          </p>
+                          <p>
+                              Kosztuje to jedynie stałą opłatę manipulacyjną (0.70 zł dla COI, 2.00 zł dla EDO). Nie tracisz wypracowanych odsetek (poza potrąceniem opłaty).
+                          </p>
+                      </div>
+
+                      <div className="bg-orange-50 p-6 rounded-2xl border border-orange-100">
+                          <h4 className="font-bold text-orange-900 mb-2">Przykład zerwania EDO:</h4>
+                          <ul className="space-y-2 text-sm text-orange-800">
+                              <li className="flex justify-between"><span>Wartość obligacji:</span> <strong>100.00 zł</strong></li>
+                              <li className="flex justify-between"><span>Naliczone odsetki:</span> <strong>+ 5.50 zł</strong></li>
+                              <li className="flex justify-between border-b border-orange-200 pb-2"><span>Opłata za wykup:</span> <strong>- 2.00 zł</strong></li>
+                              <li className="flex justify-between pt-1"><span>Do wypłaty:</span> <strong>103.50 zł</strong></li>
+                          </ul>
+                          <p className="text-xs text-orange-700 mt-3 text-center font-bold">
+                              Wciąż zarobiłeś 3.50 zł, mimo zerwania umowy!
+                          </p>
+                      </div>
+                  </div>
+              </div>
+
+              {/* ROZDZIAŁ 5: ROLOWANIE (SEKRET INWESTORÓW) - NOWOŚĆ */}
+              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm">
+                  <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 bg-green-100 text-green-700 rounded-xl flex items-center justify-center font-bold text-xl">5</div>
+                      <h3 className="text-2xl font-bold text-slate-900">Rolowanie obligacji (Zamiana)</h3>
+                  </div>
+                  <p className="text-slate-600 mb-6 leading-relaxed">
+                      Gdy Twoje obligacje kończą życie (zapadają), nie musisz wypłacać gotówki. Możesz wymienić je na nowe serie. Dlaczego to się opłaca?
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-6">
+                      <div className="bg-green-50 p-5 rounded-2xl border border-green-100">
+                          <strong className="block text-green-800 mb-2">1. Promocyjna cena</strong>
+                          <p className="text-sm text-green-700">
+                              Kupując w drodze zamiany, płacisz za nową obligację np. <strong>99.90 zł</strong> zamiast 100.00 zł. To daje Ci dodatkowy, pewny zysk na start (0.10 zł na każdej sztuce).
+                          </p>
+                      </div>
+                      <div className="bg-green-50 p-5 rounded-2xl border border-green-100">
+                          <strong className="block text-green-800 mb-2">2. Ciągłość odsetek</strong>
+                          <p className="text-sm text-green-700">
+                              Twoje pieniądze nie leżą ani dnia na nieoprocentowanym koncie osobistym. Przechodzą płynnie z pracującej starej obligacji na pracującą nową.
+                          </p>
+                      </div>
+                  </div>
+              </div>
+
+              {/* ROZDZIAŁ 6: OPTYMALIZACJA PODATKOWA (IKE) */}
+              <div className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
+                  <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
+                      <div>
+                          <div className="flex items-center gap-4 mb-6">
+                              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center font-bold text-xl">6</div>
+                              <h3 className="text-2xl font-bold">Jak nie płacić podatku? (IKE)</h3>
+                          </div>
+                          <p className="text-indigo-100 mb-6 leading-relaxed">
+                              Standardowo od zysku z obligacji płacisz 19% podatku Belki. Jest to bolesne, zwłaszcza przy wysokiej inflacji. Istnieje jednak sposób na legalne uniknięcie tej opłaty.
+                          </p>
+                          <button onClick={() => navigate('/ike-ikze')} className="bg-white text-indigo-700 px-6 py-3 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors shadow-lg">
+                              Zobacz szczegóły konta IKE →
+                          </button>
+                      </div>
+                      <div className="bg-white/10 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
+                          <h4 className="font-bold text-white mb-4 flex items-center gap-2"><ShieldCheck/> Konto IKE-Obligacje</h4>
+                          <p className="text-sm text-indigo-100 mb-4">
+                              To specjalny rodzaj konta (dostępny tylko w PKO BP), który pozwala kupować obligacje skarbowe w ramach limitu rocznego IKE.
+                          </p>
+                          <ul className="space-y-3 text-sm text-white">
+                              <li className="flex items-center gap-2"><CheckCircle className="text-green-400" size={16}/> <strong>0% podatku</strong> (przy wypłacie po 60 r.ż.)</li>
+                              <li className="flex items-center gap-2"><CheckCircle className="text-green-400" size={16}/> <strong>Pełny procent składany</strong> (zysk brutto reinwestowany)</li>
+                              <li className="flex items-center gap-2"><CheckCircle className="text-green-400" size={16}/> <strong>Dziedziczenie</strong> bez podatku</li>
+                          </ul>
+                      </div>
+                  </div>
+              </div>
+
+              {/* ROZDZIAŁ 7: STRATEGIE (Dla zaawansowanych) */}
+              <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-sm">
+                  <div className="flex items-center gap-4 mb-8">
+                      <div className="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xl">7</div>
+                      <h3 className="text-2xl font-bold text-slate-900">Strategie inwestycyjne</h3>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-8">
+                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 hover:border-blue-300 transition-colors group">
+                          <div className="mb-4 bg-white w-10 h-10 rounded-lg flex items-center justify-center shadow-sm text-blue-600"><Percent size={20}/></div>
+                          <h4 className="font-bold text-slate-900 mb-2">Poduszka finansowa</h4>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                              Zamiast trzymać 30 tys. zł na nieoprocentowanym rachunku w banku, kup obligacje <strong>TOS</strong> lub <strong>COI</strong>. Są równie bezpieczne, a realnie chronią wartość pieniądza. W razie awarii wypłacisz je w 3-5 dni roboczych.
+                          </p>
+                      </div>
+                      
+                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 hover:border-purple-300 transition-colors group">
+                          <div className="mb-4 bg-white w-10 h-10 rounded-lg flex items-center justify-center shadow-sm text-purple-600"><TrendingUp size={20}/></div>
+                          <h4 className="font-bold text-slate-900 mb-2">Drabina obligacji</h4>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                              Podziel kapitał na 10 części. Co rok kupuj obligacje EDO (10-letnie) za jedną część. Po 10 latach, co roku jedna seria zapada (kończy się), dając Ci potężny zastrzyk gotówki, którą możesz wydać lub zreinwestować.
+                          </p>
+                      </div>
+
+                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 hover:border-orange-300 transition-colors group">
+                          <div className="mb-4 bg-white w-10 h-10 rounded-lg flex items-center justify-center shadow-sm text-orange-600"><Baby size={20}/></div>
+                          <h4 className="font-bold text-slate-900 mb-2">Strategia 800+ (ROD)</h4>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                              Wpłacaj świadczenie 800+ bezpośrednio w obligacje ROD (Rodzinne 12-letnie). Po 18 latach, dzięki preferencyjnemu oprocentowaniu i <Link to="/procent-skladany" className="font-bold underline hover:text-orange-800">procentowi składanemu</Link>, dziecko otrzyma kapitał na start w dorosłość.
+                          </p>
+                      </div>
+                  </div>
+              </div>
+
           </div>
       </div>
     </>
@@ -1670,6 +1715,7 @@ const StocksView = () => {
       <Helmet>
         <title>Giełda, Akcje i ETF - Przewodnik Inwestora | Finanse Proste</title>
         <meta name="description" content="Jak kupić pierwsze akcje? Czym jest ETF? Poradnik o koncie maklerskim i podatkach giełdowych." />
+      <link rel="canonical" href="https://www.finanse-proste.pl/procent-skladany" />
       </Helmet>
 
       <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-12">
@@ -2023,6 +2069,7 @@ const PpkView = () => (
       <Helmet>
         <title>Kalkulator PPK - Czy to się opłaca? | Finanse Proste</title>
         <meta name="description" content="Pracownicze Plany Kapitałowe. Sprawdź ile dokłada pracodawca i państwo do Twojej emerytury." />
+      <link rel="canonical" href="https://www.finanse-proste.pl/ppk" />
       </Helmet>
 
       <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
@@ -2246,6 +2293,7 @@ const IkeView = () => {
       <Helmet>
         <title>IKE czy IKZE? Kalkulator Korzyści Podatkowych | Finanse Proste</title>
         <meta name="description" content="Porównanie kont emerytalnych. Zobacz ile podatku odzyskasz dzięki IKZE i ile zaoszczędzisz na IKE." />
+     <link rel="canonical" href="https://www.finanse-proste.pl/ike-ikze" />
       </Helmet>
 
       <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
@@ -2604,6 +2652,7 @@ const OkiView = () => {
       <Helmet>
         <title>OKI - Osobiste Konto Inwestycyjne | Kwota wolna od podatku Belki</title>
         <meta name="description" content="Czym jest OKI? Poznaj zasady nowej ulgi w podatku od zysków kapitałowych. Limity, planowana data wdrożenia i różnice względem IKE." />
+     <link rel="canonical" href="https://www.finanse-proste.pl/oki" />
       </Helmet>
 
       <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
@@ -2803,6 +2852,7 @@ const CryptoView = () => {
       <Helmet>
         <title>Kryptowaluty od A do Z - Bitcoin, Ethereum, Bezpieczeństwo | Finanse Proste</title>
         <meta name="description" content="Kompendium wiedzy o kryptowalutach. Jak działa Blockchain? Czym różni się Bitcoin od Dogecoina? Historia upadków giełd (FTX, Mt. Gox) i jak bezpiecznie kupować." />
+      <link rel="canonical" href="https://www.finanse-proste.pl/kryptowaluty" />
       </Helmet>
 
       <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
@@ -3153,6 +3203,7 @@ const LeasingView = () => {
 `}
 </script>
         <meta name="description" content="Zaawansowany kalkulator leasingu samochodowego. Oblicz ratę, wykup i koszty całkowite. Dowiedz się co to jest tarcza podatkowa i GAP." />
+     <link rel="canonical" href="https://www.finanse-proste.pl/leasing" />
       </Helmet>
 
       <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">

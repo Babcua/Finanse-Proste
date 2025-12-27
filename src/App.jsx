@@ -380,7 +380,7 @@ export default function App() {
   // 3. Główny widok (Layout)
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200 flex flex-col">
-        <Analytics debug={true} />
+        <Analytics />
       <SpeedInsights />
       {/* NAGŁÓWEK */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/90">

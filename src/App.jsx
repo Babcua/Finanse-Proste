@@ -19,6 +19,8 @@ import { RentVsBuyView } from './RentVsBuyView';
 import { FireView } from './FireView';
 import { PrivacyPolicyView } from './PrivacyPolicyView';
 import { VatView } from './VatView';
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 
 
@@ -378,6 +380,8 @@ export default function App() {
   // 3. Główny widok (Layout)
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200 flex flex-col">
+        <Analytics debug={true} />
+      <SpeedInsights />
       {/* NAGŁÓWEK */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/90">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">

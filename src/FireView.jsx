@@ -41,7 +41,7 @@ export const FireView = () => {
   const [monthlySavings, setMonthlySavings] = useState(2000); // Ile odkładasz
   
   const [roi, setRoi] = useState(7.0); // Zysk roczny z inwestycji (nominalny)
-  const [inflation, setInflation] = useState(2.5); // Inflacja
+  const [inflation, setInflation] = useState(4.0); // Inflacja
   const [withdrawalRate, setWithdrawalRate] = useState(4.0); // Bezpieczna stopa wypłaty (SWR)
 
   const scrollToKnowledge = () => {
@@ -96,9 +96,10 @@ export const FireView = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Kalkulator FIRE - Kiedy przejdziesz na emeryturę? | Finanse Proste</title>
-        <meta name="description" content="Oblicz swoją drogę do wolności finansowej (FIRE). Sprawdź, ile musisz zgromadzić kapitału, aby żyć z odsetek i rzucić pracę na etacie. Reguła 4% w praktyce." />
+<Helmet>
+        {/* Zaktualizowano tytuł i opis na rok 2026 */}
+        <title>Kalkulator FIRE 2026 - Kiedy przejdziesz na emeryturę? | Finanse Proste</title>
+        <meta name="description" content="Oblicz swoją drogę do wolności finansowej (FIRE). Symulacja uwzględnia inflację i wskaźniki na 2026 rok. Sprawdź liczbę FIRE i regułę 4%." />
         <link rel="canonical" href="https://www.finanse-proste.pl/kalkulator-fire" />
       </Helmet>
 
@@ -141,7 +142,7 @@ export const FireView = () => {
                 </h3>
                 <div className="space-y-4">
                     <InputGroup label="Zysk z inwestycji (Nominalny)" value={roi} onChange={setRoi} suffix="%" step={0.1} description="Średni roczny zwrot (np. 7-8% dla S&P 500)."/>
-                    <InputGroup label="Inflacja" value={inflation} onChange={setInflation} suffix="%" step={0.1} description="Średni wzrost cen. Obniża realną wartość zysków."/>
+<InputGroup label="Inflacja" value={inflation} onChange={setInflation} suffix="%" step={0.1} description="Prognozowany średni wzrost cen w 2026 r."/>
                     <InputGroup label="Reguła wypłaty (SWR)" value={withdrawalRate} onChange={setWithdrawalRate} suffix="%" step={0.1} description="Standardowo 4%. Tyle kapitału wypłacasz rocznie na życie."/>
                 </div>
               </div>
@@ -158,8 +159,8 @@ export const FireView = () => {
                     <div className="text-xs font-bold text-slate-400 uppercase mb-1">Twoja Liczba FIRE (Cel)</div>
                     <div className="text-3xl lg:text-4xl font-black mb-2">{formatMoney(simulation.fireNumber)}</div>
                     <div className="text-xs text-slate-400 leading-relaxed">
-                        Tyle kapitału potrzebujesz (w dzisiejszych pieniądzach), aby przy wypłacie {withdrawalRate}% rocznie pokryć wydatki {formatMoney(monthlyExpenses)}/msc bez uszczuplania majątku ("w nieskończoność").
-                    </div>
+    Tyle kapitału potrzebujesz (w sile nabywczej z 2026 r.), aby przy wypłacie {withdrawalRate}% rocznie pokryć wydatki {formatMoney(monthlyExpenses)}/msc bez uszczuplania majątku.
+</div>
                 </div>
 
                 <div className={`p-6 rounded-3xl shadow-lg flex flex-col justify-center text-white transition-colors duration-500 ${simulation.fireAge ? 'bg-gradient-to-br from-rose-500 to-orange-600' : 'bg-slate-500'}`}>

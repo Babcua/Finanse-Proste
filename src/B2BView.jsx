@@ -75,10 +75,8 @@ const calculateB2B = (inputs) => {
     }
 
     const monthlyCosts = parseFloat(costs) || 0;
-    
-    // Stałe ZUS (2025 prognoza/bazowe)
-    const ZUS_BASE_STANDARD = 5224.20; 
-    const ZUS_BASE_PREFERENTIAL = 1399.80; 
+    const ZUS_BASE_STANDARD = 5652.00; 
+    const ZUS_BASE_PREFERENTIAL = 1441.80;
     
     const RATE_EMERYTALNA = 0.1952;
     const RATE_RENTOWA = 0.08;
@@ -104,15 +102,15 @@ const calculateB2B = (inputs) => {
 
     if (taxType === 'liniowy') {
         const income = Math.max(0, revenue - monthlyCosts - socialZus);
-        healthZus = Math.max(381.78, income * 0.049);
-        const deductibleHealth = Math.min(healthZus, 11600/12); 
+        healthZus = Math.max(432.54, income * 0.049);
+        const deductibleHealth = Math.min(healthZus, 12500/12);
         taxBase = Math.round(Math.max(0, revenue - monthlyCosts - socialZus - deductibleHealth));
         const rate = ipBox ? 0.05 : 0.19;
         incomeTax = Math.round(taxBase * rate);
 
     } else if (taxType === 'skala') {
         const income = Math.max(0, revenue - monthlyCosts - socialZus);
-        healthZus = Math.max(381.78, income * 0.09);
+        healthZus = Math.max(432.54, income * 0.09);
         taxBase = Math.round(Math.max(0, revenue - monthlyCosts - socialZus));
         if (taxBase <= 10000) { 
             incomeTax = (taxBase * 0.12) - 300;
@@ -124,9 +122,9 @@ const calculateB2B = (inputs) => {
 
     } else if (taxType === 'ryczalt') {
         const yearlyRevenue = revenue * 12;
-        if (yearlyRevenue < 60000) healthZus = 419.46;
-        else if (yearlyRevenue < 300000) healthZus = 699.11;
-        else healthZus = 1258.39;
+        if (yearlyRevenue < 60000) healthZus = 453.30;
+        else if (yearlyRevenue < 300000) healthZus = 755.50;
+        else healthZus = 1359.90;
         
         taxBase = Math.round(Math.max(0, revenue - socialZus - (healthZus * 0.5)));
         incomeTax = Math.round(taxBase * (ryczaltRate / 100));
@@ -194,7 +192,7 @@ export const B2BView = () => {
     return (
         <>
             <Helmet>
-                <title>Kalkulator B2B 2025 - Ryczałt, Liniowy, Koszty | Finanse Proste</title>
+                <title>Kalkulator B2B 2026 - Ryczałt, Liniowy, Koszty | Finanse Proste</title>
                 <script type="application/ld+json">
 {`
   {
@@ -556,10 +554,10 @@ export const B2BView = () => {
                                     <div className="bg-green-50 p-6 rounded-2xl border-2 border-green-100 hover:border-green-300 transition-colors shadow-sm inline-block w-full">
                                         <div className="text-xs font-bold uppercase text-green-600 mb-1">Miesiące 0 - 6</div>
                                         <h4 className="font-black text-green-800 text-xl mb-2">Ulga na Start</h4>
-                                        <p className="text-sm text-slate-700">
-                                            Płacisz <strong>tylko składkę zdrowotną</strong>. <br/>
-                                            Koszt: ok. <strong>300 - 600 zł</strong> / msc.
-                                        </p>
+<p className="text-sm text-slate-700">
+    Płacisz <strong>tylko składkę zdrowotną</strong>. <br/>
+    Koszt: ok. <strong>432 - 755 zł</strong> / msc.
+</p>
                                     </div>
                                 </div>
                                 <div className="bg-green-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 border-white shadow-lg shrink-0 my-2 md:my-0">1</div>
@@ -575,9 +573,9 @@ export const B2BView = () => {
                                         <div className="text-xs font-bold uppercase text-teal-600 mb-1">Miesiące 7 - 30</div>
                                         <h4 className="font-black text-teal-800 text-xl mb-2">Mały ZUS (Preferencyjny)</h4>
                                         <p className="text-sm text-slate-700">
-                                            Zaczynasz płacić składki społeczne, ale od bardzo niskiej podstawy (30% minimalnej krajowej).<br/>
-                                            Koszt: ok. <strong>600 - 900 zł</strong> / msc.
-                                        </p>
+    Zaczynasz płacić składki społeczne, ale od bardzo niskiej podstawy (30% minimalnej krajowej).<br/>
+    Koszt: ok. <strong>890 - 1200 zł</strong> / msc.
+</p>
                                     </div>
                                 </div>
                             </div>
@@ -588,11 +586,11 @@ export const B2BView = () => {
                                     <div className="bg-slate-100 p-6 rounded-2xl border-2 border-slate-200 hover:border-slate-300 transition-colors shadow-sm inline-block w-full">
                                         <div className="text-xs font-bold uppercase text-slate-500 mb-1">Po 30 miesiącach</div>
                                         <h4 className="font-black text-slate-800 text-xl mb-2">Duży ZUS (Pełny)</h4>
-                                        <p className="text-sm text-slate-600">
-                                            Koniec taryfy ulgowej. Płacisz pełne składki społeczne.
-                                            <br/>
-                                            Koszt: <strong>ok. 1773 zł + Zdrowotna</strong>. Łącznie to ponad 2000 zł miesięcznie!
-                                        </p>
+                                       <p className="text-sm text-slate-600">
+    Koniec taryfy ulgowej. Płacisz pełne składki społeczne.
+    <br/>
+    Koszt: <strong>ok. 1927 zł + Zdrowotna</strong>. Łącznie to ok. 2400-2600 zł miesięcznie!
+</p>
                                     </div>
                                 </div>
                                 <div className="bg-slate-700 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 border-white shadow-lg shrink-0 my-2 md:my-0">3</div>

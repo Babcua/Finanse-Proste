@@ -43,7 +43,7 @@ const formatMoney = (val) => new Intl.NumberFormat('pl-PL', { style: 'currency',
 
 export const GoldView = () => {
   // --- STATE ---
-  const [goldPriceSpot, setGoldPriceSpot] = useState(10800);
+  const [goldPriceSpot, setGoldPriceSpot] = useState(15500);
   const [investmentAmount, setInvestmentAmount] = useState(20000);
   const [selectedWeight, setSelectedWeight] = useState('1oz');
   const [holdingPeriod, setHoldingPeriod] = useState(5);
@@ -86,7 +86,7 @@ export const GoldView = () => {
     
     // ZAŁOŻENIA DO OBLICZEŃ
     const assumedGoldGrowth = 6.0; 
-    const assumedInflation = 4.5;  
+    const assumedInflation = 4.0;  
 
     for (let i = 0; i <= holdingPeriod + 2; i++) {
       data.push({
@@ -105,8 +105,8 @@ export const GoldView = () => {
   return (
     <>
       <Helmet>
-        <title>Kalkulator Złota i Kompendium Wiedzy - Inwestowanie od A do Z | Finanse Proste</title>
-        <meta name="description" content="Kompleksowy przewodnik po inwestowaniu w złoto. Sprawdź marże, oblicz zysk i poznaj historię oraz geologię króla metali." />
+<title>Kalkulator Złota 2026 - Opłacalność i Kompendium | Finanse Proste</title>
+<meta name="description" content="Kompleksowy przewodnik po inwestowaniu w złoto w 2026 r. Sprawdź marże, oblicz próg rentowności i poznaj strategię 'Safe Haven'." />
         <link rel="canonical" href="https://www.finanse-proste.pl/zloto" />
         
         {/* UKRYTE SEO */}
@@ -206,11 +206,11 @@ export const GoldView = () => {
                       onChange={(e) => setGoldPriceSpot(Number(e.target.value))}
                       className="w-full bg-white border border-slate-200 text-slate-900 font-bold rounded-xl p-3 text-sm"
                     />
-                    <button 
-                      onClick={() => setGoldPriceSpot(10800)}
-                      className="bg-slate-200 p-3 rounded-xl hover:bg-slate-300 transition-colors text-slate-600"
-                      title="Przywróć orientacyjną cenę"
-                    >
+                   <button 
+  onClick={() => setGoldPriceSpot(15500)}
+  className="bg-slate-200 p-3 rounded-xl hover:bg-slate-300 transition-colors text-slate-600"
+  title="Przywróć orientacyjną cenę ze stycznia 2026"
+>
                       <RefreshCcw size={18}/>
                     </button>
                   </div>
@@ -310,10 +310,10 @@ export const GoldView = () => {
                 <div className="mt-6 pt-6 border-t border-slate-100 text-xs text-slate-500 leading-relaxed">
                     <div className="font-bold text-slate-700 mb-1 flex items-center gap-1"><Info size={12}/> Metodologia i założenia:</div>
                     <p>
-                        <strong>Wzrost złota (6% r/r):</strong> Oparto na średniej historycznej stopie zwrotu (CAGR) złota w USD z ostatnich 20 lat (ok. 8-9%), skorygowanej konserwatywnie o ryzyko kursowe PLN/USD. 
-                        <strong>Inflacja (4.5% r/r):</strong> Przyjęto wartość powyżej celu inflacyjnego NBP (2.5%), odzwierciedlającą realia gospodarcze ostatnich lat. 
-                        Wykres uwzględnia spread (marżę dealera) przy odsprzedaży, co pokazuje realny zysk "na rękę".
-                    </p>
+    <strong>Wzrost złota (6% r/r):</strong> Oparto na średniej historycznej stopie zwrotu złota w USD, skorygowanej o ryzyko kursowe PLN. 
+    <strong>Inflacja (4.0% r/r):</strong> Przyjęto prognozowaną wartość na 2026 r., odzwierciedlającą realia gospodarcze. 
+    Wykres uwzględnia spread (marżę dealera) przy odsprzedaży.
+</p>
                 </div>
             </Card>
           </div>

@@ -52,7 +52,7 @@ export const VatView = () => {
   return (
     <>
       <Helmet>
-        <title>Kalkulator VAT - Netto na Brutto i Odwrócony | Finanse Proste</title>
+        <title>Kalkulator VAT 2026 - Netto na Brutto i Odwrócony | Finanse Proste</title>
         <meta name="description" content="Szybki kalkulator VAT. Przelicz kwotę netto na brutto lub oblicz podatek VAT z kwoty brutto (metoda w stu). Aktualne stawki 23%, 8%, 5%. Poradnik dla firm." />
         <link rel="canonical" href="https://www.finanse-proste.pl/kalkulator-vat" />
       </Helmet>
@@ -220,7 +220,7 @@ export const VatView = () => {
                     {/* STAWKI */}
                     <div className="space-y-6">
                         <h4 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                            <Percent className="text-blue-600"/> Stawki w Polsce (2025)
+                            <Percent className="text-blue-600"/> Stawki w Polsce (2026)
                         </h4>
                         <ul className="space-y-3 text-sm">
                             <li className="flex items-start gap-3">

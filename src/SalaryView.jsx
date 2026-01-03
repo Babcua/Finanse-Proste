@@ -94,7 +94,7 @@ const calcSalaryMonth = (amount, type, params) => {
 const calcSalaryYearly = (brutto, type, params) => {
   const amount = parseFloat(brutto) || 0;
   const THRESHOLD_TAX = 120000;
-  const LIMIT_ZUS_30 = 234720;
+  const LIMIT_ZUS_30 = 282600;
   const KUP_STANDARD = 250;
   const KUP_ELEVATED = 300;
   const TAX_FREE_REDUCTION = 300;
@@ -267,7 +267,7 @@ export const SalaryView = () => {
                         <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Ustawienia</label>
                         {contractType === 'uop' && (
                             <>
-                                <CheckboxGroup label="Praca w miejscu zamieszkania" description="KUP: 250 zł" checked={salaryParams.workWhereLive} onChange={(v) => setSalaryParams({...salaryParams, workWhereLive: v})} icon={Building2} />
+                                <CheckboxGroup label="Praca w miejscu zamieszkania" description="Koszt uzyskania przychodu: 250 zł" checked={salaryParams.workWhereLive} onChange={(v) => setSalaryParams({...salaryParams, workWhereLive: v})} icon={Building2} />
                                 <CheckboxGroup label="PPK (Pracownicze Plany Kapitałowe)" description="Oszczędzanie z pracodawcą" checked={salaryParams.ppk} onChange={(v) => setSalaryParams({...salaryParams, ppk: v})} icon={PiggyBank}>
                                     <div className="space-y-2 pt-2 border-t border-green-100 mt-2">
                                         <div className="flex justify-between text-xs font-bold text-slate-500"><span>Twoja wpłata: {salaryParams.ppkRate}%</span></div>
@@ -523,7 +523,7 @@ export const SalaryView = () => {
                                 <div>
                                     <strong className="block text-slate-900 text-lg mb-1">Limit 30-krotności ZUS</strong>
                                     <p className="text-sm text-slate-600">
-                                        Dobra wiadomość dla najlepiej zarabiających (powyżej ~20 tys. brutto). Po przekroczeniu rocznego limitu podstawy składek (ok. 234 tys. zł), przestajesz płacić składki emerytalne i rentowe. Twoja pensja netto nagle rośnie o ok. 11%!
+                                        Dobra wiadomość dla najlepiej zarabiających (powyżej ~20 tys. brutto). Po przekroczeniu rocznego limitu podstawy składek (ok. 282,6 tys. zł), przestajesz płacić składki emerytalne i rentowe. Twoja pensja netto nagle rośnie o ok. 11%!
                                     </p>
                                 </div>
                             </div>
@@ -572,24 +572,23 @@ export const SalaryView = () => {
                 </div>
 
                 {/* MODUŁ 3: CIEKAWOSTKI I STATYSTYKI */}
-                <div className="bg-slate-900 rounded-[3rem] p-12 text-white text-center relative overflow-hidden">
-                    <div className="relative z-10 grid md:grid-cols-3 gap-12 divide-y md:divide-y-0 md:divide-x divide-slate-700">
-                        <div>
-                            <div className="text-4xl font-black text-blue-400 mb-2">40%</div>
-                            <p className="text-sm text-slate-300">Tyle średnio wynosi "klin podatkowy" w Polsce. Tyle z całkowitego kosztu pracy zabiera państwo (ZUS + PIT).</p>
-                        </div>
-                        <div className="pt-8 md:pt-0">
-                            <div className="text-4xl font-black text-green-400 mb-2">150 000 zł</div>
-                            <p className="text-sm text-slate-300">Limit przychodów dla "Ulgi dla Młodych" (do 26 r.ż.). Do 85 tys. zł PIT wynosi 0%, powyżej płacisz podatek tylko od nadwyżki.</p>
-                        </div>
-                        <div className="pt-8 md:pt-0">
-                            <div className="text-4xl font-black text-purple-400 mb-2">50% KUP</div>
-                            <p className="text-sm text-slate-300">Koszty Uzyskania Przychodu dla twórców. Jeśli Twoja praca to dzieło twórcze (programowanie, projektowanie), płacisz podatek tylko od połowy pensji.</p>
-                        </div>
-                    </div>
-                    {/* Background decoration */}
-                    <div className="absolute top-0 right-0 p-12 opacity-5"><Wallet size={200}/></div>
-                </div>
+<div className="bg-slate-900 rounded-[3rem] p-12 text-white text-center relative overflow-hidden">
+    <div className="relative z-10 grid md:grid-cols-3 gap-12 divide-y md:divide-y-0 md:divide-x divide-slate-700">
+        <div className="text-center"> {/* Dodano text-center */}
+            <div className="text-4xl font-black text-blue-400 mb-2">40%</div>
+            <p className="text-sm text-slate-300">Tyle średnio wynosi "klin podatkowy" w Polsce. Tyle z całkowitego kosztu pracy zabiera państwo (ZUS + PIT).</p>
+        </div>
+        <div className="text-center px-4"> {/* Środkowy już jest OK */}
+            <div className="text-4xl font-black text-green-400 mb-2">85 528 zł</div>
+            <p className="text-sm text-slate-300">Roczny limit przychodów dla "Ulgi dla Młodych" (do 26 r.ż.). Poniżej tej kwoty Twój PIT wynosi 0%.</p>
+        </div>
+        <div className="text-center pt-8 md:pt-0"> {/* Dodano text-center */}
+            <div className="text-4xl font-black text-purple-400 mb-2">50% KUP</div>
+            <p className="text-sm text-slate-300">Koszty Uzyskania Przychodu dla twórców. Jeśli Twoja praca to dzieło twórcze, płacisz podatek tylko od połowy pensji.</p>
+        </div>
+    </div>
+    <div className="absolute top-0 right-0 p-12 opacity-5"><Wallet size={200}/></div>
+</div>
 
             </div>
             

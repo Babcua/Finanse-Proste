@@ -36,18 +36,15 @@ const InputGroup = ({ label, value, onChange, suffix, step = 100, min = 0, descr
 
 export const RentVsBuyView = () => {
   // --- STAN ---
-  const [propertyPrice, setPropertyPrice] = useState(600000);
+  const [propertyPrice, setPropertyPrice] = useState(700000);
   const [downPaymentPercent, setDownPaymentPercent] = useState(20);
   const [mortgageRate, setMortgageRate] = useState(7.5);
   const [loanYears, setLoanYears] = useState(30);
-  
-  const [monthlyRent, setMonthlyRent] = useState(3000);
-  const [rentIncrease, setRentIncrease] = useState(3.0); 
-  
+  const [monthlyRent, setMonthlyRent] = useState(3500);
+  const [rentIncrease, setRentIncrease] = useState(4.0); 
   const [investmentReturn, setInvestmentReturn] = useState(6.0); 
-  const [propertyAppreciation, setPropertyAppreciation] = useState(3.0); 
-  
-  const [maintenanceCost, setMaintenanceCost] = useState(500); 
+  const [propertyAppreciation, setPropertyAppreciation] = useState(4.0); 
+  const [maintenanceCost, setMaintenanceCost] = useState(700); 
 
   // Funkcja przewijania do kompendium
   const scrollToKnowledge = () => {

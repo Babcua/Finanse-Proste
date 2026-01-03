@@ -6,7 +6,7 @@ import {
 } from 'recharts';
 import {
   TrendingUp, Info, Banknote, ShieldCheck, Coins, AlertTriangle, Baby, Landmark, ChevronDown, ExternalLink, Sparkles, Loader2, ArrowRight,
-  Briefcase, FileSignature, PenTool, Wallet, HelpCircle, Users, PiggyBank, Flame, Home, ArrowUpRight, Lock, CheckCircle, XCircle, Shuffle, School, ChevronUp, BookOpen, Scale, Umbrella, LayoutGrid, GraduationCap, ChevronLeft, Calculator, Lightbulb, ArrowRightCircle, Target, ThumbsUp, ThumbsDown, Building2, Clock, Percent, Activity, Key, DoorOpen, BadgeCheck, Zap, Globe, Siren, CandlestickChart, ShoppingCart, FileText, Repeat,
+  Briefcase, FileSignature, PenTool, Wallet, HelpCircle, Users, PiggyBank, Flame, Home, ArrowUpRight, Lock, CheckCircle, XCircle, Shuffle, School, ChevronUp, BookOpen, Scale, Umbrella, LayoutGrid, GraduationCap, ChevronLeft, Calculator, Lightbulb, ArrowRightCircle, Target, ThumbsUp, ThumbsDown, Building2, Clock, Percent, Activity, Key, DoorOpen, BadgeCheck, Zap, Globe, Siren, CandlestickChart, ShoppingCart, FileText, Repeat, PieChart, 
   Cpu, Bot, Fingerprint, Car, ArrowDown // <--- TERAZ JEST KOMPLET (Dodałem Fingerprint)
 } from 'lucide-react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -46,7 +46,8 @@ const INFLATION_DATA = [
   { year: '2021', value: 5.1 },
   { year: '2022', value: 14.4 },
   { year: '2023', value: 11.4 },
-  { year: '2024', value: 5.0 }, // Prognoza/Szacunek
+  { year: '2024', value: 3.7 }, 
+  { year: '2025', value: 4.6 },
 ];
 
 const STANDARD_BONDS = [
@@ -69,31 +70,29 @@ const ETF_DATA_MOCK = {
         name: 'S&P 500 (USA)', 
         desc: '500 największych spółek w USA (Apple, Microsoft, Google...).',
         risk: 'Średnie/Wysokie',
-        returns: { 2015: 1.38, 2016: 11.96, 2017: 21.83, 2018: -4.38, 2019: 31.49, 2020: 18.40, 2021: 28.71, 2022: -18.11, 2023: 26.29, 2024: 12.0 } 
-    },
+        returns: { 2015: 1.38, 2016: 11.96, 2017: 21.83, 2018: -4.38, 2019: 31.49, 2020: 18.40, 2021: 28.71, 2022: -18.11, 2023: 26.29, 2024: 24.2, 2025: 15.5 }    },
     'msci': { 
         name: 'MSCI World (Świat)', 
         desc: 'Ponad 1500 spółek z 23 krajów rozwiniętych.',
         risk: 'Średnie',
-        returns: { 2015: -0.87, 2016: 7.51, 2017: 22.40, 2018: -8.71, 2019: 27.67, 2020: 15.90, 2021: 21.82, 2022: -18.14, 2023: 23.79, 2024: 10.0 }
-    },
+returns: { 2015: -0.87, 2016: 7.51, 2017: 22.40, 2018: -8.71, 2019: 27.67, 2020: 15.90, 2021: 21.82, 2022: -18.14, 2023: 23.79, 2024: 20.1, 2025: 12.0 }    },
     'wig20': { 
         name: 'WIG20 (Polska)', 
         desc: '20 największych polskich spółek (Orlen, PKO, KGHM...).',
         risk: 'Wysokie',
-        returns: { 2015: -19.7, 2016: 4.8, 2017: 26.4, 2018: -7.5, 2019: -5.6, 2020: -7.7, 2021: 14.3, 2022: -20.9, 2023: 30.8, 2024: 5.0 }
-    },
+returns: { 2015: -19.7, 2016: 4.8, 2017: 26.4, 2018: -7.5, 2019: -5.6, 2020: -7.7, 2021: 14.3, 2022: -20.9, 2023: 30.8, 2024: 10.5, 2025: 8.2 }   },
+
     'nasdaq': { 
         name: 'Nasdaq 100 (Tech)', 
         desc: 'Spółki technologiczne. Duża zmienność, potencjalnie duży zysk.',
         risk: 'Bardzo Wysokie',
-        returns: { 2015: 8.43, 2016: 5.89, 2017: 31.52, 2018: -1.04, 2019: 37.96, 2020: 47.58, 2021: 26.63, 2022: -33.10, 2023: 55.13, 2024: 15.0 }
-    },
+returns: { 2015: 8.43, 2016: 5.89, 2017: 31.52, 2018: -1.04, 2019: 37.96, 2020: 47.58, 2021: 26.63, 2022: -33.10, 2023: 55.13, 2024: 32.5, 2025: 20.0 }   },
+
     'gold': { 
         name: 'ETF na Złoto', 
         desc: 'Odzwierciedla cenę złota fizycznego.',
         risk: 'Średnie (Surowce)',
-        returns: { 2015: -10.4, 2016: 8.5, 2017: 13.1, 2018: -1.6, 2019: 18.3, 2020: 25.1, 2021: -3.6, 2022: -0.3, 2023: 13.1, 2024: 12.0 }
+returns: { 2015: -10.4, 2016: 8.5, 2017: 13.1, 2018: -1.6, 2019: 18.3, 2020: 25.1, 2021: -3.6, 2022: -0.3, 2023: 13.1, 2024: 28.0, 2025: 18.0 }
     }
 };
 
@@ -118,9 +117,8 @@ const calculateB2B = (inputs) => {
 
     const monthlyCosts = parseFloat(costs) || 0;
     
-    // ZUS Bases (Approximate for 2025/late 2024)
-    const ZUS_BASE_STANDARD = 5224.20; 
-    const ZUS_BASE_PREFERENTIAL = 1399.80; 
+    const ZUS_BASE_STANDARD = 5652.00; 
+    const ZUS_BASE_PREFERENTIAL = 1441.80;
     
     const RATE_EMERYTALNA = 0.1952;
     const RATE_RENTOWA = 0.08;
@@ -146,7 +144,7 @@ const calculateB2B = (inputs) => {
 
     if (taxType === 'liniowy') {
         const income = Math.max(0, revenue - monthlyCosts - socialZus);
-        healthZus = Math.max(381.78, income * 0.049);
+        healthZus = Math.max(432.54, income * 0.049);
         const deductibleHealth = Math.min(healthZus, 11600/12);
         taxBase = Math.round(Math.max(0, revenue - monthlyCosts - socialZus - deductibleHealth));
         const rate = ipBox ? 0.05 : 0.19;
@@ -154,7 +152,7 @@ const calculateB2B = (inputs) => {
 
     } else if (taxType === 'skala') {
         const income = Math.max(0, revenue - monthlyCosts - socialZus);
-        healthZus = Math.max(381.78, income * 0.09);
+        healthZus = Math.max(432.54, income * 0.09);
         taxBase = Math.round(Math.max(0, revenue - monthlyCosts - socialZus));
         if (taxBase <= 10000) { 
             incomeTax = (taxBase * 0.12) - 300;
@@ -166,9 +164,9 @@ const calculateB2B = (inputs) => {
 
     } else if (taxType === 'ryczalt') {
         const yearlyRevenue = revenue * 12;
-        if (yearlyRevenue < 60000) healthZus = 419.46;
-        else if (yearlyRevenue < 300000) healthZus = 699.11;
-        else healthZus = 1258.39;
+        if (yearlyRevenue < 60000) healthZus = 453.00;
+        else if (yearlyRevenue < 300000) healthZus = 755.00;
+        else healthZus = 1359.00;
         taxBase = Math.round(Math.max(0, revenue - socialZus - (healthZus * 0.5)));
         incomeTax = Math.round(taxBase * (ryczaltRate / 100));
     }
@@ -443,7 +441,7 @@ export default function App() {
           </div>
 
           <div className="pt-8 border-t border-slate-800/50 flex flex-col justify-center items-center gap-3 text-xs text-slate-600">
-             <p>&copy; 2025 Finanse Proste. Wszelkie prawa zastrzeżone.</p>
+             <p>&copy; 2026 Finanse Proste. Wszelkie prawa zastrzeżone.</p>
 
              {/* LINK DO POLITYKI PRYWATNOŚCI */}
              <Link to="/polityka-prywatnosci" className="hover:text-slate-400 transition-colors underline decoration-slate-700 underline-offset-4">
@@ -676,6 +674,15 @@ const HomeView = () => {
                         icon={Zap}
                         color="yellow"
                         onClick={() => navigate('/kryptowaluty')}
+                      />
+                      <FeatureCard 
+                        title="Konto OKI"
+                        subtitle="Bez podatku Belki"
+                        description="Rewolucja w oszczędzaniu od 2026 r. Sprawdź, jak działa nowa kwota wolna od podatku od zysków kapitałowych."
+                        icon={Landmark}
+                        color="cyan"
+                        onClick={() => navigate('/oki')}
+                        badge="Nowość"
                       />
                   </div>
               </section>
@@ -1719,7 +1726,7 @@ const StocksView = () => {
       <Helmet>
         <title>Giełda, Akcje i ETF - Przewodnik Inwestora | Finanse Proste</title>
         <meta name="description" content="Jak kupić pierwsze akcje? Czym jest ETF? Poradnik o koncie maklerskim i podatkach giełdowych." />
-      <link rel="canonical" href="https://www.finanse-proste.pl/procent-skladany" />
+      <link rel="canonical" href="https://www.finanse-proste.pl/gielda" />
       </Helmet>
 
       <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-12">
@@ -1890,7 +1897,7 @@ const StocksView = () => {
                           <div className="flex flex-col gap-2">
                               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Rok rozpoczęcia</label>
                               <select value={etfStartYear} onChange={(e) => setEtfStartYear(Number(e.target.value))} className="w-full bg-slate-50 border border-slate-200 text-slate-900 font-bold rounded-xl p-4">
-                                  {[2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(y => <option key={y} value={y}>{y}</option>)}
+                                  {[2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025].map(y => <option key={y} value={y}>{y}</option>)}
                               </select>
                           </div>
                           <div className="flex flex-col gap-2">
@@ -2341,9 +2348,8 @@ const IkeView = () => {
                           <div className="flex items-center gap-3">
                                <div className="bg-blue-50 p-2 rounded-lg text-blue-600"><TrendingUp size={20}/></div>
                                <div>
-                                  <span className="block text-sm font-bold text-slate-700">Limit wpłat (2025)</span>
-                                  <span className="text-xs text-slate-500">ok. 24 012 zł rocznie (300% średniego wynagrodzenia).</span>
-                              </div>
+                                  <span className="block text-sm font-bold text-slate-700">Limit wpłat (2026)</span>
+                                    <p className="text-slate-600 mb-6">Limit wpłat w 2026: <strong>28 260 zł</strong></p>                              </div>
                           </div>
                       </div>
                   </div>
@@ -2376,9 +2382,8 @@ const IkeView = () => {
                           <div className="flex items-center gap-3">
                                <div className="bg-purple-50 p-2 rounded-lg text-purple-600"><TrendingUp size={20}/></div>
                                <div>
-                                  <span className="block text-sm font-bold text-slate-700">Limit wpłat (2025)</span>
-                                  <span className="text-xs text-slate-500">ok. 9 605 zł (standard) / 14 407 zł (przedsiębiorcy).</span>
-                              </div>
+                                  <span className="block text-sm font-bold text-slate-700">Limit wpłat (2026)</span>
+                                    <p className="text-slate-600 mb-6">Standardowy: <strong>11 304 zł</strong> Dla firm (JDG): <strong>16 956 zł</strong></p>                              </div>
                           </div>
                       </div>
                   </div>
@@ -2509,8 +2514,9 @@ const IkeView = () => {
               <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
                    <h3 className="font-bold text-xl mb-2 flex items-center gap-2"><Banknote className="text-purple-600"/> Magia IKZE (Zwrot podatku)</h3>
                    <p className="text-sm text-slate-500 mb-6">
-                      Ile gotówki odzyskasz z Urzędu Skarbowego w 2025 wpłacając limit (ok. 9600 zł) na IKZE? Zależy od Twoich zarobków (progu podatkowego).
-                   </p>
+  Ile gotówki odzyskasz z Urzędu Skarbowego w 2026 wpłacając limit (11 304 zł) na IKZE? 
+  Zależy od Twoich zarobków (progu podatkowego).
+</p>
                    <div className="space-y-4">
                        {[
                            { label: "I Próg (12%)", return: "1 152 zł", width: "30%", color: "bg-slate-300" },
@@ -2622,8 +2628,9 @@ const IkeView = () => {
                                       { year: '2021', val: 15.7 },
                                       { year: '2022', val: 17 },
                                       { year: '2023', val: 20 },
-                                      { year: '2024', val: 23 },
-                                      { year: '2025', val: 24 },
+                                      { yearx: '2024', val: 23.4 },
+                                        { year: '2025', val: 26.0 },
+                                        { year: '2026', val: 28.2 }
                                   ]}>
                                       <Bar dataKey="val" fill="#fbbf24" radius={[4,4,0,0]} />
                                   </BarChart>
@@ -2683,8 +2690,8 @@ const OkiView = () => {
                       <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
                           <Clock className="text-cyan-600"/> Kiedy start?
                       </h3>
-                      <p className="text-slate-700 mb-6 leading-relaxed">
-                          Projekt jest obecnie w fazie prac w Ministerstwie Finansów. Zgodnie z zapowiedziami, nowe przepisy mają wejść w życie prawdopodobnie w <strong>2025 roku</strong> (dokładna data nie jest jeszcze uchwalona ustawą).
+                <p className="text-slate-700 mb-6 leading-relaxed">
+                          Projekt jest obecnie w końcowej fazie prac legislacyjnych. Zgodnie z najnowszymi zapowiedziami, nowe przepisy dotyczące kwoty wolnej od podatku Belki mają wejść w życie w <strong>2026 roku</strong>.
                       </p>
                       <div className="bg-cyan-50 p-4 rounded-xl border border-cyan-100 flex gap-4 items-start">
                           <AlertTriangle className="text-cyan-600 shrink-0 mt-1" size={20}/>
@@ -2693,10 +2700,10 @@ const OkiView = () => {
                           </div>
                       </div>
                   </div>
-                  
                   <div className="bg-slate-900 text-white p-8 rounded-3xl flex flex-col justify-center items-center text-center">
                        <div className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Spodziewana data wdrożenia</div>
-                       <div className="text-4xl md:text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">2025 / 2026</div>
+                       
+                       <div className="text-4xl md:text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">2026</div>
                        <div className="text-sm text-slate-400">Status: Koncepcja / Prace analityczne</div>
                   </div>
               </div>

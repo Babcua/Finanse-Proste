@@ -18,6 +18,7 @@ const WIBOR_HISTORY = [
     { date: '2022', wibor: 6.80, desc: 'Szczyt' },
     { date: '2023', wibor: 6.90, desc: 'Płaskowyż' },
     { date: '2024', wibor: 5.85, desc: 'Obecnie' },
+    { date: '2025', wibor: 5.75, desc: 'Stabilizacja' },
 ];
 
 // Pomocnicza funkcja formatowania waluty
@@ -166,7 +167,7 @@ export const MortgageView = () => {
   return (
     <>
       <Helmet>
-        <title>Kalkulator Nadpłaty Kredytu Hipotecznego 2025 | Finanse Proste</title>
+        <title>Kalkulator Nadpłaty Kredytu Hipotecznego 2026 | Finanse Proste</title>
         <script type="application/ld+json">
 {`
   {
@@ -513,7 +514,7 @@ export const MortgageView = () => {
                     <div className="grid lg:grid-cols-2 gap-12">
                         {/* Wykres historyczny - Light Mode */}
                         <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 h-[350px]">
-                            <h4 className="text-sm font-bold text-slate-500 mb-4 text-center">Historia WIBOR 3M (2020-2024)</h4>
+                            <h4 className="text-sm font-bold text-slate-500 mb-4 text-center">Historia WIBOR 3M (2020-2025)</h4>
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={WIBOR_HISTORY} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
                                     <defs>

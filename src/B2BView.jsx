@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; // Dodano useNavigate
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
 import {
   Briefcase, Banknote, Target, Sparkles, AlertTriangle, CheckCircle,
   PieChart, TrendingUp, Scale, XCircle, FileSignature, ArrowRight,
   TrendingDown, Car, ShieldCheck, FileText, Calculator, HelpCircle,
-  BookOpen, Users, Lock, Scroll, Umbrella
+  BookOpen, Users, Lock, Scroll, Umbrella,
+  Globe, Repeat, Shuffle, Key, BadgeCheck, LayoutGrid, ListTree // <-- Dodane te ikony naprawią białą stronę
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell
@@ -152,6 +153,19 @@ const calculateB2B = (inputs) => {
 // --- GŁÓWNY KOMPONENT ---
 
 export const B2BView = () => {
+   const navigate = useNavigate();
+   const scrollToB2B = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 100; 
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+    }
+  };
     // State
     const [b2bRateType, setB2bRateType] = useState('monthly');
     const [b2bHourlyRate, setB2bHourlyRate] = useState(100);
@@ -226,9 +240,40 @@ export const B2BView = () => {
                         Precyzyjna symulacja Twojego wyniku finansowego. Sprawdź, ile realnie zostanie w Twojej kieszeni po opłaceniu "daniny" dla Państwa.
                     </p>
                 </div>
+{/* --- SPIS TREŚCI B2B --- */}
+        <div className="mb-16 bg-white border border-slate-100 rounded-[2.5rem] p-4 shadow-sm flex flex-wrap justify-center gap-2 md:gap-4 text-left">
+          <div className="w-full flex items-center justify-center gap-2 mb-2 text-slate-400">
+            <ListTree size={16}/>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Nawigacja po kompendium</span>
+          </div>
+          
+          <button
+            onClick={() => scrollToB2B('kalkulator-b2b-sekcja')}
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black text-white bg-teal-600 hover:bg-teal-700 transition-all shadow-lg shadow-teal-100"
+          >
+            <Calculator size={14}/> URUCHOM KALKULATOR
+          </button>
 
+          {[
+            { title: "Klient z zagranicy", icon: Globe, id: "b2b-zagranica" },
+            { title: "B2B a wspólny pit", icon: Users, id: "b2b-malzenstwo" },
+            { title: "Emerytura na jdg", icon: Umbrella, id: "b2b-emerytura" },
+            { title: "Gotówka na start", icon: Banknote, id: "b2b-dotacje" },
+            { title: "Samochód w firmie", icon: Car, id: "b2b-samochod" },
+            { title: "Dyscyplina i terminy", icon: ShieldCheck, id: "b2b-bezpieczenstwo" },
+          ].map((item, i) => (
+            <button
+              key={i}
+              onClick={() => scrollToB2B(item.id)}
+              className="flex items-center gap-2 px-4 py-3 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-teal-600 transition-all border border-transparent hover:border-slate-100"
+            >
+              <item.icon size={14} className="text-slate-400"/>
+              {item.title}
+            </button>
+          ))}
+        </div>
                 {/* --- SEKCJA KALKULATORA --- */}
-                <div className="grid lg:grid-cols-12 gap-8">
+                <div id="kalkulator-b2b-sekcja" className="grid lg:grid-cols-12 gap-8">
                     
                     {/* LEWA STRONA (INPUTY) */}
                     <div className="lg:col-span-5 space-y-6">
@@ -736,6 +781,217 @@ export const B2BView = () => {
                             </div>
                         </div>
                     </div>
+
+{/* EKSPORT USŁUG I VAT UE */}
+        <div id="b2b-zagranica" className="bg-slate-50 border border-slate-200 rounded-[2.5rem] p-8 md:p-12 shadow-sm">
+            <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg shrink-0">
+                    <Globe size={24}/>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Klient z zagranicy? Eksport usług i vat ue</h3>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 text-left">
+                <div className="space-y-6">
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                        Praca dla kontrahenta z Berlina, Londynu czy Nowego Jorku to standard w branży IT. W takim przypadku Twój <strong>kalkulator B2B 2026</strong> nie dolicza 23% vat do faktury. Stosuje się tzw. <strong>reverse charge</strong> (odwrotne obciążenie).
+                    </p>
+                    <div className="bg-white p-6 rounded-3xl border border-slate-200">
+                        <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-sm">Niezbędne formalności:</h4>
+                        <ul className="space-y-3 text-xs text-slate-600">
+                            <li className="flex gap-2"><strong>Vat-r:</strong> Musisz zarejestrować się jako podatnik vat ue, nawet jeśli w Polsce korzystasz ze zwolnienia podmiotowego.</li>
+                            <li className="flex gap-2"><strong>Vies:</strong> Przed wystawieniem faktury sprawdź kontrahenta w europejskiej bazie danych, aby uniknąć problemów z urzędem.</li>
+                            <li className="flex gap-2"><strong>Formularz w-8ben:</strong> Kluczowy dokument dla klientów z USA, który chroni Cię przed podwójnym opodatkowaniem u źródła.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div className="bg-blue-900 text-white p-8 rounded-[2rem] relative overflow-hidden flex flex-col justify-center">
+                    <h4 className="text-xl font-bold mb-4 italic">Zaleta walutowa</h4>
+                    <p className="text-blue-200 text-sm leading-relaxed mb-6">
+                        Zarabiając w eur lub usd, stajesz się naturalnym importerem kapitału. Pamiętaj, że przychód przeliczasz według średniego kursu nbp z dnia poprzedzającego wystawienie faktury. To stwarza okazję do dodatkowych zysków przy mocnym dolarze.
+                    </p>
+                    <Link to="/zloto" className="flex items-center gap-2 text-sm font-bold text-teal-400 hover:text-teal-300 transition-colors">
+                        Chroń oszczędności walutowe <ArrowRight size={16}/>
+                    </Link>
+                    <TrendingUp className="absolute -bottom-10 -right-10 opacity-10 w-48 h-48" />
+                </div>
+            </div>
+        </div>
+
+        {/* PUŁAPKA MAŁŻEŃSKA I EMERYTURA */}
+        <div className="grid lg:grid-cols-2 gap-8">
+            <div id="b2b-malzenstwo" className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm text-left">
+                <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-slate-900">
+                    <Users size={24} className="text-pink-600"/> B2b a wspólny pit
+                </h3>
+                <div className="space-y-4 text-sm text-slate-600">
+                    <p>
+                        To krytyczny punkt analizy przy wyborze formy opodatkowania. Jeśli Twoja żona lub mąż zarabia mało (np. na etacie) lub nie pracuje, wybierając ryczałt lub podatek liniowy – <strong>tracisz prawo do wspólnego rozliczenia</strong>.
+                    </p>
+                    <div className="bg-pink-50 p-6 rounded-3xl border border-pink-100">
+                        <h4 className="font-bold text-pink-900 mb-1 text-xs uppercase tracking-wider">Kiedy skala (12/32%) wygrywa?</h4>
+                        <p className="text-xs text-pink-800 leading-relaxed font-medium">
+                            Gdy wspólny dochód po uśrednieniu nie wpada w drugi próg podatkowy. Wtedy oszczędność na "niskim" podatku małżonka może być większa niż zysk z ryczałtu 12%. Zawsze liczcie to wspólnie.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="b2b-emerytura" className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col justify-center text-left">
+                <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-slate-900">
+                    <Umbrella size={24} className="text-blue-500"/> Emerytura na jdg
+                </h3>
+                <p className="text-sm text-slate-600 leading-relaxed mb-8 font-medium">
+                    Składki społeczne na b2b są liczone od minimalnej podstawy. Twoja przyszła emerytura z zus będzie prawdopodobnie oscylować wokół świadczenia minimalnego. Ekspert nie liczy na państwo, tylko buduje własny kapitał.
+                </p>
+                <div className="flex gap-4">
+                    <button onClick={() => navigate('/ike-ikze')} className="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                        <Target size={14}/> Zobacz ike / ikze
+                    </button>
+                    <button onClick={() => navigate('/obligacje')} className="flex-1 border border-slate-200 text-slate-700 py-3 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
+                        Obligacje edo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {/* DOTACJE I START-UP */}
+        <div id="b2b-dotacje" className="bg-teal-900 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
+            <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center text-left">
+                <div>
+                    <h3 className="text-3xl font-black mb-6">Gotówka na start (Dotacje)</h3>
+                    <p className="text-teal-100 mb-8 leading-relaxed text-sm">
+                        Zanim zarejestrujesz firmę, sprawdź dostępne środki. <strong>Dotacja z urzędu pracy (pup)</strong> w 2026 roku może wynieść nawet 45 000 zł. To darmowy kapitał na sprzęt, którego nie musisz oddawać.
+                    </p>
+                    <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                            <CheckCircle className="text-teal-400 mt-1" size={18}/>
+                            <p className="text-sm text-teal-100"><strong>Warunek:</strong> Musisz mieć status bezrobotnego przed złożeniem wniosku – nie zakładaj firmy za wcześnie!</p>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <CheckCircle className="text-teal-400 mt-1" size={18}/>
+                            <p className="text-sm text-teal-100"><strong>Przeznaczenie:</strong> Zakup laptopa, oprogramowania, mebli biurowych czy marketing.</p>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <CheckCircle className="text-teal-400 mt-1" size={18}/>
+                            <p className="text-sm text-teal-100"><strong>Bezzwrotność:</strong> Pieniądze są Twoje, jeśli utrzymasz działalność przez min. 12 miesięcy.</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-white/10 p-8 rounded-3xl border border-white/20 backdrop-blur-sm shadow-2xl">
+                    <h4 className="font-bold text-white mb-6 uppercase tracking-widest text-xs opacity-70">Planowana ścieżka b2b 2026:</h4>
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4 group">
+                            <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center font-bold text-white group-hover:scale-110 transition-transform">1</div>
+                            <span className="text-sm font-medium">Zbadaj rynek i znajdź pierwszego klienta</span>
+                        </div>
+                        <div className="flex items-center gap-4 group">
+                            <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center font-bold text-white group-hover:scale-110 transition-transform">2</div>
+                            <span className="text-sm font-medium">Złóż wniosek o dotację w pup (przed wpisem do ceidg)</span>
+                        </div>
+                        <div className="flex items-center gap-4 group text-teal-300">
+                            <div className="w-8 h-8 bg-teal-800 rounded-lg flex items-center justify-center font-bold group-hover:scale-110 transition-transform text-white">3</div>
+                            <span className="text-sm font-bold">Wystaw pierwszą fakturę i zacznij zarabiać 🚀</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <Key size={200} className="absolute -bottom-20 -right-20 opacity-5 text-white -rotate-45" />
+        </div>
+        {/* SAMOCHÓD W KOSZTACH FIRMY */}
+        <div id="b2b-samochod" className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12 shadow-sm text-left">
+            <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center shadow-sm shrink-0">
+                    <Car size={24}/>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Samochód w kosztach: limity 150 tys. i 225 tys. zł</h3>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+                <div className="space-y-6">
+                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                        Samochód to najpopularniejsza metoda optymalizacji w b2b. Musisz jednak znać "szklany sufit" amortyzacji. Jeśli kupujesz auto spalinowe droższe niż <strong>150 000 zł</strong>, raty i odpisy zaliczysz w koszty tylko proporcjonalnie.
+                    </p>
+                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200">
+                        <h4 className="font-bold text-slate-900 mb-4 text-xs uppercase tracking-widest">Limity amortyzacji 2026:</h4>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                                <span className="text-xs text-slate-500 italic">Auto spalinowe i hybryda</span>
+                                <span className="font-bold text-slate-900 text-sm">150 000 zł</span>
+                            </div>
+                            <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                                <span className="text-xs text-slate-500 italic">Auto elektryczne (beV)</span>
+                                <span className="font-bold text-teal-600 text-sm">225 000 zł</span>
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-4 leading-relaxed italic">
+                            Wszystko powyżej tych kwot płacisz z zysku "po opodatkowaniu". Dlatego przy drogich autach ryczałt często staje się bardziej opłacalny niż liniowy.
+                        </p>
+                    </div>
+                </div>
+                <div className="space-y-6">
+                    <div className="p-6 bg-teal-50 rounded-3xl border border-teal-100">
+                        <h4 className="font-bold text-teal-900 mb-2 flex items-center gap-2 text-sm"><TrendingDown size={18}/> Odliczenie paliwa i serwisu</h4>
+                        <p className="text-xs text-teal-800 leading-relaxed">
+                            Jeśli używasz auta w trybie mieszanym (firma + dom), odliczasz <strong>75% wydatków</strong> na paliwo i naprawy od dochodu oraz 50% podatku vat. To najbezpieczniejsza forma rozliczenia, która nie wymaga prowadzenia kilometrówki.
+                        </p>
+                    </div>
+                    <Link to="/leasing" className="group block p-6 bg-slate-900 rounded-3xl text-white relative overflow-hidden transition-all hover:bg-slate-800">
+                        <div className="relative z-10">
+                            <span className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-1 block">Narzędzie</span>
+                            <h4 className="text-lg font-black mb-2">Kalkulator leasingu operacyjnego</h4>
+                            <p className="text-xs text-slate-400 mb-4">Sprawdź, jak rata za auto wpłynie na Twój podatek b2b.</p>
+                            <span className="inline-flex items-center gap-2 text-xs font-bold bg-white/10 px-4 py-2 rounded-xl group-hover:bg-white/20 transition-all">Otwórz symulator <ArrowRight size={14}/></span>
+                        </div>
+                        <Car size={120} className="absolute -bottom-6 -right-6 opacity-5 rotate-12" />
+                    </Link>
+                </div>
+            </div>
+        </div>
+
+        {/* DYSCYPLINA I BEZPIECZEŃSTWO FINANSOWE */}
+        <div id="b2b-bezpieczenstwo" className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden shadow-2xl">
+            <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-10">
+                    <div className="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center font-bold text-xl border border-white/20 shadow-sm">
+                        <Lock size={24}/>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white tracking-tight">Dyscyplina finansowa: terminy i płatności</h3>
+                </div>
+
+                <div className="grid lg:grid-cols-3 gap-8 text-left">
+                    <div className="bg-white/5 p-6 rounded-3xl border border-white/10 hover:border-teal-500/50 transition-colors">
+                        <h4 className="font-bold text-teal-400 mb-3 flex items-center gap-2 text-sm"><BadgeCheck size={18}/> Zasada 20-go dnia</h4>
+                        <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                            To najważniejsza data w kalendarzu b2b. Do <strong>20-go dnia każdego miesiąca</strong> musisz opłacić podatek dochodowy (pit) oraz składki zus za miesiąc poprzedni. Spóźnienie może skutkować naliczeniem odsetek, a w skrajnych przypadkach – utratą prawa do niektórych ulg.
+                        </p>
+                    </div>
+                    <div className="bg-white/5 p-6 rounded-3xl border border-white/10 hover:border-blue-500/50 transition-colors">
+                        <h4 className="font-bold text-blue-400 mb-3 flex items-center gap-2 text-sm"><ShieldCheck size={18}/> Klauzule inflacyjne</h4>
+                        <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                            W 2026 roku inflacja wciąż jest istotnym czynnikiem. Jako ekspert b2b, zawsze negocjuj <strong>zapis o waloryzacji stawki</strong> w swoim kontrakcie. Pozwala to na automatyczne podniesienie wynagrodzenia o wskaźnik gus bez konieczności renegocjowania całej umowy.
+                        </p>
+                    </div>
+                    <div className="bg-white/5 p-6 rounded-3xl border border-white/10 hover:border-orange-500/50 transition-colors">
+                        <h4 className="font-bold text-orange-400 mb-3 flex items-center gap-2 text-sm"><Repeat size={18}/> Zawieszenie firmy</h4>
+                        <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                            Planujesz dłuższy urlop lub przerwę w zleceniach? Możesz <strong>zawiesić działalność gospodarczą</strong> na dowolny czas (min. 30 dni). W tym okresie nie płacisz składek społecznych zus ani podatków dochodowych. To jedyny legalny sposób na "wakacje od zus".
+                        </p>
+                    </div>
+                </div>
+
+                <div className="mt-12 p-6 bg-white/5 rounded-3xl border border-white/5 text-center flex flex-col md:flex-row items-center justify-center gap-6">
+                    <p className="text-xs text-slate-400 max-w-lg italic font-medium">
+                        Wskazówka: Załóż osobne subkonto techniczne na podatki. Przelewaj tam od razu 20-30% z każdej opłaconej faktury. Dzięki temu nigdy nie zabraknie Ci gotówki na przelewy do urzędu i zus.
+                    </p>
+                    <div className="flex gap-4">
+                         <Link to="/konta-osobiste" className="bg-teal-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-teal-500 transition-all shadow-lg">Wybierz konto firmowe</Link>
+                    </div>
+                </div>
+            </div>
+            <FileText size={200} className="absolute -bottom-20 -left-20 opacity-5 text-white -rotate-12" />
+        </div>
+
 
                 </div>
             </div>

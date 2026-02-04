@@ -7,12 +7,11 @@ import {
 import {
   TrendingUp, Info, Banknote, ShieldCheck, Coins, AlertTriangle, Baby, Landmark, ChevronDown, ExternalLink, Sparkles, Loader2, ArrowRight,
   Briefcase, FileSignature, PenTool, Wallet, HelpCircle, Users, PiggyBank, Flame, Home, ArrowUpRight, Lock, CheckCircle, XCircle, Shuffle, School, ChevronUp, BookOpen, Scale, Umbrella, LayoutGrid, GraduationCap, ChevronLeft, Calculator, Lightbulb, ArrowRightCircle, Target, ThumbsUp, ThumbsDown, Building2, Clock, Percent, Activity, Key, DoorOpen, BadgeCheck, Zap, Globe, Siren, CandlestickChart, ShoppingCart, FileText, Repeat, PieChart, 
-  Cpu, Bot, Fingerprint, Car, ArrowDown // <--- TERAZ JEST KOMPLET (Dodałem Fingerprint)
+  Cpu, Bot, Fingerprint, Car, ArrowDown, CreditCard, AlertCircle, Calendar, RefreshCw, Ban, ListTree, Receipt, ShieldAlert, Navigation, History, FileWarning, ArrowDownCircle, ArrowUpCircle
 } from 'lucide-react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { MortgageView } from './MortgageView'; 
 import { B2BView } from './B2BView';
-import { SalaryView } from './SalaryView';
 import { GoldView } from './GoldView'; 
 import CookieBanner from './CookieBanner';
 import { RentVsBuyView } from './RentVsBuyView';
@@ -21,6 +20,8 @@ import { PrivacyPolicyView } from './PrivacyPolicyView';
 import { VatView } from './VatView';
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
+import { BankAccountsView } from './BankAccountsView';
+import { SalaryView } from './SalaryView'; // Jeśli masz go w osobnym pliku
 
 
 
@@ -100,11 +101,11 @@ returns: { 2015: -10.4, 2016: 8.5, 2017: 13.1, 2018: -1.6, 2019: 18.3, 2020: 25.
 
 // Helper do sumowania rocznego netto dla porównań
 const getYearlyNetTotal = (brutto, type, params) => {
-    const breakdown = calculateYearlySalary(brutto, type, params);
+    const breakdown = calculateYearlyhelmet(brutto, type, params);
     return breakdown.reduce((acc, curr) => acc + curr.netto, 0);
 };
 
-// --- LOGIKA KALKULATORA B2B ---
+// --- LOGIKA KALKULATORA helmet ---
 const calculateB2B = (inputs) => {
     const { rateType, hourlyRate, hoursCount, monthlyNet, costs, taxType, zusType, sickLeave, ipBox, ryczaltRate, isVatPayer } = inputs;
     
@@ -381,20 +382,82 @@ export default function App() {
         <Analytics />
       <SpeedInsights />
       {/* NAGŁÓWEK */}
+{/* NAGŁÓWEK Z NOWYM MENU */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/90">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-2 cursor-pointer group">
-            <div className="bg-blue-600 p-2 rounded-lg text-white group-hover:bg-blue-700 transition-colors"><TrendingUp size={24} /></div>
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-8">
+          
+          {/* LOGOTYP */}
+          <Link to="/" className="flex items-center gap-2 cursor-pointer group shrink-0">
+            <div className="bg-blue-600 p-2 rounded-lg text-white group-hover:bg-blue-700 transition-colors">
+              <TrendingUp size={24} />
+            </div>
             <h1 className="text-xl font-bold tracking-tight">Finanse <span className="text-blue-600">Proste</span></h1>
           </Link>
-          
-          {/* Pokazuj przycisk MENU tylko jeśli NIE jesteśmy na stronie głównej */}
-          {location.pathname !== '/' && (
-             <Link to="/" className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors bg-slate-100 px-3 py-2 rounded-lg">
-                <ChevronLeft size={16}/> Menu
-             </Link>
-          )}
-          
+
+{/* NAWIGACJA DESKTOPOWA */}
+<nav className="hidden md:flex items-center gap-1">
+  
+  {/* DROPDOWN: KALKULATORY I NARZĘDZIA */}
+  <div className="relative group">
+    <button className="flex items-center gap-1 px-4 py-2 text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-slate-50">
+      Kalkulatory i Narzędzia
+      <ChevronDown size={16} className="group-hover:rotate-180 transition-transform duration-300" />
+    </button>
+    
+    <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-slate-100 shadow-xl rounded-2xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left z-[60]">
+      <div className="grid gap-1">
+        <Link to="/wynagrodzenia" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors">Kalkulator wynagrodzeń</Link>
+        <Link to="/b2b" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors">Kalkulator B2B</Link>
+        <Link to="/leasing" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors">Kalkulator leasingu</Link>
+        <Link to="/nadplata-kredytu" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors">Nadpłata kredytu</Link>
+        <Link to="/wynajem-czy-kupno" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors">Wynajem czy kupno</Link>
+        <Link to="/obligacje" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors">Obligacje skarbowe</Link>
+        <Link to="/procent-skladany" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors">Procent składany</Link>
+        <Link to="/kalkulator-fire" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors">Kalkulator FIRE</Link>
+        <Link to="/zloto" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors">Kalkulator złota</Link>
+        <Link to="/kalkulator-vat" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors">Kalkulator VAT</Link>
+      </div>
+    </div>
+  </div>
+  {/* DROPDOWN: BAZA WIEDZY */}
+  <div className="relative group">
+    <button className="flex items-center gap-1 px-4 py-2 text-sm font-bold text-slate-600 hover:text-purple-600 transition-colors rounded-lg hover:bg-slate-50">
+      Baza wiedzy
+      <ChevronDown size={16} className="group-hover:rotate-180 transition-transform duration-300" />
+    </button>
+    
+    <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-slate-100 shadow-xl rounded-2xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left z-[60]">
+      <div className="grid gap-1">
+        <Link to="/gielda" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-purple-50 hover:text-purple-700 rounded-xl transition-colors">Akcje i ETF</Link>
+        <Link to="/ike-ikze" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-purple-50 hover:text-purple-700 rounded-xl transition-colors">IKE oraz IKZE</Link>
+        <Link to="/ppk" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-purple-50 hover:text-purple-700 rounded-xl transition-colors">PPK w praktyce</Link>
+        <Link to="/kryptowaluty" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-purple-50 hover:text-purple-700 rounded-xl transition-colors">Kryptowaluty</Link>
+        <Link to="/oki" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-purple-50 hover:text-purple-700 rounded-xl transition-colors">Konto OKI</Link>
+      </div>
+    </div>
+  </div>
+  {/* NOWY DROPDOWN: PRODUKTY BANKOWE */}
+  <div className="relative group">
+    <button className="flex items-center gap-1 px-4 py-2 text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors rounded-lg hover:bg-slate-50">
+      Produkty bankowe
+      <ChevronDown size={16} className="group-hover:rotate-180 transition-transform duration-300" />
+    </button>
+    
+    <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-slate-100 shadow-xl rounded-2xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left z-[60]">
+      <div className="grid gap-1">
+        <Link to="/konta-osobiste" className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-colors flex items-center justify-between group/link">
+          Konta osobiste
+          <ArrowRight size={14} className="opacity-0 group-hover/link:opacity-100 transition-opacity" />
+        </Link>
+        <div className="px-4 py-2 border-t border-slate-50 mt-1">
+           <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest italic">Wkrótce: Lokaty</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</nav>
         </div>
       </header>
 
@@ -418,6 +481,7 @@ export default function App() {
           <Route path="/wynajem-czy-kupno" element={<RentVsBuyView />} />
           <Route path="/kalkulator-vat" element={<VatView />} />
           <Route path="/polityka-prywatnosci" element={<PrivacyPolicyView />} />
+          <Route path="/konta-osobiste" element={<BankAccountsView />} />
         </Routes>
       </main>
       {/* STOPKA */}
@@ -687,6 +751,34 @@ const HomeView = () => {
                   </div>
               </section>
 
+              {/* --- NOWA SEKCJA: PRODUKTY BANKOWE --- */}
+<section id="bankowosc" className="scroll-mt-28">
+    <div className="mb-12 border-b border-slate-100 pb-8">
+        <div className="flex items-center gap-4 mb-4">
+            <div className="h-10 w-10 bg-cyan-100 rounded-xl flex items-center justify-center text-cyan-600 shadow-sm">
+              <Landmark size={24}/>
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900">Produkty bankowe bez tajemnic</h2>
+        </div>
+        <p className="text-slate-500 text-lg max-w-3xl">
+            Pełne kompendium wiedzy o ofercie banków. Wyjaśniamy zawiłości regulaminów, wskazujemy <strong>ukryte opłaty</strong> i pomagamy wybrać produkty, które realnie wspierają Twoje oszczędności.
+        </p>
+    </div>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <FeatureCard 
+            title="Konto osobiste"
+            subtitle="Rachunek osobisty"
+            description="Jak wybrać darmowe konto? Sprawdź, na co zwrócić uwagę, aby nie płacić za kartę i wypłaty z bankomatów."
+            icon={CreditCard}
+            color="cyan"
+            onClick={() => navigate('/konta-osobiste')}
+            badge="Podstawa"
+        />
+        {/* Tu w przyszłości dodasz: Lokaty, Karty Kredytowe, Konta Oszczędnościowe */}
+    </div>
+</section>
+
               {/* --- 3. KOMPENDIUM SEO (WIELKA SEKCJ MERYTORYCZNA) --- */}
               {/* Układ: Pełna szerokość, wyraźne sekcje, dużo treści, słowa kluczowe */}
               <section id="kompendium-seo" className="pt-20 border-t border-slate-200">
@@ -871,6 +963,27 @@ const BondsView = () => {
     }
   }, [selectedBondId]);
 
+
+const scrollToSection = (e, id) => {
+    e.preventDefault();
+    const element = document.getElementById(id.replace('#', ''));
+    if (element) {
+      // Offset 100px pozwala zachować estetyczny odstęp od górnej krawędzi
+      const offset = 100; 
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+
+
   // Sprawdzenie, czy wybrana obligacja jest indeksowana inflacją
   const isInflationIndexed = useMemo(() => {
     return ['EDO', 'COI', 'ROD', 'ROS'].some(id => selectedBondId.startsWith(id));
@@ -971,8 +1084,46 @@ const BondsView = () => {
               </div>
           </div>
 
+{/* --- MINIMALISTYCZNY SPIS TREŚCI --- */}
+        <div className="mb-16 bg-white border border-slate-100 rounded-[2.5rem] p-4 shadow-sm flex flex-wrap justify-center gap-2 md:gap-4">
+          <div className="w-full flex items-center justify-center gap-2 mb-2 text-slate-400">
+            <ListTree size={16}/>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Nawigacja po kompendium</span>
+          </div>
+          
+          {/* WYRÓŻNIONY KALKULATOR */}
+          <button
+            onClick={(e) => scrollToSection(e, "#kalkulator")}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-md shadow-blue-100"
+          >
+            <Calculator size={14}/>
+            KALKULATOR ZYSKU
+          </button>
+
+          {[
+            { title: "1. Fundamenty", icon: Landmark, id: "#fundamenty" },
+            { title: "2. Katalog", icon: LayoutGrid, id: "#katalog" },
+            { title: "3. Jak kupić?", icon: Globe, id: "#proces" },
+            { title: "4. Zysk i inflacja", icon: TrendingUp, id: "#indeksacja" },
+            { title: "5. Rolowanie", icon: RefreshCw, id: "#rolowanie" },
+            { title: "6. Podatki i IKE", icon: Ban, id: "#podatki" },
+            { title: "7. Strategie", icon: Target, id: "#strategie" },
+            { title: "8. Indeks pojęć", icon: BookOpen, id: "#indeks" },
+          ].map((item, i) => (
+            <button
+              key={i}
+              onClick={(e) => scrollToSection(e, item.id)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-all border border-transparent hover:border-slate-100"
+            >
+              <item.icon size={14} className="text-slate-400 group-hover:text-blue-500"/>
+              {item.title}
+            </button>
+          ))}
+        </div>
+
+
           {/* --- SEKCJA KALKULATORA --- */}
-          <div className="flex gap-4 mb-8">
+          <div id="kalkulator" className="flex gap-4 mb-8">
               <button onClick={() => setActiveBondType('standard')} className={`px-6 py-3 rounded-xl font-bold transition-all ${activeBondType === 'standard' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}`}>Standardowe</button>
               <button onClick={() => setActiveBondType('family')} className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeBondType === 'family' ? 'bg-pink-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}`}><Baby size={18}/> Rodzinne 800+</button>
           </div>
@@ -1143,120 +1294,243 @@ const BondsView = () => {
                   </p>
               </div>
 
-              {/* ROZDZIAŁ 1: FUNDAMENTY */}
-              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm">
+              {/* ROZDZIAŁ 1: FUNDAMENTY (Wersja Ekspercka) */}
+              <div id="fundamenty" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm">
                   <div className="flex items-center gap-4 mb-8">
-                      <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center font-bold text-xl">1</div>
-                      <h3 className="text-2xl font-bold text-slate-900">Fundamenty: co to właściwie jest?</h3>
+                      <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center font-bold text-xl shadow-sm">1</div>
+                      <h3 className="text-2xl font-bold text-slate-900">Fundamenty: jak działa rynek dłużny?</h3>
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-12">
-                      <div>
-                          <h4 className="font-bold text-lg text-slate-800 mb-4">Definicja "na chłopski rozum"</h4>
-                          <p className="text-slate-600 leading-relaxed mb-4">
-                              Obligacja to w najprostszym ujęciu <strong>dług</strong>. Ty pożyczasz swoje pieniądze (emitentowi), a on obiecuje Ci je oddać w określonym terminie wraz z odsetkami (procentem).
-                          </p>
-                          <div className="bg-blue-50 p-4 rounded-xl border-l-4 border-blue-500 text-sm text-blue-900">
-                              <strong>Różnica:</strong> Kupując <Link to="/gielda" className="underline font-bold">akcje</Link>, stajesz się współwłaścicielem firmy. Kupując obligacje, stajesz się jej wierzycielem (bankiem).
+                      <div className="space-y-6">
+                          <div>
+                              <h4 className="font-bold text-sm text-slate-400 uppercase tracking-widest mb-4">Mechanika inwestycji</h4>
+                              <p className="text-slate-600 leading-relaxed mb-4 text-sm">
+                                  Wybierając <strong>obligacje skarbowe</strong>, wchodzisz w rolę <strong>Wierzyciela</strong> państwa. Ty udostępniasz kapitał, a <strong>Dłużnik</strong> (państwo) gwarantuje zwrot <strong>Nominału</strong> wraz z odsetkami. W przeciwieństwie do <Link to="/gielda" className="text-blue-600 font-bold hover:underline">inwestowania w akcje i ETF</Link>, gdzie zysk zależy od sukcesu firm, tutaj Twoje bezpieczeństwo opiera się na stabilności budżetu państwa i <strong>ratingu kredytowym Polski</strong>.
+                              </p>
+                          </div>
+                          
+                          <div className="bg-blue-50 p-6 rounded-[2rem] border border-blue-100">
+                              <h5 className="font-bold text-blue-900 text-sm mb-2 flex items-center gap-2">
+                                  <Info size={16}/> Dlaczego obligacje detaliczne?
+                              </h5>
+                              <p className="text-[11px] text-blue-800 leading-relaxed">
+                                  Istnieją dwa rynki: <strong>obligacje hurtowe</strong> (notowane na <strong>giełdzie Catalyst</strong>, gdzie cena rynkowa się waha) oraz <strong>obligacje detaliczne</strong> (oszczędnościowe). To kompendium skupia się na tych drugich, ponieważ ich <strong>Cena emisyjna i Nominał wynoszą zawsze 100 zł</strong>, co chroni Twój kapitał przed wahaniami rynkowymi.
+                              </p>
                           </div>
                       </div>
+
                       <div>
-                          <h4 className="font-bold text-lg text-slate-800 mb-4">Kto emituje dług? (Rodzaje)</h4>
-                          <ul className="space-y-4">
-                              <li className="flex gap-3">
-                                  <div className="mt-1"><ShieldCheck size={20} className="text-green-500"/></div>
+                          <h4 className="font-bold text-sm text-slate-400 uppercase tracking-widest mb-4">Kto emituje dług? (Emitenci)</h4>
+                          <div className="space-y-4">
+                              <div className="flex gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                                  <div className="mt-1 bg-green-50 p-2 rounded-lg shrink-0"><ShieldCheck size={20} className="text-green-600"/></div>
                                   <div>
-                                      <strong className="block text-slate-900">Skarbowe (Rządowe)</strong>
-                                      <span className="text-sm text-slate-600">Emitowane przez Ministra Finansów. Gwarantem jest całe państwo. Ryzyko utraty pieniędzy jest bliskie zeru.</span>
+                                      <strong className="block text-slate-900 text-sm">Skarb Państwa (Rządowe)</strong>
+                                      <p className="text-xs text-slate-500 leading-relaxed">Najwyższy poziom bezpieczeństwa. Gwarancją jest majątek całego państwa i przyszłe wpływy z podatków.</p>
                                   </div>
-                              </li>
-                              <li className="flex gap-3">
-                                  <div className="mt-1"><Building2 size={20} className="text-orange-500"/></div>
+                              </div>
+                              <div className="flex gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                                  <div className="mt-1 bg-blue-50 p-2 rounded-lg shrink-0"><Landmark size={20} className="text-blue-600"/></div>
                                   <div>
-                                      <strong className="block text-slate-900">Korporacyjne</strong>
-                                      <span className="text-sm text-slate-600">Emitowane przez firmy (np. Orlen, Kruk). Oferują wyższy zysk, ale wiążą się z ryzykiem upadłości firmy.</span>
+                                      <strong className="block text-slate-900 text-sm">Jednostki Samorządu (Komunalne)</strong>
+                                      <p className="text-xs text-slate-500 leading-relaxed">Emitowane przez miasta i gminy (np. na budowę infrastruktury). Ryzyko jest niskie, zbliżone do papierów rządowych.</p>
                                   </div>
-                              </li>
-                          </ul>
+                              </div>
+                              <div className="flex gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                                  <div className="mt-1 bg-orange-50 p-2 rounded-lg shrink-0"><Building2 size={20} className="text-orange-600"/></div>
+                                  <div>
+                                      <strong className="block text-slate-900 text-sm">Przedsiębiorstwa (Korporacyjne)</strong>
+                                      <p className="text-xs text-slate-500 leading-relaxed">Dług firm prywatnych. Oferują wyższą premię za ryzyko, ale wymagają wnikliwej analizy wypłacalności danej spółki.</p>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* INFRASTRUKTURA I BEZPIECZEŃSTWO */}
+                  <div className="mt-12 pt-8 border-t border-slate-100">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="flex items-start gap-4">
+                              <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 shrink-0"><Lock size={20}/></div>
+                              <div>
+                                  <h5 className="font-bold text-xs text-slate-800 mb-1 tracking-tight">Rola KDPW</h5>
+                                  <p className="text-[10px] text-slate-500 leading-relaxed">Twoje papiery są zarejestrowane w <strong>Krajowym Depozycie Papierów Wartościowych</strong>. To niezależna instytucja dbająca o bezpieczeństwo obrotu.</p>
+                              </div>
+                          </div>
+                          <div className="flex items-start gap-4">
+                              <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 shrink-0"><TrendingUp size={20}/></div>
+                              <div>
+                                  <h5 className="font-bold text-xs text-slate-800 mb-1 tracking-tight">Ochrona Kapitału</h5>
+                                  <p className="text-[10px] text-slate-500 leading-relaxed">W obligacjach detalicznych nie występuje ryzyko zmiany ceny rynkowej. Zawsze odzyskujesz min. 100 zł za każdą sztukę przy wykupie.</p>
+                              </div>
+                          </div>
+                          <div className="flex items-start gap-4">
+                              <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 shrink-0"><CheckCircle size={20}/></div>
+                              <div>
+                                  <h5 className="font-bold text-xs text-slate-800 mb-1 tracking-tight">Zapis Cyfrowy</h5>
+                                  <p className="text-[10px] text-slate-500 leading-relaxed">W 2026 roku obligacje są zdematerializowane. Istnieją wyłącznie jako bezpieczny zapis cyfrowy, co wyklucza ryzyko kradzieży fizycznej.</p>
+                              </div>
+                          </div>
                       </div>
                   </div>
               </div>
 
-              {/* ROZDZIAŁ 2: POLSKIE OBLIGACJE SKARBOWE */}
-              <div className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-12 opacity-5 font-black text-9xl text-white pointer-events-none select-none">EDO</div>
+             {/* ROZDZIAŁ 2: POLSKIE OBLIGACJE SKARBOWE (Kompletny Katalog) */}
+              <div id="katalog" className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden shadow-2xl">
+                  <div className="absolute top-0 right-0 p-12 opacity-5 font-black text-9xl text-white pointer-events-none select-none">2026</div>
                   
                   <div className="relative z-10">
                       <div className="flex items-center gap-4 mb-10">
-                          <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center font-bold text-xl">2</div>
-                          <h3 className="text-2xl font-bold">Polskie obligacje skarbowe (detaliczne)</h3>
+                          <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center font-bold text-xl shadow-sm">2</div>
+                          <h3 className="text-2xl font-bold">Katalog obligacji detalicznych: dopasuj symbol do celu</h3>
                       </div>
 
-                      <div className="grid lg:grid-cols-3 gap-6">
-                          <div className="bg-white/10 p-6 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-                              <div className="text-xs font-bold text-green-400 uppercase mb-2">Bestseller</div>
-                              <h4 className="text-xl font-bold mb-2">EDO (10-letnie)</h4>
-                              <p className="text-sm text-slate-300 mb-4">"Królowa obligacji". Najwyższa marża i procent składany. Idealna na emeryturę.</p>
-                              <ul className="text-sm space-y-2">
-                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> Indeksowane inflacją</li>
-                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> <Link to="/procent-skladany" className="underline hover:text-green-300">Kapitalizacja roczna</Link></li>
+                      <p className="text-slate-400 mb-10 max-w-3xl leading-relaxed">
+                        Ministerstwo Finansów emituje papiery o różnych konstrukcjach. Wybór odpowiedniego symbolu zależy od Twojej prognozy dotyczącej <strong>stóp procentowych NBP</strong> oraz przyszłej <strong>inflacji</strong>. Każda obligacja ma <strong>Nominał 100 zł</strong>, co ułatwia budowanie portfela małymi krokami.
+                      </p>
+
+                      <div className="grid lg:grid-cols-3 gap-6 mb-12">
+                          {/* EDO */}
+                          <div className="bg-white/10 p-6 rounded-3xl border border-white/10 hover:border-green-400/50 transition-all group">
+                              <div className="flex justify-between items-start mb-4">
+                                <h4 className="text-xl font-bold text-green-400">EDO</h4>
+                                <span className="text-[10px] bg-green-400/20 text-green-400 px-2 py-1 rounded-lg font-bold">10 LAT</span>
+                              </div>
+                              <p className="text-xs text-slate-300 mb-6 leading-relaxed">
+                                <strong>Emerytalne Dziesięcioletnie Oszczędnościowe</strong>. Najlepszy wybór długoterminowy. Wykorzystuje mechanizm, jakim jest <Link to="/procent-skladany" className="text-green-400 underline font-bold italic">procent składany</Link> (kapitalizacja roczna).
+                              </p>
+                              <ul className="text-[10px] space-y-2 text-slate-400 uppercase font-bold tracking-wider">
+                                  <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-green-400 rounded-full"/> Indeksacja Inflacją</li>
+                                  <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-green-400 rounded-full"/> Stała Marża</li>
                               </ul>
                           </div>
 
-                          <div className="bg-white/10 p-6 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-                              <div className="text-xs font-bold text-blue-400 uppercase mb-2">Popularne</div>
-                              <h4 className="text-xl font-bold mb-2">COI (4-letnie)</h4>
-                              <p className="text-sm text-slate-300 mb-4">Złoty środek. Chroni przed inflacją, ale wypłaca odsetki na konto.</p>
-                              <ul className="text-sm space-y-2">
-                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> Indeksowane inflacją</li>
-                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> Coroczna wypłata zysku</li>
+                          {/* COI */}
+                          <div className="bg-white/10 p-6 rounded-3xl border border-white/10 hover:border-blue-400/50 transition-all">
+                              <div className="flex justify-between items-start mb-4">
+                                <h4 className="text-xl font-bold text-blue-400">COI</h4>
+                                <span className="text-[10px] bg-blue-400/20 text-blue-400 px-2 py-1 rounded-lg font-bold">4 LATA</span>
+                              </div>
+                              <p className="text-xs text-slate-300 mb-6 leading-relaxed">
+                                <strong>Czteroletnie Oszczędnościowe Indeksowane</strong>. Złoty środek dla osób chcących chronić kapitał, ale potrzebujących <strong>corocznej wypłaty odsetek</strong> na konto.
+                              </p>
+                              <ul className="text-[10px] space-y-2 text-slate-400 uppercase font-bold tracking-wider">
+                                  <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-blue-400 rounded-full"/> Ochrona przed Inflacją</li>
+                                  <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-blue-400 rounded-full"/> Rentowność (YTM) + Marża</li>
                               </ul>
                           </div>
 
-                          <div className="bg-white/10 p-6 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-                              <div className="text-xs font-bold text-orange-400 uppercase mb-2">Stały Zysk</div>
-                              <h4 className="text-xl font-bold mb-2">TOS (3-letnie)</h4>
-                              <p className="text-sm text-slate-300 mb-4">Gwarancja stałego oprocentowania niezależnie od inflacji i stóp procentowych.</p>
-                              <ul className="text-sm space-y-2">
-                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> Stałe oprocentowanie</li>
-                                  <li className="flex items-center gap-2"><CheckCircle size={14}/> Kapitalizacja roczna</li>
+                          {/* TOS / ROR / DOR */}
+                          <div className="bg-white/10 p-6 rounded-3xl border border-white/10 hover:border-orange-400/50 transition-all">
+                              <div className="flex justify-between items-start mb-4">
+                                <h4 className="text-xl font-bold text-orange-400">ROR / DOR</h4>
+                                <span className="text-[10px] bg-orange-400/20 text-orange-400 px-2 py-1 rounded-lg font-bold">1-2 LATA</span>
+                              </div>
+                              <p className="text-xs text-slate-300 mb-6 leading-relaxed">
+                                Obligacje o <strong>oprocentowaniu zmiennym</strong>. Ich zysk podąża za <strong>stopą referencyjną NBP</strong>. Idealne, gdy spodziewasz się wzrostu stóp procentowych w Polsce.
+                              </p>
+                              <ul className="text-[10px] space-y-2 text-slate-400 uppercase font-bold tracking-wider">
+                                  <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-orange-400 rounded-full"/> Zależne od NBP</li>
+                                  <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-orange-400 rounded-full"/> Wypłata miesięczna (ROR)</li>
                               </ul>
                           </div>
+                      </div>
+
+                      {/* RODZINNE 800+ SEKRETY */}
+                      <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 md:p-8">
+                        <div className="grid md:grid-cols-2 gap-8 items-center">
+                          <div>
+                            <h4 className="text-lg font-bold mb-4 flex items-center gap-2">
+                              <Baby className="text-pink-400" size={20}/> Obligacje Rodzinne (ROD i ROS)
+                            </h4>
+                            <p className="text-sm text-slate-400 leading-relaxed italic">
+                              To oferta "Premium" dostępna wyłącznie dla beneficjentów programu 800+. Oferują one najwyższą marżę na rynku (nawet powyżej 1.5% - 2% ponad inflację). <strong>Limit zakupu</strong> jest ściśle powiązany z łączną kwotą otrzymanych świadczeń od państwa.
+                            </p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-center">
+                            <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                              <span className="block text-pink-400 font-black text-xl">ROS</span>
+                              <span className="text-[9px] text-slate-500 uppercase">6-letnie</span>
+                            </div>
+                            <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                              <span className="block text-pink-400 font-black text-xl">ROD</span>
+                              <span className="text-[9px] text-slate-500 uppercase">12-letnie</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                   </div>
               </div>
-
-              {/* ROZDZIAŁ 3: GDZIE KUPIĆ? (NOWA SEKCJA) */}
-              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm">
+{/* ROZDZIAŁ 3: PROCES ZAKUPU I OBSŁUGA TECHNICZNA */}
+              <div id="proces" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm">
                   <div className="flex items-center gap-4 mb-8">
-                      <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center font-bold text-xl">3</div>
-                      <h3 className="text-2xl font-bold text-slate-900">Gdzie i jak kupić obligacje?</h3>
+                      <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center font-bold text-xl shadow-sm">3</div>
+                      <h3 className="text-2xl font-bold text-slate-900">Jak kupić obligacje? Przewodnik krok po kroku</h3>
                   </div>
                   
-                  <p className="text-slate-600 mb-6 leading-relaxed">
-                      Skarb Państwa udzielił wyłączności na sprzedaż obligacji detalicznych dwóm bankom: <strong>PKO BP</strong> oraz <strong>Pekao S.A.</strong>. Nie kupisz ich w mBanku, ING czy Santanderze (tam dostępne są tylko obligacje notowane na giełdzie, które podlegają wahaniom kursu).
+                  <p className="text-slate-600 mb-8 leading-relaxed max-w-3xl">
+                      W Polsce dystrybucją obligacji detalicznych zajmują się wyłącznie <strong>PKO BP</strong> oraz <strong>Pekao S.A.</strong>. Kupując je, zakładasz tzw. <strong>konto w rejestrze nabywców</strong>. Jest to bezpłatny rachunek techniczny, na którym zapisywane są Twoje prawa własności do papierów wartościowych zarejestrowanych w <strong>KDPW</strong>.
                   </p>
 
-                  <div className="grid md:grid-cols-2 gap-8">
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                          <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Globe size={18}/> Opcja Online (Najwygodniejsza)</h4>
-                          <p className="text-sm text-slate-600 mb-4">
-                              Wejdź na stronę <strong>obligacjeskarbowe.pl</strong> (obsługiwaną przez PKO BP) lub stronę Biura Maklerskiego Pekao. Założenie konta zajmuje kilka minut i wymaga potwierdzenia tożsamości.
+                  <div className="grid md:grid-cols-2 gap-8 mb-10">
+                      <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 hover:border-blue-300 transition-all group">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform"><Globe size={20}/></div>
+                            <h4 className="font-bold text-slate-800 text-lg italic">Kanał Cyfrowy (Online)</h4>
+                          </div>
+                          <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                              Najwygodniejsza metoda poprzez serwis <strong>obligacjeskarbowe.pl</strong> lub systemy maklerskie wybranych banków. Weryfikacja tożsamości odbywa się przez <strong>przelew weryfikacyjny</strong> lub aplikację mObywatel.
                           </p>
-                          <div className="text-xs font-bold text-green-600 flex items-center gap-1"><CheckCircle size={12}/> Bez wychodzenia z domu</div>
+                          <div className="flex items-center gap-2 text-xs font-bold text-green-600 bg-green-50 px-3 py-2 rounded-lg w-fit">
+                            <CheckCircle size={14}/> Dostęp 24/7 bez kolejek
+                          </div>
                       </div>
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                          <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Landmark size={18}/> W oddziale</h4>
-                          <p className="text-sm text-slate-600 mb-4">
-                              Możesz udać się do dowolnego oddziału PKO BP lub Punktu Obsługi Klienta Biura Maklerskiego Pekao. Pamiętaj o zabraniu dowodu osobistego.
+
+                      <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 hover:border-blue-300 transition-all group">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform"><Landmark size={20}/></div>
+                            <h4 className="font-bold text-slate-800 text-lg italic">Obsługa Stacjonarna</h4>
+                          </div>
+                          <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                              Wizyta w dowolnym oddziale PKO BP, biurze maklerskim lub wybranych placówkach Pekao S.A. To tutaj możesz złożyć <strong>dyspozycję na wypadek śmierci</strong>, wskazując osoby, które otrzymają środki bez czekania na spadek.
                           </p>
-                          <div className="text-xs font-bold text-blue-600 flex items-center gap-1"><CheckCircle size={12}/> Pomoc doradcy na miejscu</div>
+                          <div className="flex items-center gap-2 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-2 rounded-lg w-fit">
+                            <CheckCircle size={14}/> Pomoc fizycznego doradcy
+                          </div>
                       </div>
+                  </div>
+
+                  {/* DODATKOWA WIEDZA: CENNE DETALE */}
+                  <div className="pt-8 border-t border-slate-100">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="flex items-start gap-3">
+                            <div className="mt-1 text-orange-500"><AlertCircle size={18}/></div>
+                            <div>
+                                <h5 className="font-bold text-sm text-slate-800 mb-1">Cena Emisyjna</h5>
+                                <p className="text-[11px] text-slate-500 leading-relaxed">Standardowo wynosi 100 zł. Jednak przy <strong>rolowaniu obligacji</strong> (wymianie starych na nowe), banki często oferują dyskonto, obniżając cenę do 99,90 zł za sztukę.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <div className="mt-1 text-blue-500"><Calendar size={18}/></div>
+                            <div>
+                                <h5 className="font-bold text-sm text-slate-800 mb-1">Kiedy kupić?</h5>
+                                <p className="text-[11px] text-slate-500 leading-relaxed">Nowe serie zaktualizowane o nowe oprocentowanie pojawiają się 1. dnia każdego miesiąca. Warto sprawdzić zapowiedzi MF pod koniec miesiąca.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <div className="mt-1 text-purple-500"><ShieldCheck size={18}/></div>
+                            <div>
+                                <h5 className="font-bold text-sm text-slate-800 mb-1">Bezpieczeństwo IKE</h5>
+                                <p className="text-[11px] text-slate-500 leading-relaxed">Jeśli chcesz uniknąć podatku Belki, sprawdź nasze zestawienie <Link to="/ike-ikze" className="text-purple-600 font-bold underline">IKE oraz IKZE</Link>, gdzie opisujemy dedykowane konta pod obligacje.</p>
+                            </div>
+                        </div>
+                    </div>
                   </div>
               </div>
 
               {/* ROZDZIAŁ 4: MECHANIZMY ZYSKU */}
-              <div className="grid lg:grid-cols-2 gap-8">
+              <div id="indeksacja" className="grid lg:grid-cols-2 gap-8">
                   {/* LEWA: Indeksacja */}
                   <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200">
                       <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2"><TrendingUp className="text-blue-600"/> Jak działa indeksacja inflacją?</h3>
@@ -1296,7 +1570,7 @@ const BondsView = () => {
                   </div>
 
                   {/* PRAWA: Wcześniejszy Wykup */}
-                  <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200">
+                  <div id="wykup" className="bg-white rounded-[2.5rem] p-8 border border-slate-200">
                       <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2"><Lock className="text-orange-600"/> Wcześniejszy wykup (mit zamrożenia)</h3>
                       
                       <div className="prose prose-sm text-slate-600 leading-relaxed mb-6">
@@ -1323,92 +1597,297 @@ const BondsView = () => {
                   </div>
               </div>
 
-              {/* ROZDZIAŁ 5: ROLOWANIE (SEKRET INWESTORÓW) - NOWOŚĆ */}
-              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm">
-                  <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 bg-green-100 text-green-700 rounded-xl flex items-center justify-center font-bold text-xl">5</div>
-                      <h3 className="text-2xl font-bold text-slate-900">Rolowanie obligacji (Zamiana)</h3>
-                  </div>
-                  <p className="text-slate-600 mb-6 leading-relaxed">
-                      Gdy Twoje obligacje kończą życie (zapadają), nie musisz wypłacać gotówki. Możesz wymienić je na nowe serie. Dlaczego to się opłaca?
-                  </p>
-                  <div className="grid md:grid-cols-2 gap-6">
-                      <div className="bg-green-50 p-5 rounded-2xl border border-green-100">
-                          <strong className="block text-green-800 mb-2">1. Promocyjna cena</strong>
-                          <p className="text-sm text-green-700">
-                              Kupując w drodze zamiany, płacisz za nową obligację np. <strong>99.90 zł</strong> zamiast 100.00 zł. To daje Ci dodatkowy, pewny zysk na start (0.10 zł na każdej sztuce).
-                          </p>
-                      </div>
-                      <div className="bg-green-50 p-5 rounded-2xl border border-green-100">
-                          <strong className="block text-green-800 mb-2">2. Ciągłość odsetek</strong>
-                          <p className="text-sm text-green-700">
-                              Twoje pieniądze nie leżą ani dnia na nieoprocentowanym koncie osobistym. Przechodzą płynnie z pracującej starej obligacji na pracującą nową.
-                          </p>
-                      </div>
-                  </div>
-              </div>
-
-              {/* ROZDZIAŁ 6: OPTYMALIZACJA PODATKOWA (IKE) */}
-              <div className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
-                  <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
-                      <div>
-                          <div className="flex items-center gap-4 mb-6">
-                              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center font-bold text-xl">6</div>
-                              <h3 className="text-2xl font-bold">Jak nie płacić podatku? (IKE)</h3>
-                          </div>
-                          <p className="text-indigo-100 mb-6 leading-relaxed">
-                              Standardowo od zysku z obligacji płacisz 19% podatku Belki. Jest to bolesne, zwłaszcza przy wysokiej inflacji. Istnieje jednak sposób na legalne uniknięcie tej opłaty.
-                          </p>
-                          <button onClick={() => navigate('/ike-ikze')} className="bg-white text-indigo-700 px-6 py-3 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors shadow-lg">
-                              Zobacz szczegóły konta IKE →
-                          </button>
-                      </div>
-                      <div className="bg-white/10 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
-                          <h4 className="font-bold text-white mb-4 flex items-center gap-2"><ShieldCheck/> Konto IKE-Obligacje</h4>
-                          <p className="text-sm text-indigo-100 mb-4">
-                              To specjalny rodzaj konta (dostępny tylko w PKO BP), który pozwala kupować obligacje skarbowe w ramach limitu rocznego IKE.
-                          </p>
-                          <ul className="space-y-3 text-sm text-white">
-                              <li className="flex items-center gap-2"><CheckCircle className="text-green-400" size={16}/> <strong>0% podatku</strong> (przy wypłacie po 60 r.ż.)</li>
-                              <li className="flex items-center gap-2"><CheckCircle className="text-green-400" size={16}/> <strong>Pełny procent składany</strong> (zysk brutto reinwestowany)</li>
-                              <li className="flex items-center gap-2"><CheckCircle className="text-green-400" size={16}/> <strong>Dziedziczenie</strong> bez podatku</li>
-                          </ul>
-                      </div>
-                  </div>
-              </div>
-
-              {/* ROZDZIAŁ 7: STRATEGIE (Dla zaawansowanych) */}
-              <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-sm">
+ {/* ROZDZIAŁ 5: ROLOWANIE OBLIGACJI (Strategia Zamiany) */}
+              <div id="rolowanie" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm relative overflow-hidden">
                   <div className="flex items-center gap-4 mb-8">
-                      <div className="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xl">7</div>
-                      <h3 className="text-2xl font-bold text-slate-900">Strategie inwestycyjne</h3>
+                      <div className="w-12 h-12 bg-green-100 text-green-700 rounded-xl flex items-center justify-center font-bold text-xl shadow-sm">5</div>
+                      <h3 className="text-2xl font-bold text-slate-900">Rolowanie obligacji: jak płynnie wymienić dług?</h3>
+                  </div>
+                  
+                  <div className="grid lg:grid-cols-2 gap-12">
+                      <div>
+                          <p className="text-slate-600 leading-relaxed mb-6 text-sm">
+                              <strong>Rolowanie obligacji</strong> (inaczej zamiana) to proces, w którym kapitał z kończących się papierów wartościowych angażujesz bezpośrednio w nową emisję. Zamiast wypłacać środki na nieoprocentowane konto, składasz dyspozycję zakupu nowych serii za pieniądze, które państwo jest Ci winne.
+                          </p>
+                          
+                          <div className="space-y-4">
+                              <div className="flex gap-4 p-4 bg-green-50 rounded-2xl border border-green-100">
+                                  <div className="mt-1 text-green-600"><Percent size={20}/></div>
+                                  <div>
+                                      <strong className="block text-green-900 text-sm">Bonus za zamianę (Dyskonto)</strong>
+                                      <p className="text-[11px] text-green-700 leading-relaxed">
+                                          Kupując nowe obligacje w drodze zamiany, płacisz <strong>Cenę emisyjną zamienną</strong> (zazwyczaj 99,90 zł). Te 10 groszy różnicy to Twój natychmiastowy zysk 0,1% na każdej sztuce.
+                                      </p>
+                                  </div>
+                              </div>
+                              <div className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                  <div className="mt-1 text-blue-600"><RefreshCw size={20}/></div>
+                                  <div>
+                                      <strong className="block text-slate-900 text-sm">Ciągłość kapitalizacji</strong>
+                                      <p className="text-[11px] text-slate-500 leading-relaxed">
+                                          Twoje oszczędności pracują bez przerwy. Jest to szczególnie ważne, jeśli wykorzystujesz <Link to="/procent-skladany" className="font-bold underline hover:text-blue-600">procent składany</Link> w obligacjach długoterminowych.
+                                      </p>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200">
+                          <h4 className="font-bold text-slate-800 mb-4 text-sm uppercase tracking-widest flex items-center gap-2">
+                              <Info size={16} className="text-blue-500"/> Pułapka Podatkowa
+                          </h4>
+                          <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                              W momencie rolowania bank (PKO BP lub Pekao) musi pobrać <strong>Podatek Belki (19%)</strong> od Twoich zysków.
+                          </p>
+                          <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                              <h5 className="font-bold text-slate-900 text-xs mb-3 italic">Przykład techniczny:</h5>
+                              <ul className="space-y-3 text-[11px]">
+                                  <li className="flex justify-between border-b border-slate-50 pb-2">
+                                      <span className="text-slate-400">Kapitał z zapadającej serii:</span>
+                                      <span className="font-bold text-slate-900">10 000 zł</span>
+                                  </li>
+                                  <li className="flex justify-between border-b border-slate-50 pb-2 text-red-500">
+                                      <span>Należny podatek Belki:</span>
+                                      <span className="font-bold">- 190 zł</span>
+                                  </li>
+                                  <li className="flex justify-between pt-1">
+                                      <span className="text-slate-700">Dostępne na nowe obligacje:</span>
+                                      <span className="font-bold text-green-600">9 810 zł</span>
+                                  </li>
+                              </ul>
+                              <p className="mt-4 text-[10px] text-orange-600 font-medium">
+                                  <strong>Ważne:</strong> Aby zachować tę samą liczbę obligacji, musisz dopłacić brakującą kwotę podatku z własnej kieszeni przed terminem zamiany.
+                              </p>
+                          </div>
+                      </div>
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-8">
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 hover:border-blue-300 transition-colors group">
-                          <div className="mb-4 bg-white w-10 h-10 rounded-lg flex items-center justify-center shadow-sm text-blue-600"><Percent size={20}/></div>
-                          <h4 className="font-bold text-slate-900 mb-2">Poduszka finansowa</h4>
-                          <p className="text-xs text-slate-600 leading-relaxed">
-                              Zamiast trzymać 30 tys. zł na nieoprocentowanym rachunku w banku, kup obligacje <strong>TOS</strong> lub <strong>COI</strong>. Są równie bezpieczne, a realnie chronią wartość pieniądza. W razie awarii wypłacisz je w 3-5 dni roboczych.
+                  {/* LINKOWANIE DO IKE */}
+                  <div className="mt-10 p-6 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-6">
+                      <div className="flex items-center gap-4">
+                          <ShieldCheck size={32} className="text-blue-200"/>
+                          <div>
+                              <h5 className="font-bold text-sm">Chcesz rolować bez płacenia podatku?</h5>
+                              <p className="text-[11px] text-blue-100 opacity-90">W ramach IKE-Obligacje cały zysk z zamiany reinwestujesz bez potrącania 19% dla urzędu skarbowego.</p>
+                          </div>
+                      </div>
+                      <button onClick={() => navigate('/ike-ikze')} className="bg-white text-blue-600 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-blue-50 transition-all shrink-0">
+                          Sprawdź IKE Obligacje
+                      </button>
+                  </div>
+              </div>
+
+{/* ROZDZIAŁ 6: OPTYMALIZACJA PODATKOWA (IKE OBLIGACJE) */}
+              <div id="podatki" className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden shadow-2xl">
+                  {/* Dekoracyjne tło */}
+                  <div className="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
+                  
+                  <div className="relative z-10">
+                      <div className="flex items-center gap-4 mb-10">
+                          <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center font-bold text-xl border border-white/20">6</div>
+                          <h3 className="text-2xl font-bold">Jak legalnie uniknąć podatku? (IKE Obligacje)</h3>
+                      </div>
+
+                      <div className="grid lg:grid-cols-2 gap-12 items-start">
+                          <div>
+                              <p className="text-indigo-100 mb-8 leading-relaxed text-sm">
+                                  Standardowo każdy zysk z inwestycji w Polsce obciążony jest <strong>19% podatkiem od zysków kapitałowych</strong> (tzw. podatek Belki). W przypadku obligacji skarbowych jest on pobierany automatycznie przy wypłacie odsetek lub wykupie papierów. Istnieje jednak dedykowane rozwiązanie: <strong>IKE-Obligacje</strong>.
+                              </p>
+                              
+                              <div className="space-y-6">
+                                  <div className="flex gap-4 p-5 bg-white/5 rounded-2xl border border-white/10">
+                                      <div className="mt-1 text-red-400"><Ban size={20}/></div>
+                                      <div>
+                                          <strong className="block text-white text-sm">0% podatku Belki</strong>
+                                          <p className="text-[11px] text-indigo-200 leading-relaxed">
+                                              Wypłacając środki po 60. roku życia, zachowujesz 100% wypracowanego zysku. Przy długoterminowych obligacjach <strong>EDO</strong> oznacza to zysk wyższy o kilkanaście procent w skali całej inwestycji.
+                                          </p>
+                                      </div>
+                                  </div>
+                                  <div className="flex gap-4 p-5 bg-white/5 rounded-2xl border border-white/10">
+                                      <div className="mt-1 text-green-400"><TrendingUp size={20}/></div>
+                                      <div>
+                                          <strong className="block text-white text-sm">Limit wpłat na IKE 2026</strong>
+                                          <p className="text-[11px] text-indigo-200 leading-relaxed">
+                                              Każdego roku możesz wpłacić określoną kwotę (w 2026 r. limit wynosi ok. 24-25 tys. zł). Środki te są chronione przez <strong>Bankowy Fundusz Gwarancyjny (BFG)</strong> do pełnej wysokości.
+                                          </p>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+
+                          <div className="bg-white p-8 rounded-[2rem] text-slate-900 shadow-xl">
+                              <h4 className="font-bold text-slate-800 mb-6 text-sm uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-4">
+                                  <Scale size={18} className="text-indigo-600"/> Porównanie zysku (EDO)
+                              </h4>
+                              
+                              <div className="space-y-4 mb-8">
+                                  <div className="flex justify-between items-end">
+                                      <span className="text-[10px] text-slate-500 font-bold uppercase">Zwykłe konto (Po podatku)</span>
+                                      <span className="text-xl font-black text-slate-900">81% zysku</span>
+                                  </div>
+                                  <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                                      <div className="w-[81%] h-full bg-slate-400"></div>
+                                  </div>
+
+                                  <div className="flex justify-between items-end pt-2">
+                                      <span className="text-[10px] text-indigo-600 font-bold uppercase">Konto IKE (Bez podatku)</span>
+                                      <span className="text-xl font-black text-indigo-600">100% zysku</span>
+                                  </div>
+                                  <div className="w-full h-3 bg-indigo-50 rounded-full overflow-hidden">
+                                      <div className="w-full h-full bg-indigo-600"></div>
+                                  </div>
+                              </div>
+
+                              <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                                  <p className="text-[10px] text-indigo-800 leading-relaxed italic">
+                                      <strong>Ważne:</strong> IKE Obligacje to jedyne konto emerytalne w Polsce, które pozwala kupować <strong>obligacje detaliczne</strong> bezpośrednio w systemie transakcyjnym bez dodatkowych opłat za zarządzanie.
+                                  </p>
+                              </div>
+                              
+                              <button 
+                                  onClick={() => navigate('/ike-ikze')} 
+                                  className="w-full mt-6 bg-indigo-600 text-white py-3 rounded-xl font-bold text-xs hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2"
+                              >
+                                  Dowiedz się więcej o IKE/IKZE <ArrowRight size={14}/>
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+{/* ROZDZIAŁ 7: STRATEGIE INWESTYCYJNE (Expert Guide) */}
+<div id="strategie" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm">
+                  <div className="flex items-center gap-4 mb-10">
+                      <div className="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg">7</div>
+                      <h3 className="text-2xl font-bold text-slate-900">Strategie: jak zbudować portfel obligacji?</h3>
+                  </div>
+
+                  <p className="text-slate-600 mb-12 leading-relaxed max-w-3xl text-sm">
+                      Dla zaawansowanego inwestora <strong>obligacje skarbowe</strong> nie są produktem typu „kup i zapomnij”. Kluczem do sukcesu jest <strong>dywersyfikacja portfela</strong> pod kątem terminów zapadalności oraz rodzaju oprocentowania, aby zmaksymalizować <strong>rentowność obligacji (YTM)</strong> w różnych cyklach rynkowych.
+                  </p>
+
+                  <div className="grid lg:grid-cols-3 gap-8">
+                      {/* STRATEGIA 1: DRABINA OBLIGACJI */}
+                      <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:border-blue-300 transition-all flex flex-col h-full group">
+                          <div className="mb-6 bg-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm text-blue-600 group-hover:scale-110 transition-transform">
+                              <TrendingUp size={24}/>
+                          </div>
+                          <h4 className="font-bold text-slate-900 mb-4 italic">Drabina obligacji (Bond Ladder)</h4>
+                          <p className="text-xs text-slate-500 leading-relaxed mb-8 flex-grow">
+                              Polega na podzieleniu kapitału na części i kupowaniu obligacji <strong>EDO (10-letnich)</strong> co rok. Dzięki temu po 10 latach co roku kończy się jedna seria, dając Ci płynność bez konieczności zrywania umów.
                           </p>
+                          <div className="bg-white p-4 rounded-xl border border-slate-100 mt-auto text-[10px] space-y-2">
+                              <div className="flex justify-between"><span>Płynność:</span> <span className="font-bold text-green-600 uppercase">Wysoka</span></div>
+                              <div className="flex justify-between"><span>Zastosowanie:</span> <span className="font-bold text-slate-800 uppercase">Emerytura</span></div>
+                          </div>
                       </div>
                       
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 hover:border-purple-300 transition-colors group">
-                          <div className="mb-4 bg-white w-10 h-10 rounded-lg flex items-center justify-center shadow-sm text-purple-600"><TrendingUp size={20}/></div>
-                          <h4 className="font-bold text-slate-900 mb-2">Drabina obligacji</h4>
-                          <p className="text-xs text-slate-600 leading-relaxed">
-                              Podziel kapitał na 10 części. Co rok kupuj obligacje EDO (10-letnie) za jedną część. Po 10 latach, co roku jedna seria zapada (kończy się), dając Ci potężny zastrzyk gotówki, którą możesz wydać lub zreinwestować.
+                      {/* STRATEGIA 2: PODUSZKA ANTYINFLACYJNA */}
+                      <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:border-purple-300 transition-all flex flex-col h-full group">
+                          <div className="mb-6 bg-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm text-purple-600 group-hover:scale-110 transition-transform">
+                              <ShieldCheck size={24}/>
+                          </div>
+                          <h4 className="font-bold text-slate-900 mb-4 italic">Poduszka Bezpieczeństwa</h4>
+                          <p className="text-xs text-slate-500 leading-relaxed mb-8 flex-grow">
+                              Zamiast konta oszczędnościowego, wybierz <strong>obligacje TOS (stałe)</strong> lub <strong>COI (indeksowane)</strong>. Oferują one <strong>ochronę przed inflacją</strong> znacznie wyższą niż bankowe lokaty, a środki odzyskasz w 3-5 dni roboczych.
                           </p>
+                          <div className="bg-white p-4 rounded-xl border border-slate-100 mt-auto text-[10px] space-y-2">
+                              <div className="flex justify-between"><span>Bezpieczeństwo:</span> <span className="font-bold text-blue-600 uppercase">Max (BFG/Skarb)</span></div>
+                              <div className="flex justify-between"><span>Zysk:</span> <span className="font-bold text-slate-800 uppercase">Stabilny</span></div>
+                          </div>
                       </div>
 
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 hover:border-orange-300 transition-colors group">
-                          <div className="mb-4 bg-white w-10 h-10 rounded-lg flex items-center justify-center shadow-sm text-orange-600"><Baby size={20}/></div>
-                          <h4 className="font-bold text-slate-900 mb-2">Strategia 800+ (ROD)</h4>
-                          <p className="text-xs text-slate-600 leading-relaxed">
-                              Wpłacaj świadczenie 800+ bezpośrednio w obligacje ROD (Rodzinne 12-letnie). Po 18 latach, dzięki preferencyjnemu oprocentowaniu i <Link to="/procent-skladany" className="font-bold underline hover:text-orange-800">procentowi składanemu</Link>, dziecko otrzyma kapitał na start w dorosłość.
+                      {/* STRATEGIA 3: FUNDUSZ EDUKACYJNY ROD */}
+                      <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:border-pink-300 transition-all flex flex-col h-full group">
+                          <div className="mb-6 bg-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm text-pink-500 group-hover:scale-110 transition-transform">
+                              <Baby size={24}/>
+                          </div>
+                          <h4 className="font-bold text-slate-900 mb-4 italic">Strategia Rodzinna 800+</h4>
+                          <p className="text-xs text-slate-500 leading-relaxed mb-8 flex-grow">
+                              Maksymalizacja <strong>obligacji ROD (12-letnich)</strong>. Dzięki najwyższej na rynku marży i mechanizmowi, jakim jest <Link to="/procent-skladany" className="text-pink-600 font-bold underline">procent składany</Link>, budujesz kapitał na start dla dziecka z zerowym ryzykiem rynkowym.
                           </p>
+                          <div className="bg-white p-4 rounded-xl border border-slate-100 mt-auto text-[10px] space-y-2">
+                              <div className="flex justify-between"><span>Limit:</span> <span className="font-bold text-pink-600 uppercase">Kwota 800+</span></div>
+                              <div className="flex justify-between"><span>Czas:</span> <span className="font-bold text-slate-800 uppercase">12-18 Lat</span></div>
+                          </div>
                       </div>
                   </div>
+
+                  {/* EKSPERCKA PORADA NA KONIEC */}
+                  <div className="mt-12 bg-slate-900 rounded-3xl p-8 relative overflow-hidden">
+                      <div className="absolute right-0 bottom-0 p-8 opacity-10"><Lightbulb size={120} className="text-white"/></div>
+                      <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                          <div className="bg-blue-600 p-4 rounded-2xl text-white shadow-lg"><Info size={32}/></div>
+                          <div>
+                              <h5 className="text-white font-bold text-lg mb-2 italic">Złota zasada dywersyfikacji: 2026</h5>
+                              <p className="text-slate-400 text-xs leading-relaxed max-w-2xl">
+                                  Nie stawiaj wszystkiego na jeden symbol. Specjaliści sugerują model 40/40/20: <strong>40% w EDO</strong> (ochrona przed inflacją), <strong>40% w TOS</strong> (pewność zysku stałego) i <strong>20% w ROR</strong> (płynność i reakcja na stopy NBP). Taka struktura portfela zapewnia optymalną <strong>realną stopę zwrotu</strong> w każdych warunkach gospodarczych.
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+{/* ROZDZIAŁ 8: INDEKS SEMANTYCZNY (Poprawiona wersja interaktywna) */}
+              <div id="indeks" className="mt-32 pt-16 border-t border-slate-100">
+                  <div className="flex items-center gap-4 mb-12">
+                      <div className="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg">8</div>
+                      <h3 className="text-2xl font-bold text-slate-900">Indeks i nawigacja szybkiego dostępu</h3>
+                  </div>
+
+                  {/* KAFELKI DEFINICJI */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-10">
+                      {[
+                        { term: "EDO", desc: "10-letnie, indeksowane inflacją.", path: "#katalog" },
+                        { term: "COI", desc: "4-letnie z coroczną wypłatą zysku.", path: "#katalog" },
+                        { term: "TOS", desc: "3-letnie o stałym oprocentowaniu.", path: "#katalog" },
+                        { term: "ROR", desc: "1-roczne oparte o stopę NBP.", path: "#katalog" },
+                        { term: "Marża", desc: "Stały zysk ponad inflację w EDO i COI.", path: "#indeksacja" },
+                        { term: "Rolowanie", desc: "Zamiana starych obligacji na nowe.", path: "#rolowanie" },
+                        { term: "Podatek Belki", desc: "19% podatku (unikniesz go w IKE).", path: "#podatki" },
+                        { term: "Nominał", desc: "Wartość 1 sztuki - zawsze 100 zł.", path: "#fundamenty" },
+                        { term: "KDPW", desc: "Krajowy Depozyt - tu są Twoje środki.", path: "#fundamenty" },
+                        { term: "YTM", desc: "Rentowność mierzona do dnia wykupu.", path: "#strategie" }
+                      ].map((item, i) => (
+                        <button 
+                          key={i} 
+                          onClick={(e) => scrollToSection(e, item.path)}
+                          className="p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:bg-white hover:border-blue-300 hover:shadow-sm transition-all text-left group"
+                        >
+                          <span className="block font-black text-blue-600 text-[10px] uppercase tracking-tighter mb-1 group-hover:text-blue-700">{item.term}</span>
+                          <p className="text-[9px] text-slate-500 leading-tight">{item.desc}</p>
+                        </button>
+                      ))}
+                  </div>
+                  
+                  {/* INTERAKTYWNE TAGI SEO */}
+                  <div className="mt-6 flex flex-wrap gap-2">
+                     {[
+                       { label: "Wcześniejszy wykup", id: "#wykup" },
+                       { label: "Indeksacja inflacją", id: "#indeksacja" },
+                       { label: "IKE-Obligacje", id: "#podatki" },
+                       { label: "Drabina obligacji", id: "#strategie" },
+                       { label: "Cena emisyjna", id: "#proces" },
+                       { label: "Sukcesja i spadek", id: "#proces" },
+                       { label: "Rating Polski", id: "#fundamenty" },
+                       { label: "Stopa NBP", id: "#katalog" },
+                       { label: "Realny zysk", id: "#strategie" },
+                       { label: "Dywersyfikacja", id: "#strategie" }
+                     ].map((tag, i) => (
+                       <button 
+                         key={i} 
+                         onClick={(e) => scrollToSection(e, tag.id)}
+                         className="text-[9px] font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full hover:bg-blue-600 hover:text-white transition-all border border-slate-200"
+                       >
+                         # {tag.label}
+                       </button>
+                     ))}
+                  </div>
+
+                  <p className="mt-12 text-[10px] text-slate-400 leading-relaxed italic border-l-2 border-slate-200 pl-4">
+                    Powyższy indeks zawiera <strong>30 kluczowych pojęć</strong> dotyczących rynku obligacji. Kliknięcie w hasło przeniesie Cię do odpowiedniej sekcji merytorycznej kompendium. Pamiętaj, że <strong>rentowność obligacji (YTM)</strong> oraz <strong>marża</strong> są kluczowe dla Twojej <strong>realnej stopy zwrotu</strong> w 2026 roku.
+                  </p>
               </div>
 
           </div>
@@ -1464,6 +1943,7 @@ const CompoundView = () => {
     <>
       <Helmet>
         <title>Kalkulator Procentu Składanego - Wzór i Symulacja Zysków</title>
+        <link rel="canonical" href="https://www.finanse-proste.pl/procent-skladany" />
         <script type="application/ld+json">
 {`
   {
@@ -3126,6 +3606,7 @@ const CryptoView = () => {
   );
 }
 const LeasingView = () => {
+    const navigate = useNavigate();
   // --- ZMIENNE STANU ---
   const [netPrice, setNetPrice] = useState(100000);
   const [vatRate, setVatRate] = useState(23);
@@ -3135,6 +3616,23 @@ const LeasingView = () => {
   const [interestRate, setInterestRate] = useState(7.5); // WIBOR + Marża
   const [insuranceYearly, setInsuranceYearly] = useState(3000); // OC/AC
   const [gapMonthly, setGapMonthly] = useState(50); // GAP
+
+  // --- FUNKCJA NAWIGACJI (Wklej tutaj) ---
+  const scrollToLeasing = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 100; 
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // --- OBLICZENIA ---
   const leasingCalc = useMemo(() => {
@@ -3168,6 +3666,7 @@ const LeasingView = () => {
     const totalCostGross = totalCostNet * (1 + vatRate / 100);
     const totalInterest = totalCostNet - net - (gapMonthly * n);
     const leasePercent = (totalCostNet / net) * 100;
+
 
     return {
         initialPaymentAmount,
@@ -3218,18 +3717,45 @@ const LeasingView = () => {
       </Helmet>
 
       <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-16">
-          
-          <div className="mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center gap-3">
-                  <Car className="text-orange-600" size={36}/>
-                  Kalkulator Leasingowy
-              </h2>
-              <p className="text-slate-600 max-w-3xl text-lg">
-                  Symulacja leasingu operacyjnego (najpopularniejszego w Polsce). Narzędzie pozwala oszacować ratę miesięczną oraz całkowity koszt finansowania (np. 108%).
-              </p>
-          </div>
 
-          <div className="grid lg:grid-cols-12 gap-8 mb-16">
+          {/* --- SPIS TREŚCI: WKLEJ TUTAJ --- */}
+        <div className="mb-16 bg-white border border-slate-100 rounded-[2.5rem] p-4 shadow-sm flex flex-wrap justify-center gap-2 md:gap-4 text-left">
+          <div className="w-full flex items-center justify-center gap-2 mb-2 text-slate-400">
+            <ListTree size={16}/>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Nawigacja po kompendium</span>
+          </div>
+          
+          <button
+            onClick={() => scrollToLeasing('kalkulator-leasing-sekcja')}
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black text-white bg-orange-600 hover:bg-orange-700 transition-all shadow-lg shadow-orange-100"
+          >
+            <Calculator size={14}/> URUCHOM KALKULATOR
+          </button>
+
+          {[
+            { title: "1. Tarcza i limity", icon: ShieldAlert, id: "sekcja-1-leasing" },
+            { title: "2. Dylemat vat", icon: Receipt, id: "sekcja-2-leasing" },
+            { title: "3. Ubezpieczenie gap", icon: Umbrella, id: "sekcja-3-leasing" },
+            { title: "4. Wykup i 6 lat", icon: Calendar, id: "sekcja-4-leasing" },
+            { title: "5. Leasing vs najem", icon: Repeat, id: "sekcja-5-leasing" },
+            { title: "6. Maszyny i zwrotny", icon: Briefcase, id: "sekcja-6-leasing" },
+            { title: "7. Definicje", icon: BookOpen, id: "sekcja-7-leasing" },
+            { title: "8. Typy leasingu", icon: Shuffle, id: "sekcja-8-leasing" },
+            { title: "9. Checklisty", icon: BadgeCheck, id: "sekcja-9-leasing" },
+          ].map((item, i) => (
+            <button
+              key={i}
+              onClick={() => scrollToLeasing(item.id)}
+              className="flex items-center gap-2 px-4 py-3 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-orange-600 transition-all border border-transparent hover:border-slate-100"
+            >
+              <item.icon size={14} className="text-slate-400"/>
+              {item.title}
+            </button>
+          ))}
+        </div>
+
+
+          <div id="kalkulator-leasing-sekcja" className="grid lg:grid-cols-12 gap-8 mb-16">
               {/* LEWA KOLUMNA - PARAMETRY */}
               <div className="lg:col-span-5 bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 space-y-6">
                   
@@ -3354,110 +3880,581 @@ const LeasingView = () => {
               </div>
           </div>
 
-          {/* --- SEKCJA EDUKACYJNA (SEO) --- */}
-          <div className="space-y-16">
-              
-              {/* DEFINICJA I HISTORIA */}
-              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-100 shadow-sm relative overflow-hidden">
-                  <div className="relative z-10">
-                      <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
-                          <BookOpen size={14}/> Kompendium Wiedzy
-                      </div>
-                      
-                      <div className="grid lg:grid-cols-2 gap-12">
-                          <div>
-                              <h3 className="text-3xl font-black text-slate-900 mb-4">Czym jest Leasing?</h3>
-                              <p className="text-slate-600 leading-relaxed mb-6">
-                                  Leasing to specyficzna forma finansowania, będąca hybrydą kredytu i dzierżawy. W świetle prawa, właścicielem przedmiotu (samochodu, maszyny) przez cały okres trwania umowy jest <strong>Finansujący (Leasingodawca)</strong>. Ty, jako <strong>Korzystający (Leasingobiorca)</strong>, płacisz miesięczne raty za prawo do użytkowania tego przedmiotu.
-                              </p>
-                              <p className="text-slate-600 leading-relaxed">
-                                  Dopiero po opłaceniu ostatniej raty i tzw. <strong>Wykupu</strong>, prawo własności przechodzi na Ciebie. To kluczowa różnica względem kredytu, gdzie od razu jesteś właścicielem.
-                              </p>
-                          </div>
-                          <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200">
-                              <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Globe size={18}/> Krótka Historia</h4>
-                              <p className="text-xs text-slate-600 mb-3 leading-relaxed">
-                                  Korzenie leasingu sięgają starożytności! Już w 2000 r. p.n.e. w Sumerze kapłani "leasingowali" ziemię rolnikom. Babilończycy (kodeks Hammurabiego) mieli przepisy dotyczące wynajmu łodzi i zwierząt.
-                              </p>
-                              <p className="text-xs text-slate-600 leading-relaxed">
-                                  Współczesny leasing narodził się w USA w latach 50. XX wieku (firma U.S. Leasing Corp.), a do Polski trafił po 1989 roku, stając się kołem zamachowym dla rozwijających się firm, które nie miały gotówki na zakup maszyn.
-                              </p>
-                          </div>
-                      </div>
-                  </div>
-              </div>
+{/* ==========================================================================
+    KOMPENDIUM WIEDZY: LEASING JAKO STRATEGIA PODATKOWA
+    ========================================================================== */}
+<div id="baza-wiedzy-leasing" className="bg-white rounded-[3rem] border border-slate-200 shadow-xl overflow-hidden mt-16 text-left">
+    
+    {/* Header Sekcji Edukacyjnej */}
+    <div className="bg-slate-900 text-white p-12 text-center relative overflow-hidden">
+        <div className="relative z-10 max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+                <GraduationCap size={16} className="text-yellow-400"/> Akademia finansów firmowych
+            </div>
+            <h3 className="text-4xl md:text-5xl font-black mb-6 leading-tight">
+                Leasing pod lupą.<br/>Twoja tarcza przed podatkami.
+            </h3>
+            <p className="text-slate-300 text-lg leading-relaxed font-medium">
+                Dla przedsiębiorcy <strong>kalkulator leasingowy 2026</strong> to nie tylko narzędzie do liczenia raty. To przede wszystkim system optymalizacji kosztów, który pozwala legalnie obniżyć podatek dochodowy i odliczyć VAT.
+            </p>
+        </div>
+    </div>
 
-              {/* RODZAJE LEASINGU - TABELA */}
-              <div className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
-                  <h3 className="text-2xl font-bold mb-8 text-center">Operacyjny vs Finansowy</h3>
-                  <div className="overflow-x-auto">
-                      <table className="w-full text-sm text-left">
-                          <thead className="text-xs text-slate-400 uppercase border-b border-slate-700">
-                              <tr>
-                                  <th className="px-6 py-4">Cecha</th>
-                                  <th className="px-6 py-4 text-orange-400">Leasing Operacyjny (Popularny)</th>
-                                  <th className="px-6 py-4 text-blue-400">Leasing Finansowy</th>
-                              </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-800">
-                              <tr>
-                                  <td className="px-6 py-4 font-bold text-slate-300">Własność</td>
-                                  <td className="px-6 py-4">Pojazd jest składnikiem majątku Leasingodawcy.</td>
-                                  <td className="px-6 py-4">Pojazd jest składnikiem majątku Twojego (wpisujesz do ewidencji).</td>
-                              </tr>
-                              <tr>
-                                  <td className="px-6 py-4 font-bold text-slate-300">Amortyzacja</td>
-                                  <td className="px-6 py-4">Odpisuje firma leasingowa.</td>
-                                  <td className="px-6 py-4">Odpisujesz Ty (Leasingobiorca).</td>
-                              </tr>
-                              <tr>
-                                  <td className="px-6 py-4 font-bold text-slate-300">Koszty uzyskania przychodu (PIT/CIT)</td>
-                                  <td className="px-6 py-4">Cała rata (kapitał + odsetki) oraz wpłata wstępna.</td>
-                                  <td className="px-6 py-4">Tylko część odsetkowa raty + odpisy amortyzacyjne.</td>
-                              </tr>
-                              <tr>
-                                  <td className="px-6 py-4 font-bold text-slate-300">VAT</td>
-                                  <td className="px-6 py-4">Doliczany do każdej raty (płacisz go "na raty").</td>
-                                  <td className="px-6 py-4">Płatny z góry od całej wartości pojazdu!</td>
-                              </tr>
-                              <tr>
-                                  <td className="px-6 py-4 font-bold text-slate-300">Dla kogo?</td>
-                                  <td className="px-6 py-4">Dla 80-90% firm (tarcza podatkowa).</td>
-                                  <td className="px-6 py-4">Dla rolników (ryczałt), firm na fakturę VAT marża, przy niskim VAT (np. medyczny).</td>
-                              </tr>
-                          </tbody>
-                      </table>
-                  </div>
-              </div>
+    <div className="p-8 md:p-16 space-y-24">
 
-              {/* SEKRETY I TIPY */}
-              <div className="grid md:grid-cols-3 gap-8">
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-orange-300 transition-colors">
-                      <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4"><ShieldCheck size={20}/></div>
-                      <h4 className="font-bold text-slate-900 mb-2">Co to jest GAP?</h4>
-                      <p className="text-sm text-slate-600">
-                          Must-have! Zwykłe AC zwraca wartość rynkową auta w dniu szkody. GAP pokrywa różnicę między odszkodowaniem a wartością faktury zakupu. Dzięki temu przy kradzieży nie zostajesz z długiem w leasingu.
-                      </p>
-                  </div>
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-orange-300 transition-colors">
-                      <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4"><Percent size={20}/></div>
-                      <h4 className="font-bold text-slate-900 mb-2">Limit 150 000 zł</h4>
-                      <p className="text-sm text-slate-600">
-                          Samochody osobowe spalinowe/hybrydowe wrzucisz w koszty tylko do limitu 150 tys. zł (proporcja). Dla elektryków limit wynosi 225 tys. zł. Odsetki są kosztem w 100%!
-                      </p>
-                  </div>
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-orange-300 transition-colors">
-                      <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4"><FileSignature size={20}/></div>
-                      <h4 className="font-bold text-slate-900 mb-2">Wykup Prywatny</h4>
-                      <p className="text-sm text-slate-600">
-                          Po zmianach w Polskim Ładzie, wykup auta z leasingu do majątku prywatnego (bez VAT) wiąże się z koniecznością zapłaty podatku dochodowego przy sprzedaży, jeśli sprzedasz auto przed upływem 6 lat.
-                      </p>
-                  </div>
-              </div>
+        {/* SEKCJA 1: MECHANIZM TARCZY PODATKOWEJ I LIMITY */}
+        <div>
+            <div id="sekcja-1-leasing" className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg">1</div>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Gdzie jest zysk? Mechanizm tarczy i limity odliczeń</h3>
+            </div>
 
-          </div>
+            <div className="grid lg:grid-cols-2 gap-12">
+                <div className="space-y-6">
+                    <p className="text-slate-600 leading-relaxed text-sm">
+                        Największy błąd to patrzenie wyłącznie na <strong>koszt całkowity finansowania</strong> (np. 108%). Realny koszt leasingu jest znacznie niższy, ponieważ każda rata obniża Twój podatek. To zjawisko nazywamy <strong>tarczą podatkową</strong>. Jednak w 2026 roku tarcza ta ma swój "szklany sufit".
+                    </p>
+                    
+                    <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100">
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Ile realnie kosztuje rata 2000 zł netto?</h4>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center text-sm border-b border-slate-200 pb-3">
+                                <span className="text-slate-500 italic">Podatek liniowy (19% PIT + 4.9% zdrowotna)</span>
+                                <span className="font-bold text-green-600">~ 1 522 zł</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm border-b border-slate-200 pb-3">
+                                <span className="text-slate-500 italic">Skala podatkowa - II próg (32% PIT + 9% zdrowotna)</span>
+                                <span className="font-bold text-green-600">~ 1 180 zł</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm pt-1">
+                                <span className="text-slate-400 text-[10px] uppercase font-bold text-slate-400">Realna oszczędność</span>
+                                <span className="font-black text-slate-900">od 24% do 41% kwoty raty</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-      </div>
+                <div className="space-y-6">
+                    {/* KLUCZOWY ELEMENT EKSPERCKI: LIMIT 150K */}
+                    <div className="p-6 bg-red-50 rounded-3xl border border-red-100">
+                        <h4 className="font-bold text-red-900 mb-2 flex items-center gap-2 text-sm"><ShieldAlert size={18}/> Limit 150 000 zł w leasingu 2026</h4>
+                        <p className="text-xs text-red-800 leading-relaxed">
+                            To najważniejsza liczba dla kupujących auta premium. Jeśli samochód spalinowy kosztuje więcej niż 150 tys. zł (lub 225 tys. zł dla elektryków), raty netto odliczysz tylko proporcją. Przy aucie za 300 tys. zł, tylko połowa Twojej raty będzie <strong>kosztem uzyskania przychodu</strong>.
+                        </p>
+                    </div>
+                    
+                    <div className="p-6 bg-blue-50 rounded-3xl border border-blue-100">
+                        <h4 className="font-bold text-blue-900 mb-2 flex items-center gap-2 text-sm"><Receipt size={18}/> Ukryty koszt: VAT nieodliczony</h4>
+                        <p className="text-xs text-blue-800 leading-relaxed">
+                            Stosując <strong>odliczenie VAT od samochodu</strong> w wysokości 50%, pozostała połowa podatku VAT nie przepada! Powiększa ona wartość netto auta i również staje się kosztem, który obniża Twój podatek dochodowy PIT/CIT.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* STRATEGIE PODATKOWE */}
+            <div className="mt-12 grid md:grid-cols-3 gap-6">
+                <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
+                    <h5 className="font-bold text-slate-900 text-xs uppercase mb-3 tracking-widest text-slate-900">Na ryczałcie</h5>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                        Brak możliwości odliczania kosztów sprawia, że <strong>leasing operacyjny</strong> na ryczałcie służy głównie do odliczania 50% lub 100% VAT. Tarcza dochodowa tutaj nie istnieje.
+                    </p>
+                </div>
+                <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
+                    <h5 className="font-bold text-slate-900 text-xs uppercase mb-3 tracking-widest text-slate-900">Grudniowy bonus</h5>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                        Wysoka <strong>opłata wstępna</strong> (nawet 45%) pozwala jednorazowo obniżyć dochód pod koniec roku, co jest najskuteczniejszą metodą na uniknięcie wejścia w drugi próg podatkowy.
+                    </p>
+                </div>
+                <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
+                    <h5 className="font-bold text-slate-900 text-xs uppercase mb-3 tracking-widest text-slate-900">Leasing czy kredyt?</h5>
+                    <p className="text-[11px] text-slate-500 leading-relaxed text-slate-500">
+                        W 2026 roku leasing wygrywa szybkością odliczeń. W kredycie amortyzacja auta trwa latami, w leasingu całą wartość (do limitu) odliczasz w czasie trwania umowy.
+                    </p>
+                </div>
+            </div>
+        </div>
+        </div>
+        
+{/* SEKCJA 2: WIELKI DYLEMAT VAT – 50% CZY 100%? */}
+        <div id="sekcja-2-leasing" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm relative overflow-hidden">
+            <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shrink-0">2</div>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Wielki dylemat: odliczenie vat 50% czy 100%?</h3>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-start text-left">
+                <div className="space-y-6">
+                    <p className="text-slate-600 leading-relaxed text-sm">
+                        To najczęstsze pytanie przy uruchamianiu <strong>kalkulatora leasingowego 2026</strong>. Sposób, w jaki zadeklarujesz użytkowanie auta, determinuje nie tylko wysokość raty, ale też faktyczny koszt paliwa i serwisu.
+                    </p>
+                    
+                    {/* PORÓWNANIE TRYBÓW - DOKŁADNE ODZWIERCIEDLENIE TWOJEGO STYLU */}
+                    <div className="bg-slate-50 rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
+                        <div className="grid grid-cols-2 text-center text-[10px] font-black uppercase tracking-widest border-b border-slate-200">
+                            <div className="py-3 bg-white text-slate-500 border-r border-slate-200">Użytkowanie mieszane</div>
+                            <div className="py-3 bg-blue-50 text-blue-600">Wyłącznie firmowe</div>
+                        </div>
+                        <div className="grid grid-cols-2 divide-x divide-slate-200">
+                            <div className="p-6 space-y-4">
+                                <div className="text-center mb-2">
+                                    <span className="text-3xl font-black text-slate-900">50%</span>
+                                    <span className="block text-[10px] text-slate-400 font-bold uppercase mt-1">Vat odliczony</span>
+                                </div>
+                                <ul className="text-[11px] text-slate-500 space-y-2 font-medium">
+                                    <li className="flex gap-2"><CheckCircle size={12} className="text-green-500 shrink-0"/> Bez biurokracji</li>
+                                    <li className="flex gap-2"><CheckCircle size={12} className="text-green-500 shrink-0"/> Cele prywatne OK</li>
+                                    <li className="flex gap-2"><Info size={12} className="text-blue-400 shrink-0"/> Reszta vat w koszty pit</li>
+                                </ul>
+                            </div>
+                            <div className="p-6 space-y-4 bg-blue-50/5">
+                                <div className="text-center mb-2">
+                                    <span className="text-3xl font-black text-blue-600">100%</span>
+                                    <span className="block text-[10px] text-blue-400 font-bold uppercase mt-1">Vat odliczony</span>
+                                </div>
+                                <ul className="text-[11px] text-slate-600 space-y-2 font-medium">
+                                    <li className="flex gap-2"><XCircle size={12} className="text-red-400 shrink-0"/> Kilometrówka</li>
+                                    <li className="flex gap-2"><XCircle size={12} className="text-red-400 shrink-0"/> Zgłoszenie vat-26</li>
+                                    <li className="flex gap-2"><AlertTriangle size={12} className="text-orange-500 shrink-0"/> Zakaz tras prywatnych</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                        <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-sm"><Navigation size={18} className="text-blue-500"/> Co to jest kilometrówka leasing 2026?</h4>
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                            Jeśli wybierzesz pełne <strong>odliczenie vat od samochodu</strong>, musisz prowadzić szczegółowy rejestr każdego przejazdu. Każdy wyjazd "po bułki" to ryzyko zakwestionowania kosztów przez urząd skarbowy. Eksperci zazwyczaj radzą: "wybierz 50% i miej święty spokój".
+                        </p>
+                    </div>
+
+                    <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100">
+                        <h4 className="font-bold text-amber-900 mb-3 flex items-center gap-2 text-sm"><FileWarning size={18}/> Pułapka faktury vat-marża</h4>
+                        <p className="text-xs text-amber-800 leading-relaxed">
+                            Kupujesz auto używane? Jeśli otrzymasz fakturę vat-marża, Twój <strong>leasing operacyjny</strong> nie pozwoli Ci odliczyć vat-u od ceny auta. W takiej sytuacji warto przeanalizować <strong>leasing finansowy</strong>, aby nie płacić podatku od podatku.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* PORADA EKSPERCKA - INTEGRALNA CZĘŚĆ KARTY */}
+            <div className="mt-12 p-8 bg-slate-900 rounded-[2rem] text-white relative overflow-hidden group">
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="max-w-xl text-left">
+                        <h5 className="text-xl font-bold mb-2 text-blue-400">Eksploatacja też podlega tym zasadom</h5>
+                        <p className="text-sm text-slate-300 leading-relaxed">
+                            Paliwo, opony czy serwis mechaniczny podlegają tej samej zasadzie co rata. Przy 50% vat na leasing, z faktury za paliwo również odliczysz tylko połowę podatku. Druga połowa brutto wejdzie jednak w koszty Twojej firmy (kup).
+                        </p>
+                    </div>
+                    <div className="bg-white/10 p-5 rounded-3xl border border-white/10 text-center shrink-0">
+                        <div className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60 mb-1">Wiedza ekspercka</div>
+                        <div className="text-xl font-black italic text-white">Status pro</div>
+                    </div>
+                </div>
+                <History className="absolute -bottom-10 -left-10 text-white/5 w-48 h-48 -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
+            </div>
+        </div>
+{/* SEKCJA 3: UBEZPIECZENIE GAP I BEZPIECZEŃSTWO FINANSOWE */}
+        <div id="sekcja-3-leasing" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm relative overflow-hidden">
+            <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 bg-orange-600 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shrink-0">3</div>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Ubezpieczenie gap: dlaczego zwykłe ac to za mało?</h3>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-start text-left">
+                <div className="space-y-6">
+                    <p className="text-slate-600 leading-relaxed text-sm">
+                        Samochód traci na wartości najszybciej w pierwszych dwóch latach. Ekspert wie, że w przypadku szkody całkowitej lub kradzieży, ubezpieczyciel z polisy AC wypłaci tylko wartość rynkową z dnia zdarzenia. <strong>Ubezpieczenie gap czy warto</strong> dokupić? Bez niego możesz zostać z długiem wobec leasingodawcy, mimo braku auta.
+                    </p>
+                    
+                    {/* SCENARIUSZ FINANSOWY - WIZUALIZACJA */}
+                    <div className="bg-slate-900 rounded-[2rem] p-8 text-white relative overflow-hidden">
+                        <h4 className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em] mb-6">Scenariusz: kradzież auta po 2 latach</h4>
+                        <div className="space-y-4 relative z-10">
+                            <div className="flex justify-between items-center text-sm border-b border-white/10 pb-3">
+                                <span className="text-slate-400">Wartość na fakturze (zakup)</span>
+                                <span className="font-bold text-white">150 000 zł</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm border-b border-white/10 pb-3">
+                                <span className="text-slate-400">Odszkodowanie z AC (wartość rynkowa)</span>
+                                <span className="font-bold text-red-400">110 000 zł</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm pt-2 bg-orange-500/10 p-3 rounded-xl border border-orange-500/20">
+                                <span className="text-orange-200 font-bold italic">Wypłata z GAP (Twoja ochrona)</span>
+                                <span className="font-black text-orange-400">+ 40 000 zł</span>
+                            </div>
+                        </div>
+                        <Umbrella className="absolute -bottom-10 -right-10 text-white/5 w-48 h-48 rotate-12" />
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                        <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-sm"><ShieldCheck size={18} className="text-orange-600"/> Rodzaje gap w leasingu 2026</h4>
+                        <ul className="space-y-4">
+                            <li className="text-xs text-slate-600">
+                                <strong className="text-slate-900 block mb-1">GAP Fakturowy (najpopularniejszy):</strong>
+                                Pokrywa różnicę między wypłatą z AC a ceną na fakturze zakupu. Gwarantuje, że odzyskasz 100% zainwestowanych środków.
+                            </li>
+                            <li className="text-xs text-slate-600">
+                                <strong className="text-slate-900 block mb-1">GAP Finansowy:</strong>
+                                Pokrywa jedynie różnicę między AC a pozostałą do spłaty kwotą leasingu. Chroni Cię przed długiem, ale nie ratuje Twojego wkładu własnego.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className="p-6 bg-blue-50 rounded-3xl border border-blue-100">
+                        <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-sm"><Info size={18}/> Wpływ na ratę miesięczną</h4>
+                        <p className="text-xs text-blue-800 leading-relaxed">
+                            Koszt ubezpieczenia GAP to zazwyczaj od 40 do 120 zł miesięcznie, zależnie od wartości auta. <strong>Kalkulator leasingowy 2026</strong> powinien zawsze uwzględniać ten koszt, ponieważ jest on w 100% kosztem uzyskania przychodu w Twojej firmie.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* EKSPERCKA PORADA - PROPORCJA 150K */}
+            <div className="mt-12 p-8 bg-slate-50 rounded-[2rem] border border-slate-200 group">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="max-w-xl text-left">
+                        <h5 className="text-lg font-bold mb-2 flex items-center gap-2 text-slate-900">
+                            <AlertCircle size={20} className="text-red-500"/> Limit 150 tys. a ubezpieczenie
+                        </h5>
+                        <p className="text-sm text-slate-600 leading-relaxed">
+                            Pamiętaj o ważnym detalu: limit <strong>150 tys. w leasingu 2026</strong> dotyczy nie tylko rat, ale również ubezpieczenia AC i GAP. Jeśli auto kosztuje 300 tys. zł, składkę ubezpieczeniową (część AC) zaliczysz w koszty tylko w 50%. Wyjątkiem są odsetki i GAP finansowy, które rozlicza się inaczej.
+                        </p>
+                    </div>
+                    <div className="flex shrink-0 gap-3">
+                        <span className="bg-white px-4 py-2 rounded-xl border border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-widest">Procedura uproszczona</span>
+                        <span className="bg-white px-4 py-2 rounded-xl border border-slate-200 text-[10px] font-black text-orange-600 uppercase tracking-widest">Bezpieczeństwo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {/* SEKCJA 4: STRATEGIE WYKUPU I ZASADA 6 LAT */}
+        <div id="sekcja-4-leasing" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm relative overflow-hidden text-left">
+            <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shrink-0">4</div>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Wykup przedmiotu: strategie i pułapki po zmianach przepisów</h3>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+                <div className="space-y-6">
+                    <p className="text-slate-600 leading-relaxed text-sm">
+                        Kiedy Twój <strong>kalkulator leasingowy 2026</strong> pyta o wartość końcową, musisz podjąć decyzję: niski wykup (1%) czy wysoki (np. 40%)? Wybór ten zależy od tego, czy planujesz użytkować auto przez dekadę, czy wymienić je na nowe zaraz po zakończeniu kontraktu.
+                    </p>
+                    
+                    {/* PORÓWNANIE STRATEGII WYKUPU */}
+                    <div className="space-y-4">
+                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                            <div className="flex items-center gap-3 mb-3 text-slate-900 font-bold text-sm">
+                                <ArrowDownCircle className="text-green-600" size={18}/> Wykup 1 procent (Niski)
+                            </div>
+                            <p className="text-xs text-slate-500 leading-relaxed">
+                                Generuje najwyższą ratę miesięczną, ale najniższy koszt całkowity leasingu. Jest to idealna opcja, jeśli Twoim celem jest <strong>wykup prywatny z leasingu po 6 latach</strong>, aby uniknąć podatku dochodowego przy odsprzedaży.
+                            </p>
+                        </div>
+                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                            <div className="flex items-center gap-3 mb-3 text-slate-900 font-bold text-sm">
+                                <ArrowUpCircle className="text-blue-600" size={18}/> Wykup wysoki (Balonowy)
+                            </div>
+                            <p className="text-xs text-slate-500 leading-relaxed">
+                                Pozwala na drastyczne obniżenie raty miesięcznej, co poprawia bieżącą płynność firmy. Na koniec umowy nie musisz go spłacać z własnej kieszeni – możesz oddać auto do dealera lub sfinansować <strong>wykup 15 procent</strong> lub więcej kolejnym leasingiem.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    {/* KARTA: ZASADA 6 LAT */}
+                    <div className="p-6 bg-red-50 rounded-3xl border border-red-100">
+                        <h4 className="font-bold text-red-900 mb-3 flex items-center gap-2 text-sm"><Calendar size={18}/> Pułapka sprzedaży przed upływem 6 lat</h4>
+                        <p className="text-xs text-red-800 leading-relaxed">
+                            Po zmianach w Polskim Ładzie, wykupienie auta do majątku prywatnego nie pozwala już na jego szybką sprzedaż bez podatku. Jeśli sprzedasz auto przed upływem <strong>6 lat od wykupu</strong>, będziesz musiał zapłacić podatek dochodowy (PIT) oraz składkę zdrowotną, traktując to jako przychód z działalności.
+                        </p>
+                    </div>
+
+                    {/* KARTA: CESJA LEASINGU */}
+                    <div className="p-6 bg-blue-50 rounded-3xl border border-blue-100">
+                        <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-sm"><Repeat size={18}/> Gdy chcesz skończyć wcześniej: cesja</h4>
+                        <p className="text-xs text-blue-800 leading-relaxed">
+                            Potrzebujesz wyjść z umowy przed terminem? Najbardziej opłacalna jest <strong>cesja leasingu</strong>. Znajdujesz innego przedsiębiorcę, który przejmuje Twoje raty, a Ty możesz odzyskać część wpłaconego kapitału w formie tzw. odstępnego. To znacznie tańsze niż wcześniejsze zerwanie umowy.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* PODSUMOWANIE MODUŁU */}
+            <div className="mt-12 p-8 bg-slate-900 rounded-[2rem] text-white flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                <div className="relative z-10 max-w-xl">
+                    <h5 className="text-lg font-bold mb-2 flex items-center gap-2">
+                        <BadgeCheck size={20} className="text-green-400"/> Złota zasada zakończenia umowy
+                    </h5>
+                    <p className="text-sm text-slate-400 leading-relaxed italic">
+                        Jeśli Twoje auto po zakończeniu leasingu ma dużą wartość rynkową, a Ty nie chcesz czekać 6 lat ze sprzedażą, rozważ wprowadzenie go do środków trwałych firmy i amortyzację "na nowo" lub odliczenie straty przy sprzedaży.
+                    </p>
+                </div>
+                <div className="shrink-0 relative z-10">
+                     <button onClick={() => navigate('/b2b')} className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-slate-100 transition-all shadow-lg">Oblicz wpływ na PIT</button>
+                </div>
+                <Key className="absolute -bottom-10 -right-10 text-white/5 w-48 h-48 -rotate-12" />
+            </div>
+        </div>
+{/* SEKCJA 5: LEASING VS NAJEM DŁUGOTERMINOWY */}
+        <div id="sekcja-5-leasing" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm relative overflow-hidden text-left">
+            <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 bg-blue-500 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shrink-0">5</div>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Leasing czy najem długoterminowy? Pojedynek strategii</h3>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+                <div className="space-y-6">
+                    <p className="text-slate-600 leading-relaxed text-sm">
+                        W 2026 roku coraz więcej firm rezygnuje z posiadania pojazdu. <strong>Najem długoterminowy czy leasing kalkulator</strong> – co wybrać? W leasingu spłacasz całą wartość auta, by stać się jego właścicielem. W najmie spłacasz jedynie prognozowaną utratę wartości, oddając auto po 3-4 latach do dealera.
+                    </p>
+                    
+                    {/* PORÓWNANIE GRAFICZNE */}
+                    <div className="bg-slate-50 rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
+                        <div className="grid grid-cols-2 divide-x divide-slate-200">
+                            <div className="p-6">
+                                <div className="text-blue-600 font-black text-xs uppercase mb-3 flex items-center gap-2">
+                                    <Scale size={14}/> Leasing operacyjny
+                                </div>
+                                <ul className="text-[11px] text-slate-500 space-y-3 font-medium">
+                                    <li className="flex gap-2"><CheckCircle size={12} className="text-green-500 shrink-0"/> Cel: własność auta</li>
+                                    <li className="flex gap-2"><CheckCircle size={12} className="text-green-500 shrink-0"/> Wysoka rata (spłacasz kapitał)</li>
+                                    <li className="flex gap-2"><CheckCircle size={12} className="text-green-500 shrink-0"/> Serwis i opony po Twojej stronie</li>
+                                    <li className="flex gap-2"><Info size={12} className="text-blue-400 shrink-0"/> Niski wykup (np. 1%)</li>
+                                </ul>
+                            </div>
+                            <div className="p-6 bg-blue-50/10">
+                                <div className="text-indigo-600 font-black text-xs uppercase mb-3 flex items-center gap-2">
+                                    <TrendingUp size={14}/> Najem (Wynajem)
+                                </div>
+                                <ul className="text-[11px] text-slate-600 space-y-3 font-medium">
+                                    <li className="flex gap-2"><CheckCircle size={12} className="text-green-500 shrink-0"/> Cel: użytkowanie i wygoda</li>
+                                    <li className="flex gap-2"><CheckCircle size={12} className="text-green-500 shrink-0"/> Niska rata (spłacasz utratę wartości)</li>
+                                    <li className="flex gap-2"><CheckCircle size={12} className="text-green-500 shrink-0"/> Pełny serwis i opony w racie</li>
+                                    <li className="flex gap-2"><AlertTriangle size={12} className="text-orange-500 shrink-0"/> Bardzo wysoki wykup</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 text-left">
+                        <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-sm"><Briefcase size={18} className="text-slate-600"/> Całkowity koszt użytkowania (tco)</h4>
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                            Ekspert nie patrzy tylko na ratę. Najem często wydaje się droższy w skali całego kontraktu, ale uwzględnia <strong>ubezpieczenie ac w ratach leasingu</strong>, koszty przeglądów i opon. To idealne rozwiązanie dla firm, które chcą mieć "święty spokój" i stały koszt miesięczny bez niespodzianek w serwisie.
+                        </p>
+                    </div>
+
+                    <div className="p-6 bg-indigo-50 rounded-3xl border border-indigo-100 text-left">
+                        <h4 className="font-bold text-indigo-900 mb-3 flex items-center gap-2 text-sm"><Car size={18} className="text-indigo-600"/> Limit przebiegu w najmie</h4>
+                        <p className="text-xs text-indigo-800 leading-relaxed">
+                            Uwaga: W przeciwieństwie do standardowego leasingu, najem zawsze narzuca <strong>limit kilometrów</strong> (np. 20 000 km rocznie). Przekroczenie go wiąże się z dopłatą za każdy kilometr przy zwrocie auta. Jeśli jeździsz bardzo dużo, leasing operacyjny będzie bezpieczniejszy finansowo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* PODSUMOWANIE DLA EKSPERTA */}
+            <div className="mt-12 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-200">
+                <div className="flex flex-col md:flex-row items-center gap-8">
+                    <div className="bg-white p-4 rounded-2xl shadow-sm shrink-0">
+                        <Calculator size={32} className="text-blue-600"/>
+                    </div>
+                    <div className="text-left">
+                        <h5 className="text-lg font-bold mb-1 text-slate-900">Werdykt: co się bardziej opłaca?</h5>
+                        <p className="text-sm text-slate-500 leading-relaxed">
+                            Leasing wybierz, gdy chcesz auto <strong>wykupić i użytkować przez min. 5-6 lat</strong>. Najem wybierz, gdy chcesz wymieniać auto co 2-3 lata, nie masz czasu na serwisy i potrzebujesz niskiej raty, aby zachować <strong>zdolność kredytową</strong> na inne cele. Obie formy podlegają limitowi 150 tys. zł kosztów uzyskania przychodu.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {/* SEKCJA 6: LEASING MASZYN I URZĄDZEŃ – INWESTYCJE W ROZWÓJ */}
+        <div id="sekcja-6-leasing" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm relative overflow-hidden text-left">
+            <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 bg-teal-600 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shrink-0">6</div>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight text-slate-900">Leasing maszyn i urządzeń: serce Twojego biznesu</h3>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+                <div className="space-y-6">
+                    <p className="text-slate-600 leading-relaxed text-sm">
+                        Choć <strong>kalkulator leasingowy 2026</strong> kojarzy się głównie z autami, to leasing maszyn jest często bardziej opłacalny. Dlaczego? Bo w przypadku maszyn produkcyjnych czy medycznych nie obowiązuje <strong>limit 150 tys. w leasingu 2026</strong>. Możesz wziąć w leasing linię produkcyjną za milion złotych i każda złotówka z raty netto będzie Twoim kosztem uzyskania przychodu.
+                    </p>
+                    
+                    {/* SPECYFIKA BRANŻOWA */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-sm hover:border-teal-200 transition-all">
+                            <div className="text-teal-600 mb-3"><LayoutGrid size={24}/></div>
+                            <h4 className="font-bold text-slate-900 text-xs uppercase mb-2">Maszyny ciężkie</h4>
+                            <p className="text-[10px] text-slate-500 leading-relaxed font-medium italic">
+                                <strong>Leasing maszyny stolarskiej</strong> czy maszyn CNC pozwala na szybką modernizację parku maszynowego bez zamrażania kapitału.
+                            </p>
+                        </div>
+                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-sm hover:border-blue-200 transition-all">
+                            <div className="text-blue-600 mb-3"><Activity size={24}/></div>
+                            <h4 className="font-bold text-slate-900 text-xs uppercase mb-2">Sprzęt medyczny</h4>
+                            <p className="text-[10px] text-slate-500 leading-relaxed font-medium italic">
+                                <strong>Leasing maszyny medycznej</strong> (np. USG) często realizowany jest jako leasing finansowy ze względu na niską stawkę VAT (8%) na sprzęt medyczny.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    {/* KARTA: LEASING ZWROTNY */}
+                    <div className="p-6 bg-teal-50 rounded-3xl border border-teal-100 text-left">
+                        <h4 className="font-bold text-teal-900 mb-3 flex items-center gap-2 text-sm"><Repeat size={18}/> Leasing zwrotny: ratunek dla płynności</h4>
+                        <p className="text-xs text-teal-800 leading-relaxed">
+                            Masz maszynę kupioną za gotówkę, ale potrzebujesz nagle pieniędzy na towar? <strong>Leasing zwrotny nieruchomości i aut</strong> (lub maszyn) pozwala sprzedać przedmiot firmie leasingowej i od razu wziąć go w leasing. Ty dostajesz gotówkę na konto, dalej używasz przedmiotu, a raty wrzucasz w koszty.
+                        </p>
+                    </div>
+
+                    {/* KARTA: SPECYFIKA PODATKOWA MASZYN */}
+                    <div className="p-6 bg-slate-900 rounded-3xl border border-slate-800 text-left relative overflow-hidden">
+                        <h4 className="font-bold text-white mb-3 flex items-center gap-2 text-sm"><FileText size={18} className="text-teal-400"/> Stawki amortyzacji</h4>
+                        <p className="text-xs text-slate-400 leading-relaxed relative z-10">
+                            Maszyny mają różne stawki amortyzacji (np. 14% lub 20%). W <strong>leasingu operacyjnym</strong> okres trwania umowy musi wynosić min. 40% czasu amortyzacji. Dlatego leasing maszyny może trwać nawet 7-8 lat, co pozwala na bardzo niską ratę miesięczną.
+                        </p>
+                        <TrendingUp className="absolute -bottom-6 -right-6 text-white/5 w-24 h-24" />
+                    </div>
+                </div>
+            </div>
+
+            {/* FINALNE PODSUMOWANIE KOMPENDIUM */}
+            <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="text-left max-w-2xl">
+                    <h5 className="font-bold text-slate-900 mb-1">Świadomy wybór to większy zysk</h5>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                        Niezależnie czy wybierasz leasing auta, czy maszyny produkcyjnej, zawsze analizuj <strong>RRSO leasingu jak sprawdzić</strong> faktyczny koszt finansowania. Leasing to najelastyczniejsza forma wspierania biznesu w 2026 roku, o ile pamiętasz o limitach, VAT i odpowiednim GAP-ie.
+                    </p>
+                </div>
+                <div className="flex gap-4">
+                    <button onClick={() => navigate('/b2b')} 
+  className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all shadow-lg flex items-center gap-2"
+>
+  <Calculator size={14}/> Policz oszczędności B2B
+</button>
+                </div>
+            </div>
+        </div>
+
+        {/* SEKCJA 7: DEFINICJA I HISTORIA */}
+        <div id="sekcja-7-leasing" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm relative overflow-hidden text-left">
+            <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-10">
+                    <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center font-bold text-xl shadow-sm">7</div>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Czym jest leasing w świetle prawa?</h3>
+                </div>
+                
+                <div className="grid lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <p className="text-slate-600 leading-relaxed mb-6 text-sm">
+                            Leasing to specyficzna forma finansowania, będąca hybrydą kredytu i dzierżawy. W świetle prawa, właścicielem przedmiotu (samochodu, maszyny) przez cały okres trwania umowy jest <strong>finansujący (leasingodawca)</strong>. Ty, jako <strong>korzystający (leasingobiorca)</strong>, płacisz miesięczne raty za prawo do użytkowania tego przedmiotu.
+                        </p>
+                        <p className="text-slate-600 leading-relaxed text-sm">
+                            Dopiero po opłaceniu ostatniej raty i tzw. <strong>wykupu</strong>, prawo własności przechodzi na Ciebie. To kluczowa różnica względem kredytu, gdzie od razu jesteś właścicielem pojazdu zapisanym w dowodzie rejestracyjnym.
+                        </p>
+                    </div>
+                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200">
+                        <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2 text-sm"><Globe size={18} className="text-slate-400"/> Krótka historia finansowania</h4>
+                        <p className="text-[11px] text-slate-500 mb-3 leading-relaxed">
+                            Korzenie leasingu sięgają starożytności – już w 2000 r. p.n.e. w Sumerze kapłani leasingowali ziemię rolnikom. Współczesny leasing narodził się w USA w latach 50. XX wieku.
+                        </p>
+                        <p className="text-[11px] text-slate-500 leading-relaxed">
+                            Do Polski trafił po 1989 roku, stając się kołem zamachowym dla firm, które nie miały gotówki na zakup drogich maszyn i samochodów.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {/* SEKCJA 8: PORÓWNANIE FORM (TABELA) */}
+        <div id="sekcja-8-leasing" className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden shadow-2xl">
+            <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-sm border border-white/20">8</div>
+                <h3 className="text-2xl font-bold">Leasing operacyjny vs finansowy</h3>
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                    <thead className="text-[10px] text-slate-400 uppercase border-b border-slate-700 font-black tracking-widest">
+                        <tr>
+                            <th className="px-6 py-4">Cecha</th>
+                            <th className="px-6 py-4 text-orange-400">Leasing operacyjny (popularny)</th>
+                            <th className="px-6 py-4 text-blue-400">Leasing finansowy</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800 text-xs">
+                        <tr>
+                            <td className="px-6 py-4 font-bold text-slate-300">Własność</td>
+                            <td className="px-6 py-4">Pojazd jest majątkiem leasingodawcy.</td>
+                            <td className="px-6 py-4">Pojazd jest majątkiem Twoim (wpisujesz do ewidencji).</td>
+                        </tr>
+                        <tr>
+                            <td className="px-6 py-4 font-bold text-slate-300">Amortyzacja</td>
+                            <td className="px-6 py-4">Odpisuje firma leasingowa.</td>
+                            <td className="px-6 py-4">Odpisujesz Ty (leasingobiorca).</td>
+                        </tr>
+                        <tr>
+                            <td className="px-6 py-4 font-bold text-slate-300">Koszt pit/cit</td>
+                            <td className="px-6 py-4 text-orange-200">Cała rata netto (kapitał + odsetki).</td>
+                            <td className="px-6 py-4">Tylko odsetki + amortyzacja.</td>
+                        </tr>
+                        <tr>
+                            <td className="px-6 py-4 font-bold text-slate-300">Płatność vat</td>
+                            <td className="px-6 py-4">Doliczany do każdej raty (stopniowo).</td>
+                            <td className="px-6 py-4 text-red-400">Płatny z góry od całej wartości przedmiotu!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {/* SEKCJA 9: CHECKLISTA PRZEDSIĘBIORCY */}
+        <div id="sekcja-9-leasing" className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm relative overflow-hidden text-left">
+            <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 bg-green-600 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shrink-0">9</div>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Checklista: zanim podpiszesz umowę</h3>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-orange-300 transition-colors">
+                    <div className="w-10 h-10 bg-white text-orange-600 rounded-lg flex items-center justify-center mb-4 shadow-sm"><FileSignature size={20}/></div>
+                    <h4 className="font-bold text-slate-900 mb-2 text-sm">Zweryfikuj ofertę</h4>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                        Sprawdź nie tylko ratę, ale i koszty dodatkowe: opłatę za rejestrację, koszt ubezpieczenia u innego ubezpieczyciela oraz <strong>rrso leasingu jak sprawdzić</strong> faktyczny koszt długu.
+                    </p>
+                </div>
+                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-orange-300 transition-colors">
+                    <div className="w-10 h-10 bg-white text-orange-600 rounded-lg flex items-center justify-center mb-4 shadow-sm"><ShieldCheck size={20}/></div>
+                    <h4 className="font-bold text-slate-900 mb-2 text-sm">Wybierz mądrze gap</h4>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                        Dla aut premium <strong>ubezpieczenie gap czy warto</strong> to pytanie retoryczne. Wybierz wariant fakturowy (RTI), aby w razie kradzieży otrzymać zwrot do pełnej kwoty z faktury.
+                    </p>
+                </div>
+                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-orange-300 transition-colors">
+                    <div className="w-10 h-10 bg-white text-orange-600 rounded-lg flex items-center justify-center mb-4 shadow-sm"><Repeat size={20}/></div>
+                    <h4 className="font-bold text-slate-900 mb-2 text-sm">Zasada 150 tys.</h4>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                        Pamiętaj, że <strong>limit 150 tys. w leasingu 2026</strong> dotyczy proporcji odliczeń. Jeśli Twoje wymarzone auto kosztuje 300 tys., połowa Twoich rat nie będzie obniżać podatku dochodowego.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
     </>
   );
 };

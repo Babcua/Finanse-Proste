@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
   Calculator, Home, TrendingUp, TrendingDown, DollarSign,
   AlertTriangle, CheckCircle, HelpCircle, Info, Calendar,
   PieChart, ArrowRight, ShieldCheck, XCircle, FileText, CreditCard,
-  Briefcase, Lock, Percent, Search, BarChart3, Activity, FileCheck, Coins, Sparkles
+  Briefcase, Lock, Percent, Search, BarChart3, Activity, FileCheck, Coins, Sparkles, ArrowRightLeft, ShieldAlert, Zap, Clock, Target, ListTree, Umbrella
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -58,8 +59,27 @@ const InputGroup = ({ label, value, onChange, type = "number", suffix, step = "1
   </div>
 );
 
+
+
 export const MortgageView = () => {
   // --- STATE ---
+  const navigate = useNavigate();
+
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 100;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
   const [amount, setAmount] = useState(400000);
   const [years, setYears] = useState(25);
   const [months, setMonths] = useState(0);
@@ -204,9 +224,47 @@ export const MortgageView = () => {
                 Sprawdź, ile tysięcy złotych zaoszczędzisz nadpłacając kredyt. Porównaj strategię "niższa rata" kontra "krótszy okres".
             </p>
         </div>
+        {/* --- KOMPLEKSOWY SPIS TREŚCI --- */}
+        <div className="mb-16 bg-white border border-slate-100 rounded-[2.5rem] p-6 shadow-sm flex flex-wrap justify-center gap-2 md:gap-3">
+          <div className="w-full flex items-center justify-center gap-2 mb-3 text-slate-400">
+            <ListTree size={16}/>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em]">Nawigacja po kompendium wiedzy</span>
+          </div>
+          
+          <button onClick={() => scrollToSection('kalkulator-sekcja')} className="flex items-center gap-2 px-5 py-3 rounded-2xl text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
+            <Calculator size={14}/> KALKULATOR
+          </button>
+
+          {[
+            { title: "Produkty dodatkowe", id: "sekcja-produkty", icon: ShieldCheck },
+            { title: "WIBOR i Stopy", id: "sekcja-wibor", icon: Activity },
+            { title: "Instrukcja nadpłaty", id: "sekcja-instrukcja", icon: FileCheck },
+            { title: "Wykreślenie Hipoteki", id: "sekcja-hipoteka", icon: Home },
+            { title: "Słownik pojęć", id: "sekcja-slownik", icon: Search },
+            { title: "Strategie spłaty", id: "sekcja-strategia", icon: TrendingDown },
+            { title: "Częste pytania", id: "sekcja-faq", icon: HelpCircle },
+            { title: "Wpływ Inflacji", id: "sekcja-inflacja", icon: TrendingUp },
+            { title: "Nadpłata vs Giełda", id: "sekcja-inwestowanie", icon: PieChart },
+            { title: "Refinansowanie", id: "sekcja-refinansowanie", icon: ArrowRightLeft },
+            { title: "Dopłaty Państwowe", id: "sekcja-doplaty", icon: Percent },
+            { title: "Zdolność i Zarobki", id: "sekcja-zdolnosc", icon: Briefcase },
+            { title: "Nadpłata vs Obligacje", id: "sekcja-obligacje", icon: Coins },
+          ].map((item, i) => (
+            <button
+              key={i}
+              onClick={() => scrollToSection(item.id)}
+              className="flex items-center gap-2 px-4 py-3 rounded-2xl text-xs font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-50 bg-white"
+            >
+              <item.icon size={14} className="opacity-50"/>
+              {item.title}
+            </button>
+          ))}
+        </div>
+
+
 
         {/* KALKULATOR - GRID */}
-        <div className="grid lg:grid-cols-12 gap-8 mb-20">
+        <div id="kalkulator-sekcja" className="grid lg:grid-cols-12 gap-8 mb-20">
             {/* LEWA KOLUMNA - INPUTY */}
             <div className="lg:col-span-4 space-y-6">
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
@@ -457,7 +515,7 @@ export const MortgageView = () => {
             </div>
 
             {/* SEKCJA PRODUKTÓW DODATKOWYCH (PRZENIESIONA WYŻEJ) */}
-            <div className="mb-20">
+            <div id="sekcja-produkty" className="mb-20">
                 <h3 className="text-3xl font-bold mb-10 text-center text-slate-900">Co bank dorzuca do kredytu?</h3>
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* UBEZPIECZENIE NA ŻYCIE */}
@@ -505,7 +563,7 @@ export const MortgageView = () => {
             </div>
 
             {/* SEKCJA: WIBOR i STOPY PROCENTOWE (LIGHT MODE) */}
-            <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden shadow-sm">
+            <div id="sekcja-wibor" className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden shadow-sm">
                 <div className="relative z-10">
                     <h3 className="text-3xl font-bold mb-8 flex items-center gap-3 text-slate-900">
                         <Activity className="text-pink-500"/> Serce Kredytu: WIBOR
@@ -593,7 +651,7 @@ export const MortgageView = () => {
             </div>
 
             {/* NOWA SEKCJA: KROK PO KROKU & WYKREŚLENIE HIPOTEKI (SEO BOOST) */}
-            <div className="grid lg:grid-cols-2 gap-12">
+            <div id="sekcja-instrukcja" className="grid lg:grid-cols-2 gap-12">
                 <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
                     <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-slate-900">
                         <FileCheck className="text-blue-600"/> Krok po kroku: Jak nadpłacić?
@@ -623,7 +681,7 @@ export const MortgageView = () => {
                     </ol>
                 </div>
 
-                <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
+                <div id="sekcja-hipoteka" className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
                     <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-slate-900">
                         <Home className="text-green-600"/> Koniec kredytu? Wykreśl hipotekę!
                     </h3>
@@ -657,7 +715,7 @@ export const MortgageView = () => {
             </div>
 
             {/* SŁOWNIK POJĘĆ TRUDNYCH (LIGHT) */}
-            <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12">
+            <div id="sekcja-slownik" className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12">
                 <h3 className="text-2xl font-bold mb-8 flex items-center gap-2 text-slate-900"><Search className="text-slate-400"/> Słownik "Bankowy na Ludzki"</h3>
                 <div className="grid md:grid-cols-2 gap-8">
                     <div>
@@ -691,7 +749,7 @@ export const MortgageView = () => {
 
             {/* NADPŁATA INFO (LIGHT) */}
             <div className="bg-slate-50 border border-slate-200 rounded-[2rem] p-8 md:p-12">
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
+                <div id="sekcja-strategia" className="grid lg:grid-cols-2 gap-12 items-center">
                     <div>
                         <h3 className="text-2xl font-bold mb-4 text-slate-900">Strategia: Niższa rata czy Krótszy okres?</h3>
                         <p className="text-slate-600 mb-6 leading-relaxed">
@@ -727,7 +785,7 @@ export const MortgageView = () => {
             </div>
 
             {/* FAQ */}
-            <div className="mb-20">
+            <div id="sekcja-faq" className="mb-20">
                 <h3 className="text-2xl font-bold mb-8 text-center flex items-center justify-center gap-2 text-slate-900"><HelpCircle className="text-slate-400"/> FAQ - Szybkie odpowiedzi</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <div className="bg-white border border-slate-200 p-6 rounded-2xl">
@@ -749,7 +807,414 @@ export const MortgageView = () => {
                 </div>
             </div>
 
+{/* NOWA SEKCJA: INFLACJA A REALNA WARTOŚĆ DŁUGU */}
+            <div id="sekcja-inflacja" className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden shadow-2xl">
+                <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 className="text-3xl font-black mb-6 flex items-center gap-3">
+                            <Activity className="text-orange-400"/>
+                            Inflacja: Twój cichy sojusznik?
+                        </h3>
+                        <p className="text-slate-400 leading-relaxed mb-6">
+                            Wielu ekspertów mówi: "nadpłacaj!". Ale zapominają o jednym – <strong>inflacja pożera wartość Twojego długu</strong>. Jeśli Twoje zarobki rosną wraz z inflacją, to z każdym rokiem rata stanowi mniejszy procent Twojego budżetu.
+                        </p>
+                        <div className="space-y-4">
+                            <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                                <p className="text-sm text-slate-300">
+                                    <strong className="text-orange-400">Efekt erozji długu:</strong> Przy inflacji 5% rocznie, Twoje 400 000 zł długu za 10 lat będzie realnie warte około 245 000 zł w dzisiejszych pieniądzach.
+                                </p>
+                            </div>
+                            <p className="text-xs text-slate-500 italic">
+                                * To dlatego nadpłata najbardziej opłaca się wtedy, gdy oprocentowanie kredytu jest znacznie wyższe niż inflacja i zyski z lokat.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="bg-white/5 p-6 rounded-[2rem] border border-white/10">
+                        <h4 className="text-center text-xs font-bold uppercase tracking-widest mb-6 text-slate-400">Realna wartość 1000 zł raty w czasie</h4>
+                        <ResponsiveContainer width="100%" height={250}>
+                            <BarChart data={[
+                                { year: 'Dziś', value: 1000 },
+                                { year: 'Za 5 lat', value: 780 },
+                                { year: 'Za 10 lat', value: 610 },
+                                { year: 'Za 20 lat', value: 370 },
+                            ]}>
+                                <XAxis dataKey="year" stroke="#64748b" fontSize={12} />
+                                <YAxis hide />
+                                <Bar dataKey="value" fill="#fb923c" radius={[10, 10, 0, 0]}>
+                                    { [0,1,2,3].map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fillOpacity={1 - index * 0.2} />
+                                    ))}
+                                </Bar>
+                                <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#1e293b', border: 'none', borderRadius: '8px'}} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                        <p className="text-[10px] text-center text-slate-500 mt-4 font-medium uppercase">Siła nabywcza raty maleje przy założeniu 5% inflacji</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* SEKCJA: NADPŁATA VS INWESTOWANIE */}
+            <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12 shadow-sm">
+                <div id="sekcja-inwestowanie" className="text-center max-w-2xl mx-auto mb-12">
+                    <h3 className="text-3xl font-black text-slate-900 mb-4">Pojedynek: Nadpłata vs Inwestowanie</h3>
+                    <p className="text-slate-500">Czy lepiej oddać pieniądze bankowi, czy pozwolić im pracować na giełdzie?</p>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-8">
+                    <div className="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 flex flex-col justify-between">
+                        <div>
+                            <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mb-6">
+                                <ShieldCheck size={24}/>
+                            </div>
+                            <h4 className="text-xl font-bold mb-4">Nadpłata Kredytu</h4>
+                            <p className="text-sm text-slate-600 mb-6">Gwarantowany "zysk" równy oprocentowaniu kredytu. Bez podatku Belki, bez ryzyka, bez stresu.</p>
+                            <ul className="space-y-3 text-sm font-medium mb-8">
+                                <li className="flex items-center gap-2 text-green-600"><CheckCircle size={16}/> 100% pewności wyniku</li>
+                                <li className="flex items-center gap-2 text-green-600"><CheckCircle size={16}/> Natychmiastowe obniżenie kosztów życia</li>
+                                <li className="flex items-center gap-2 text-red-600"><XCircle size={16}/> Brak dostępu do gotówki (pieniądze "w murach")</li>
+                            </ul>
+                        </div>
+                        <div className="pt-6 border-t border-slate-200">
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Werdykt:</span>
+                            <p className="text-sm font-bold text-slate-900 mt-1">Dla osób ceniących spokój i bezpieczeństwo psychiczne.</p>
+                        </div>
+                    </div>
+
+                    <div className="p-8 rounded-[2rem] bg-indigo-600 text-white flex flex-col justify-between shadow-xl shadow-indigo-100">
+                        <div>
+                            <div className="w-12 h-12 bg-white/20 text-white rounded-2xl flex items-center justify-center mb-6">
+                                <TrendingUp size={24}/>
+                            </div>
+                            <h4 className="text-xl font-bold mb-4">Inwestowanie (np. S&P 500)</h4>
+                            <p className="text-indigo-100 text-sm mb-6">Potencjalnie wyższy zysk niż koszt kredytu (średnio 9-10% rocznie), ale okupiony wahaniami kursów.</p>
+                            <ul className="space-y-3 text-sm font-medium mb-8">
+                                <li className="flex items-center gap-2 text-indigo-200"><CheckCircle size={16}/> Płynność (możesz sprzedać w każdej chwili)</li>
+                                <li className="flex items-center gap-2 text-indigo-200"><CheckCircle size={16}/> Budowa realnego majątku poza nieruchomością</li>
+                                <li className="flex items-center gap-2 text-orange-300"><AlertTriangle size={16}/> Ryzyko spadków w krótkim terminie</li>
+                            </ul>
+                        </div>
+                        <div className="pt-6 border-t border-white/20">
+                            <span className="text-indigo-200 text-xs font-bold uppercase tracking-widest">Werdykt:</span>
+                            <p className="text-sm font-bold text-white mt-1">Dla inwestorów z horyzontem +10 lat i odpornością na stres.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+{/* SEKCJA: REFINANSOWANIE - UCIECZKA DO INNEGO BANKU (POPRAWIONA) */}
+            <div id="sekcja-refinansowanie" className="bg-indigo-50 border border-indigo-100 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
+                <div className="relative z-10 flex flex-col lg:flex-row gap-12 items-center">
+                    <div className="lg:w-2/3 text-left">
+                        <h3 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                            <ArrowRightLeft size={24} className="text-indigo-600"/>
+                            Refinansowanie: Kiedy nadpłata to za mało?
+                        </h3>
+                        <p className="text-slate-600 mb-6 leading-relaxed text-sm">
+                            Jeśli brałeś kredyt w okresie wysokich stóp (np. lata 2022-2023), a dziś marże są niższe – <strong>przenieś kredyt do innego banku</strong>. Czasem zmiana marży z 2.5% na 1.5% da Ci większe oszczędności w skali 20 lat niż jednorazowa nadpłata.
+                        </p>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className="bg-white p-4 rounded-2xl shadow-sm text-center border border-indigo-100/50">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Nowy wpis w KW</p>
+                                <p className="font-bold text-indigo-600">100 zł</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-2xl shadow-sm text-center border border-indigo-100/50">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Wykreślenie starej</p>
+                                <p className="font-bold text-indigo-600">100 zł</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-2xl shadow-sm text-center border border-indigo-100/50">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">PCC-3 (podatek)</p>
+                                <p className="font-bold text-indigo-600">19 zł</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="lg:w-1/3 w-full">
+                        <div className="bg-white p-6 rounded-3xl border border-indigo-200 shadow-xl text-left">
+                            <h4 className="font-bold text-slate-900 mb-3 text-sm">Zasada 1%</h4>
+                            <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                                Eksperci sugerują, że refinansowanie jest opłacalne, gdy nowe oprocentowanie RRSO jest niższe o co najmniej <strong>1 punkt procentowy</strong> od obecnego.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-200/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
+            </div>
+    
+
+            {/* SEKCJA: ZŁOTA ZASADA BUFORA */}
+            <div className="bg-amber-50 border border-amber-200 rounded-[2.5rem] p-8 md:p-12 flex flex-col md:flex-row items-center gap-8">
+                <div className="w-16 h-16 bg-amber-200 text-amber-700 rounded-2xl flex items-center justify-center shrink-0">
+                    <ShieldAlert size={32} />
+                </div>
+                <div>
+                    <h3 className="text-xl font-bold text-amber-900 mb-2">Zanim klikniesz "Nadpłać"...</h3>
+                    <p className="text-sm text-amber-800 leading-relaxed">
+                        Nigdy nie nadpłacaj kredytu z oszczędności, które są Twoją <strong>poduszką bezpieczeństwa</strong>. Pieniądze wpłacone do banku stają się "betonem" – w razie nagłej choroby czy utraty pracy nie wyjmiesz ich z powrotem. Zachowaj min. 3-6 krotność miesięcznych wydatków na koncie oszczędnościowym.
+                    </p>
+                </div>
+            </div>
+{/* SEKCJA: KREDYTY Z DOPŁATAMI (2% / 0%) */}
+            <div id="sekcja-doplaty"  className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12 shadow-sm text-left">
+                <div className="flex items-center gap-4 mb-8">
+                    <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center shadow-sm shrink-0">
+                        <Percent size={24}/>
+                    </div>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Nadpłata kredytu z dopłatą (BK 2% / Start 0%)</h3>
+                </div>
+
+                <div className="grid lg:grid-cols-2 gap-12 items-start">
+                    <div className="space-y-6">
+                        <p className="text-sm text-slate-600 leading-relaxed">
+                            Jeśli korzystasz z programów rządowych, nadpłata nie zawsze jest "wolną amerykanką". W przypadku <strong>Bezpiecznego Kredytu 2%</strong>, nadpłata w pierwszych 3 latach była ograniczona surowymi restrykcjami.
+                        </p>
+                        <div className="bg-indigo-50 p-6 rounded-3xl border border-indigo-100">
+                            <h4 className="font-bold text-indigo-900 mb-2 text-xs uppercase tracking-widest">Zasada 3 lat:</h4>
+                            <p className="text-xs text-indigo-800 leading-relaxed font-medium">
+                                Zbyt wysoka nadpłata w początkowym okresie mogła skutkować utratą dopłat państwa. Od 2026 roku większość tych kredytów wchodzi w okres "wolnej nadpłaty", ale zawsze sprawdź swoją umowę pod kątem limitu <strong>części kapitału objętego dopłatą</strong>.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="bg-slate-900 text-white p-8 rounded-[2rem] relative overflow-hidden flex flex-col justify-center">
+                        <h4 className="text-xl font-bold mb-4">Utrata dopłat?</h4>
+                        <ul className="text-sm text-slate-300 space-y-3">
+                            <li className="flex gap-2"><XCircle size={16} className="text-red-400 shrink-0 mt-0.5"/> Przekroczenie limitu nadpłaty w 1. dekadzie</li>
+                            <li className="flex gap-2"><XCircle size={16} className="text-red-400 shrink-0 mt-0.5"/> Wynajęcie nieruchomości objętej programem</li>
+                            <li className="flex gap-2"><CheckCircle size={16} className="text-green-400 shrink-0 mt-0.5"/> Dobra wiadomość: Nadpłata po okresie dopłat jest bezkarna</li>
+                        </ul>
+                        <ShieldCheck className="absolute -bottom-10 -right-10 opacity-10 w-48 h-48" />
+                    </div>
+                </div>
+            </div>
+
+            {/* SEKCJA: ZDOLNOŚĆ KREDYTOWA */}
+            <div className="grid lg:grid-cols-2 gap-8 text-left">
+                <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-slate-900">
+                            <BarChart3 size={24} className="text-indigo-600"/> Zdolność Kredytowa
+                        </h3>
+                        <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                            Czy wiesz, że wybierając opcję <strong>"zmniejszenie raty"</strong> zamiast "skrócenia okresu", realnie zwiększasz swoją zdolność kredytową w oczach banków?
+                        </p>
+                        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
+                            <p className="text-xs text-slate-500 italic">
+                                <strong>Przykład:</strong> Nadpłacasz 20 000 zł i obniżasz ratę o 250 zł. Dla banku Twoje miesięczne obciążenia spadają, co pozwala Ci pożyczyć o ok. 25-30 tys. zł więcej na inny cel (np. auto lub remont).
+                            </p>
+                        </div>
+                    </div>
+                    <button onClick={() => navigate('/b2b')} className="flex items-center justify-center gap-2 w-full py-4 bg-slate-100 text-slate-900 rounded-2xl font-bold text-xs hover:bg-slate-200 transition-all">
+                        Oblicz dochód rozporządzalny <ArrowRight size={14}/>
+                    </button>
+                </div>
+
+                <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
+                    <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-slate-900">
+                        <Calendar size={24} className="text-indigo-600"/> Kiedy robić przelew?
+                    </h3>
+                    <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                        Odsetki bankowe są naliczane <strong>każdego dnia</strong> od aktualnego salda kapitału. Każdy dzień zwłoki z nadpłatą to kilka złotych oddanych bankowi "za nic".
+                    </p>
+                    <div className="space-y-4">
+                        <div className="flex gap-4 items-start">
+                            <div className="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center shrink-0"><Zap size={20}/></div>
+                            <div>
+                                <h5 className="font-bold text-sm">Zasada ASAP</h5>
+                                <p className="text-xs text-slate-500">Masz nadwyżkę? Nadpłacaj od razu. Czekanie do "dnia raty" nie ma matematycznego sensu.</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4 items-start">
+                            <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center shrink-0"><Clock size={20}/></div>
+                            <div>
+                                <h5 className="font-bold text-sm">Dzień po racie</h5>
+                                <p className="text-xs text-slate-500">Wielu klientów preferuje nadpłatę dzień po racie, by mieć czysty widok na harmonogram, ale matematycznie liczy się każdy dzień.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* SEKCJA: UBEZPIECZENIE NISKIEGO WKŁADU (UNW) */}
+            <div className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-[2.5rem] p-8 md:p-12 text-left relative overflow-hidden">
+                <div className="relative z-10 lg:flex items-center gap-12">
+                    <div className="lg:w-2/3">
+                        <h3 className="text-2xl font-black mb-4 flex items-center gap-2">
+                            <ShieldCheck size={28}/> Pozbądź się ubezpieczenia UNW
+                        </h3>
+                        <p className="text-indigo-100 mb-0 leading-relaxed text-sm">
+                            Jeśli przy braniu kredytu Twój wkład własny był niższy niż 20%, prawdopodobnie płacisz wyższą marżę (tzw. ubezpieczenie niskiego wkładu). 
+                            <strong> Nadpłata to najszybsza droga</strong>, by saldo kredytu spadło poniżej 80% wartości nieruchomości (LTV). Gdy to nastąpi, złóż wniosek o obniżenie marży – bank nie zrobi tego sam!
+                        </p>
+                    </div>
+                    <div className="lg:w-1/3 mt-8 lg:mt-0">
+                        <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20">
+                            <h4 className="font-bold mb-2">Cel: LTV 80%</h4>
+                            <div className="h-4 bg-white/20 rounded-full w-full overflow-hidden mb-2">
+                                <div className="h-full bg-green-400 w-[80%]"></div>
+                            </div>
+                            <p className="text-[10px] text-indigo-200 uppercase font-black">Magiczna granica odliczeń</p>
+                        </div>
+                    </div>
+                </div>
+                <Percent size={200} className="absolute -bottom-20 -left-20 text-white/5 -rotate-12" />
+            </div>
+
+
+
+{/* SEKCJA: ZDOLNOŚĆ KREDYTOWA I ANALIZA DOCHODÓW */}
+            <div id="sekcja-zdolnosc" className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12 shadow-sm text-left relative overflow-hidden">
+                <div className="relative z-10">
+                    <div className="flex flex-col lg:flex-row gap-12 items-start">
+                        <div className="lg:w-1/2 space-y-6">
+                            <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-indigo-100">
+                                <BarChart3 size={16}/> Analiza Finansowa 2026
+                            </div>
+                            <h3 className="text-3xl font-black text-slate-900 leading-tight">
+                                Twoje zarobki to fundament <span className="text-indigo-600">Zdolności Kredytowej</span>
+                            </h3>
+                            <p className="text-slate-600 leading-relaxed italic">
+                                Bank nie pożycza pieniędzy "na ładne oczy". Kluczowym wskaźnikiem jest Twoja pensja przeliczona na <strong>Dochód Rozporządzalny</strong>, czyli to, co zostaje Ci w portfelu po opłaceniu podatków i kosztów życia.
+                            </p>
+                            
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <div className="bg-white p-2 rounded-lg shadow-sm text-indigo-600"><FileCheck size={20}/></div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-900 text-sm">Umowa o Pracę na Czas Nieokreślony</h4>
+                                        <p className="text-xs text-slate-500 leading-relaxed">To "Święty Graal" dla banku. Gwarantuje najwyższą stabilność i pozwala na uzyskanie kredytu z najniższą marżą.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <div className="bg-white p-2 rounded-lg shadow-sm text-indigo-600"><Briefcase size={20}/></div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-900 text-sm">Stały Staż Pracy</h4>
+                                        <p className="text-xs text-slate-500 leading-relaxed">Większość instytucji wymaga minimum 3-6 miesięcy zatrudnienia u obecnego pracodawcy przed złożeniem wniosku.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="lg:w-1/2 w-full space-y-6">
+                            <div className="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+                                <h4 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                    <Calculator className="text-indigo-400"/> Kalkulacja "Na Rękę"
+                                </h4>
+                                <div className="space-y-6 relative z-10">
+                                    <p className="text-sm text-slate-400 leading-relaxed">
+                                        Zanim zaczniesz planować nadpłatę, musisz precyzyjnie obliczyć, ile Twojej pensji brutto faktycznie trafia na konto po odliczeniu:
+                                    </p>
+                                    <ul className="space-y-3 text-xs">
+                                        <li className="flex justify-between border-b border-white/10 pb-2">
+                                            <span>Podatek Dochodowy od Osób Fizycznych</span>
+                                            <span className="text-indigo-400 font-bold">PIT</span>
+                                        </li>
+                                        <li className="flex justify-between border-b border-white/10 pb-2">
+                                            <span>Składka na Ubezpieczenie Emerytalne</span>
+                                            <span className="text-indigo-400 font-bold">ZUS</span>
+                                        </li>
+                                        <li className="flex justify-between border-b border-white/10 pb-2">
+                                            <span>Składka na Ubezpieczenie Zdrowotne</span>
+                                            <span className="text-indigo-400 font-bold">NFZ</span>
+                                        </li>
+                                    </ul>
+                                    
+                                    <button 
+                                        onClick={() => navigate('/wynagrodzenia')} 
+                                        className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-500/20 group"
+                                    >
+                                        <Activity size={18} className="group-hover:animate-pulse"/>
+                                        URUCHOM KALKULATOR WYNAGRODZEŃ
+                                    </button>
+                                </div>
+                                <Percent size={180} className="absolute -bottom-10 -right-10 text-white/5 -rotate-12" />
+                            </div>
+                            
+                            <div className="p-6 border-2 border-dashed border-slate-200 rounded-3xl">
+                                <h5 className="font-bold text-slate-900 text-sm mb-2 flex items-center gap-2">
+                                    <Info size={18} className="text-indigo-500"/> Czy wiesz, że?
+                                </h5>
+                                <p className="text-xs text-slate-500 leading-relaxed">
+                                    Nadpłata kredytu ze środków z premii lub "trzynastki" to matematycznie najlepszy moment na obniżenie salda zadłużenia, ponieważ te środki nie są obciążone dodatkowym ryzykiem kredytowym.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/* SEKCJA: NPLPŁATA VS OBLIGACJE SKARBOWE PAŃSTWA */}
+            <div id="sekcja-obligacje" className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12 shadow-sm text-left relative overflow-hidden">
+                <div className="flex flex-col lg:flex-row gap-12 items-center">
+                    <div className="lg:w-1/2">
+                        <h3 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2">
+                            <TrendingUp className="text-blue-600"/> Nadpłata czy Obligacje Skarbowe?
+                        </h3>
+                        <p className="text-sm text-slate-600 leading-relaxed mb-6">
+                            W 2026 roku <strong>Obligacje Skarbowe Państwa</strong> pozostają główną alternatywą dla nadpłaty kredytu. Decyzja zależy od matematycznego porównania oprocentowania kredytu z realnym zyskiem z obligacji po uwzględnieniu inflacji.
+                        </p>
+                        <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100">
+                            <h4 className="font-bold text-blue-900 mb-2 text-xs uppercase tracking-widest text-left">Matematyka zysku:</h4>
+                            <p className="text-xs text-blue-800 leading-relaxed">
+                                Jeśli Twój kredyt jest oprocentowany na 8%, a <strong>Obligacje Skarbowe Indeksowane Inflacją</strong> oferują 6% + inflacja, to przy inflacji powyżej 2% obligacje mogą przynieść wyższy zwrot niż oszczędność na odsetkach kredytowych.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="lg:w-1/2 w-full">
+                        <div className="bg-slate-900 text-white p-8 rounded-[2rem] shadow-xl text-left">
+                            <h4 className="font-bold mb-4">Sprawdź alternatywę</h4>
+                            <p className="text-xs text-slate-400 mb-6 leading-relaxed text-left">
+                                Zanim oddasz wszystkie oszczędności do banku, zobacz jak działają obligacje i jak mogą chronić Twój kapitał przed utratą wartości.
+                            </p>
+                            <button 
+                                onClick={() => navigate('/obligacje')} 
+                                className="w-full py-4 bg-white text-slate-900 rounded-2xl font-black text-xs hover:bg-blue-50 transition-all flex items-center justify-center gap-2 shadow-lg"
+                            >
+                                <Target size={16}/> KALKULATOR OBLIGACJI SKARBOWYCH
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
         </div>
+
+{/* --- SEKCJA SEO: NAJCZĘSTSZE PYTANIA W GOOGLE --- */}
+        <div className="mt-24 border-t border-slate-100 pt-16">
+            <div className="text-center mb-12">
+                <h3 className="text-2xl font-black text-slate-900 mb-2">Czego szukasz w kontekście kredytu?</h3>
+                <p className="text-sm text-slate-500 italic">Najpopularniejsze zagadnienia i analizy ekspertów</p>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {[
+                    { kw: "Kalkulator nadpłaty kredytu", id: "kalkulator-sekcja" },
+                    { kw: "Skrócenie okresu kredytowania", id: "sekcja-strategia" },
+                    { kw: "Nadpłata a Inflacja 2026", id: "sekcja-inflacja" },
+                    { kw: "Zdolność kredytowa 2026", id: "sekcja-zdolnosc" },
+                    { kw: "WIBOR 3M a rata", id: "sekcja-wibor" },
+                    { kw: "Wykreślenie hipoteki koszt", id: "sekcja-hipoteka" },
+                    { kw: "Nadpłata czy obligacje", id: "sekcja-obligacje" },
+                    { kw: "Refinansowanie kredytu", id: "sekcja-refinansowanie" },
+                    { kw: "Bezpieczny Kredyt 2 procent", id: "sekcja-doplaty" },
+                    { kw: "Ubezpieczenie niskiego wkładu", id: "sekcja-slownik" }
+                ].map((item, i) => (
+                    <button 
+                        key={i}
+                        onClick={() => scrollToSection(item.id)}
+                        className="p-6 bg-white border border-slate-200 rounded-3xl text-left hover:border-indigo-400 hover:shadow-md transition-all group"
+                    >
+                        <div className="w-8 h-8 bg-slate-50 text-slate-400 rounded-lg flex items-center justify-center mb-4 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                            <Search size={14}/>
+                        </div>
+                        <span className="text-[11px] font-black text-slate-800 leading-tight block">
+                            {item.kw}
+                        </span>
+                    </button>
+                ))}
+            </div>
+        </div>
+
       </div>
     </>
   );

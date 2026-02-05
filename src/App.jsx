@@ -7,7 +7,7 @@ import {
 import {
   TrendingUp, Info, Banknote, ShieldCheck, Coins, AlertTriangle, Baby, Landmark, ChevronDown, ExternalLink, Sparkles, Loader2, ArrowRight,
   Briefcase, FileSignature, PenTool, Wallet, HelpCircle, Users, PiggyBank, Flame, Home, ArrowUpRight, Lock, CheckCircle, XCircle, Shuffle, School, ChevronUp, BookOpen, Scale, Umbrella, LayoutGrid, GraduationCap, ChevronLeft, Calculator, Lightbulb, ArrowRightCircle, Target, ThumbsUp, ThumbsDown, Building2, Clock, Percent, Activity, Key, DoorOpen, BadgeCheck, Zap, Globe, Siren, CandlestickChart, ShoppingCart, FileText, Repeat, PieChart, 
-  Cpu, Bot, Fingerprint, Car, ArrowDown, CreditCard, AlertCircle, Calendar, RefreshCw, Ban, ListTree, Receipt, ShieldAlert, Navigation, History, FileWarning, ArrowDownCircle, ArrowUpCircle
+  Cpu, Bot, Fingerprint, Car, ArrowDown, CreditCard, AlertCircle, Calendar, RefreshCw, Ban, ListTree, Receipt, ShieldAlert, Navigation, History, FileWarning, ArrowDownCircle, ArrowUpCircle, TrendingDown, Heart, Atom, Pickaxe, Layers, Hammer, ScrollText, Search, AlertOctagon, Microscope, Rocket, Bitcoin, Anchor, RefreshCcw, Gavel, MousePointer2, ArrowRightLeft, MinusCircle, Truck, Compass
 } from 'lucide-react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { MortgageView } from './MortgageView'; 
@@ -1896,6 +1896,33 @@ const scrollToSection = (e, id) => {
   );
 };
 const CompoundView = () => {
+    const navigate = useNavigate(); // Inicjalizacja nawigacji do innych podstron
+
+  // FUNKCJA PRZEWIJANIA - Klucz do działania Spisu Treści i Kafli SEO
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 100; // Margines od góry
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // FUNKCJA FORMATOWANIA WALUTY
+  const formatMoney = (val) => 
+    new Intl.NumberFormat('pl-PL', { 
+        style: 'currency', 
+        currency: 'PLN', 
+        maximumFractionDigits: 0 
+    }).format(val);
+
   // --- ZMIENNE (BEZ ZMIAN) ---
   const [compoundPrincipal, setCompoundPrincipal] = useState(10000);
   const [compoundYears, setCompoundYears] = useState(10);
@@ -1964,6 +1991,38 @@ const CompoundView = () => {
 </script>
         <meta name="description" content="Oblicz zysk z procentu składanego. Zrozum efekt kuli śnieżnej, poznaj wzór i zobacz jak czas pomnaża Twoje oszczędności." />
       </Helmet>
+
+{/* --- SPIS TREŚCI: PROTOKÓŁ KULI ŚNIEŻNEJ --- */}
+<div className="mb-16 bg-white border border-slate-100 rounded-[2.5rem] p-6 shadow-sm flex flex-wrap justify-center gap-2 md:gap-3">
+  <div className="w-full text-center mb-4">
+    <ListTree size={16} className="inline-block mr-2 text-slate-400"/>
+    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Nawigacja po mechanizmach bogactwa</span>
+  </div>
+  
+  <button onClick={() => scrollToSection('kalkulator-skladany')} className="flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
+    <Calculator size={14}/> KALKULATOR
+  </button>
+
+  {[
+    { title: "Reguła 72", id: "regula-72-kompletna", icon: Clock },
+    { title: "Cisi Złodzieje", id: "cisi-zlodzieje-kapitalu", icon: AlertOctagon },
+    { title: "Ciemna Strona", id: "ciemna-strona-procentu", icon: Siren },
+    { title: "Architektura Nawyków", id: "automatyzacja-nawyki", icon: Cpu },
+    { title: "Punkt Krytyczny", id: "punkt-krytyczny-nawigacja", icon: Navigation },
+  ].map((item, i) => (
+    <button
+      key={i}
+      onClick={() => scrollToSection(item.id)}
+      className="flex items-center gap-2 px-4 py-3 rounded-2xl text-xs font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 transition-all border border-slate-50 bg-white"
+    >
+      <item.icon size={14} className="opacity-50"/>
+      {item.title}
+    </button>
+  ))}
+</div>
+
+{/* Kotwica dla kalkulatora */}
+<div id="kalkulator-skladany" className="scroll-mt-24"></div>
 
       <div className="animate-in slide-in-from-right duration-500 max-w-6xl mx-auto pb-12">
           <div className="mb-8">
@@ -2126,47 +2185,586 @@ const CompoundView = () => {
                   </div>
               </div>
 
-              {/* ZASTOSOWANIE I FAQ */}
-              <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-6">
-                      <h3 className="text-2xl font-bold text-slate-900">Gdzie działa procent składany?</h3>
-                      <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm hover:border-blue-300 transition-colors">
-                          <h4 className="font-bold text-blue-700 mb-2">1. Konta IKE i IKZE</h4>
-                          <p className="text-sm text-slate-600">Dzięki brakowi podatku Belki (IKE) procent składany działa z pełną mocą. Podatek nie "podgryza" Twoich odsetek co roku, więc cała kwota pracuje na kolejny zysk.</p>
-                      </div>
-                      <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm hover:border-purple-300 transition-colors">
-                          <h4 className="font-bold text-purple-700 mb-2">2. Inwestowanie Dywidendowe</h4>
-                          <p className="text-sm text-slate-600">Gdy kupujesz akcje spółek wypłacających dywidendy i zamiast je wydawać, kupujesz za nie więcej akcji – to klasyczny przykład procentu składanego na giełdzie.</p>
-                      </div>
-                      <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm hover:border-green-300 transition-colors">
-                          <h4 className="font-bold text-green-700 mb-2">3. ETFy akumulujące (Acc)</h4>
-                          <p className="text-sm text-slate-600">Fundusze typu "Accumulating" automatycznie reinwestują dywidendy wewnątrz funduszu. Nie widzisz gotówki na koncie, ale cena jednostki rośnie szybciej.</p>
-                      </div>
-                  </div>
+{/* SEKCJA: REGUŁA 72 - MENTALNY SKRÓT */}
+<div id="regula-72-kompletna" className="bg-white rounded-[2.5rem] p-8 md:p-16 border border-slate-200 shadow-xl relative overflow-hidden text-left scroll-mt-24 mt-16">
+    <div className="relative z-10 space-y-12">
+        <div className="flex items-center gap-4 text-left">
+            <div className="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200 shrink-0">
+                <Clock size={28} />
+            </div>
+            <div>
+                <h4 className="text-3xl font-black text-slate-900 tracking-tight text-left">Reguła 72: Twój finansowy kompas</h4>
+                <p className="text-slate-500 font-medium text-left text-sm uppercase tracking-wider">Jak błyskawicznie obliczyć podwojenie kapitału?</p>
+            </div>
+        </div>
 
-                  <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-200">
-                      <h3 className="text-2xl font-bold text-slate-900 mb-6">FAQ - Najczęstsze pytania</h3>
-                      <div className="space-y-6">
-                          <div>
-                              <h4 className="font-bold text-slate-800 text-sm mb-1">Co to jest kapitalizacja?</h4>
-                              <p className="text-xs text-slate-600 leading-relaxed">To moment, w którym bank dopisuje odsetki do Twojego konta. Im częściej to robi (np. codziennie vs raz w roku), tym lepiej dla Ciebie, bo odsetki szybciej zaczynają pracować na kolejne zyski.</p>
-                          </div>
-                          <div>
-                              <h4 className="font-bold text-slate-800 text-sm mb-1">Jak inflacja wpływa na procent składany?</h4>
-                              <p className="text-xs text-slate-600 leading-relaxed">Inflacja to "odwrócony" procent składany. Zjada wartość Twoich pieniędzy. Aby realnie się bogacić, Twoja stopa zwrotu musi być wyższa niż inflacja.</p>
-                          </div>
-                          <div>
-                              <h4 className="font-bold text-slate-800 text-sm mb-1">Kiedy najlepiej zacząć?</h4>
-                              <p className="text-xs text-slate-600 leading-relaxed">Wczoraj. A jeśli nie wczoraj, to dzisiaj. W procencie składanym czas jest ważniejszy niż kwota. 500 zł odkładane przez 40 lat da więcej niż 1000 zł odkładane przez 20 lat (przy tym samym %)!</p>
-                          </div>
-                      </div>
-                  </div>
-              </div>
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6 text-slate-600 text-lg leading-relaxed text-left">
+                <p>
+                    Reguła 72 to najprostszy sposób, by bez użycia kalkulatora oszacować, jak długo musisz czekać, aż Twoje oszczędności podwoją swoją wartość dzięki <strong>procentowi składanemu</strong>. 
+                </p>
+                <p className="text-sm font-bold text-indigo-600">
+                    Wystarczy podzielić liczbę 72 przez roczną stopę zwrotu.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span className="block text-[10px] font-black text-slate-400 uppercase">Zysk 6% rocznie</span>
+                        <span className="text-xl font-black text-slate-900">12 lat do podwojenia</span>
+                    </div>
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span className="block text-[10px] font-black text-slate-400 uppercase">Zysk 10% rocznie</span>
+                        <span className="text-xl font-black text-slate-900">7,2 roku do podwojenia</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="bg-slate-900 text-white p-12 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+                <div className="relative z-10 text-center space-y-6">
+                    <h5 className="text-xl font-black text-indigo-400">Dlaczego to działa?</h5>
+                    <p className="text-sm text-slate-400 leading-relaxed">
+                        Reguła ta opiera się na logarytmie naturalnym z liczby 2. Jest niezwykle precyzyjna dla stóp zwrotu w zakresie 5-12%. Pokazuje ona, że nawet mała różnica w oprocentowaniu (np. 2%) potrafi skrócić czas oczekiwania na podwojenie majątku o kilka lat.
+                    </p>
+                    <div className="inline-flex gap-4 items-center bg-white/5 p-4 rounded-2xl border border-white/10">
+                        <TrendingUp className="text-green-400" />
+                        <span className="text-xs font-bold">Im wyższy %, tym szybciej działa Twoja kula śnieżna.</span>
+                    </div>
+                </div>
+                <Activity size={300} className="absolute -bottom-20 -right-20 text-white/5 rotate-12" />
+            </div>
+        </div>
+    </div>
+</div>
+
+{/* SEKCJA: CISI ZŁODZIEJE ZYSKU - ROZBUDOWANA */}
+<div id="cisi-zlodzieje-kapitalu" className="bg-white rounded-[2.5rem] p-8 md:p-16 border border-slate-200 shadow-xl relative overflow-hidden text-left scroll-mt-24 mt-16">
+    <div className="relative z-10 space-y-12">
+        
+        {/* NAGŁÓWEK */}
+        <div className="flex items-center gap-4 text-left">
+            <div className="w-14 h-14 bg-red-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-red-100 shrink-0">
+                <AlertOctagon size={28} />
+            </div>
+            <div>
+                <h4 className="text-3xl font-black text-slate-900 tracking-tight text-left">Cisi Złodzieje: Dlaczego 8% na ekranie to nie 8% w portfelu?</h4>
+                <p className="text-slate-500 font-medium text-left text-sm uppercase tracking-wider">Anatomia degradacji zysku: Podatki, Inflacja i Koszty</p>
+            </div>
+        </div>
+
+        <div className="space-y-6 text-slate-600 text-lg leading-relaxed text-left">
+            <p>
+                Kalkulatory <strong>procentu składanego</strong> często pokazują idealny świat. W rzeczywistości Twoja "kula śnieżna" musi przedrzeć się przez trzy warstwy oporu, które potrafią zmniejszyć końcowy majątek o ponad połowę. Zrozumienie <strong>Realnej Stopy Zwrotu</strong> to różnica między bogactwem a jedynie "utrzymaniem się na powierzchni".
+            </p>
+        </div>
+
+        {/* TRZY FILARY DEGRADACJI */}
+        <div className="grid lg:grid-cols-3 gap-8">
+            {/* 1. PODATEK BELKI */}
+            <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 relative group">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-red-600 mb-6 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                    <Gavel size={24}/>
+                </div>
+                <h5 className="font-bold text-slate-900 mb-3">Podatek Belki (19%)</h5>
+                <p className="text-[11px] text-slate-500 leading-relaxed mb-4">
+                    To podatek od zysków kapitałowych. Najbardziej boli przy częstej kapitalizacji (np. lokaty 3-miesięczne), ponieważ bank pobiera go przy każdym dopisaniu odsetek. 
+                </p>
+                <div className="text-[10px] font-bold text-red-600 uppercase tracking-widest">
+                    Zabiera co piątą złotówkę zysku.
+                </div>
+            </div>
+
+            {/* 2. INFLACJA */}
+            <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 relative group">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-orange-600 mb-6 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                    <Flame size={24}/>
+                </div>
+                <h5 className="font-bold text-slate-900 mb-3">Inflacja (Erozja Siły)</h5>
+                <p className="text-[11px] text-slate-500 leading-relaxed mb-4">
+                    Inflacja to "odwrócony" procent składany. Jeśli Twoje pieniądze rosną o 7%, a ceny w sklepach o 5%, to Twój <strong>realny przyrost majątku</strong> wynosi zaledwie 2%. 
+                </p>
+                <div className="text-[10px] font-bold text-orange-600 uppercase tracking-widest">
+                    Puchnięcie cyfr, nie wartości.
+                </div>
+            </div>
+
+            {/* 3. KOSZTY TER / OPŁATY */}
+            <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 relative group">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-indigo-600 mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                    <MinusCircle size={24}/>
+                </div>
+                <h5 className="font-bold text-slate-900 mb-3">Koszty Zarządzania (TER)</h5>
+                <p className="text-[11px] text-slate-500 leading-relaxed mb-4">
+                    Wiele funduszy pobiera 1-2% opłaty za zarządzanie rocznie. Wydaje się to mało, ale w skali 30 lat te "małe procenty" potrafią zabrać nawet 40% Twojego końcowego kapitału.
+                </p>
+                <div className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
+                    Złodziej ukryty w regulaminie.
+                </div>
+            </div>
+        </div>
+
+        {/* TABELA PORÓWNAWCZA - FILTR PRAWDY */}
+        <div className="bg-slate-900 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden">
+            <div className="relative z-10 space-y-8">
+                <h5 className="text-xl font-bold text-center">Symulacja: 100 000 PLN na 20 lat (Zysk 7% rocznie)</h5>
+                
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="border-b border-white/10">
+                                <th className="py-4 text-xs font-black uppercase text-slate-500">Scenariusz</th>
+                                <th className="py-4 text-xs font-black uppercase text-slate-500 text-right">Kwota końcowa</th>
+                                <th className="py-4 text-xs font-black uppercase text-slate-500 text-right">Realna siła nabywcza</th>
+                            </tr>
+                        </thead>
+                        <tbody className="text-sm">
+                            <tr className="border-b border-white/5">
+                                <td className="py-6 font-bold text-slate-300">Zysk Nominalny (Idealny świat)</td>
+                                <td className="py-6 text-right font-black text-white">386 968 PLN</td>
+                                <td className="py-6 text-right text-slate-400">100% zysku</td>
+                            </tr>
+                            <tr className="border-b border-white/5 bg-white/5">
+                                <td className="py-6 font-bold text-red-400">Po odliczeniu Podatku Belki (19%)</td>
+                                <td className="py-6 text-right font-black text-white">313 000 PLN</td>
+                                <td className="py-6 text-right text-red-300">Strata: ~74 000 PLN</td>
+                            </tr>
+                            <tr>
+                                <td className="py-6 font-bold text-orange-400">Po odliczeniu Podatku i Inflacji (4%)</td>
+                                <td className="py-6 text-right font-black text-yellow-400">142 800 PLN</td>
+                                <td className="py-6 text-right text-orange-300">Realny wzrost o tylko 42%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="p-6 bg-white/5 rounded-2xl border border-white/10 text-center">
+                    <p className="text-xs text-slate-400 italic">
+                        <strong>Wniosek:</strong> Aby realnie budować majątek, musisz szukać rozwiązań optymalizujących podatki (IKE, IKZE) oraz minimalizować koszty transakcyjne. Sam <strong>procent składany</strong> to tylko silnik – musisz jeszcze zadbać o szczelność baku.
+                    </p>
+                </div>
+            </div>
+            <Activity size={300} className="absolute -bottom-20 -right-20 text-white/5 rotate-12" />
+        </div>
+
+        {/* CTA DO OBLIGACJI / IKE */}
+        <div className="bg-indigo-50 border border-indigo-100 rounded-[2.5rem] p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 text-left">
+            <div className="text-left flex gap-6 items-center">
+                <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-600 shrink-0">
+                    <Umbrella size={32}/>
+                </div>
+                <div>
+                    <h5 className="text-xl font-bold mb-1 text-left">Chcesz uniknąć Podatku Belki?</h5>
+                    <p className="text-slate-500 text-sm text-left leading-relaxed">
+                        Sprawdź, jak <strong>IKE (Indywidualne Konto Emerytalne)</strong> pozwala Twojej kuli śnieżnej rosnąć bez corocznej daniny dla fiskusa.
+                    </p>
+                </div>
+            </div>
+            <button 
+                onClick={() => navigate('/ike-ikze')}
+                className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs hover:bg-indigo-700 transition-all shrink-0 flex items-center gap-2 shadow-lg shadow-indigo-100"
+            >
+                <Calculator size={16}/> OBLICZ ZYSK Z IKE
+            </button>
+        </div>
+    </div>
+</div>
+
+{/* SEKCJA: CIEMNA STRONA MOCY - ZADŁUŻENIE */}
+<div id="ciemna-strona-procentu" className="bg-white rounded-[2.5rem] p-8 md:p-16 border border-red-100 shadow-sm relative overflow-hidden text-left scroll-mt-24 mt-16">
+    <div className="relative z-10 space-y-12">
+        
+        {/* NAGŁÓWEK OSTRZEGAWCZY */}
+        <div className="flex items-center gap-4 text-left">
+            <div className="w-14 h-14 bg-red-900 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-red-200 shrink-0">
+                <Siren size={28} />
+            </div>
+            <div>
+                <h4 className="text-3xl font-black text-slate-900 tracking-tight text-left">Ciemna Strona Mocy: Gdy procent składany działa przeciwko Tobie</h4>
+                <p className="text-red-600 font-medium text-left text-sm uppercase tracking-wider font-bold">Pętla zadłużenia i mechanizm odsetek karnych</p>
+            </div>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+            <div className="space-y-6 text-slate-600 text-lg leading-relaxed text-left">
+                <p>
+                    Procent składany nie wybiera stron – jest bezlitosnym matematycznym silnikiem. Jeśli oszczędzasz, buduje Twoje bogactwo. Jeśli jesteś dłużnikiem, staje się narzędziem, które może doprowadzić Cię do <strong>pętli zadłużenia</strong>.
+                </p>
+                <p className="text-sm font-bold text-red-700 bg-red-50 p-4 rounded-xl border-l-4 border-red-600">
+                    W zadłużeniu procent składany działa w drugą stronę: odsetki, których nie spłacisz w terminie, są doliczane do długu, tworząc nową, większą podstawę do naliczania kolejnych karnych opłat.
+                </p>
+            </div>
+
+            {/* DANGER CARD: KARTA KREDYTOWA */}
+            <div className="bg-red-950 text-white p-8 rounded-[3rem] shadow-2xl relative overflow-hidden group border border-red-900">
+                <div className="relative z-10 space-y-6">
+                    <h5 className="text-xl font-black text-red-400 uppercase tracking-tighter">Pułapka Karty Kredytowej</h5>
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-end border-b border-red-800 pb-2">
+                            <span className="text-xs text-red-300">Oprocentowanie RRSO</span>
+                            <span className="text-2xl font-black">~ 20% +</span>
+                        </div>
+                        <p className="text-xs text-red-200/70 leading-relaxed">
+                            Karty kredytowe często stosują dzienną kapitalizację odsetek od momentu zakończenia okresu bezodsetkowego. Spłacanie tylko "kwoty minimalnej" to prosta droga do tego, by przez lata spłacać same odsetki, nie ruszając nawet kapitału.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-3 bg-red-900/40 p-4 rounded-2xl border border-red-800">
+                        <AlertTriangle className="text-red-500" size={20} />
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Dług rośnie szybciej niż Twoje zarobki</span>
+                    </div>
+                </div>
+                <CreditCard size={200} className="absolute -bottom-20 -right-20 text-red-500/10 rotate-12" />
+            </div>
+        </div>
+
+        {/* PORÓWNANIE: DEBRET VS INWESTYCJA */}
+        <div className="grid md:grid-cols-3 gap-6 text-left">
+            <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                <h6 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <History size={18} className="text-red-600"/> Odsetki od odsetek
+                </h6>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                    W długu każdy dzień zwłoki zwiększa bazę. Jeśli zignorujesz monit, po roku dług może być dwukrotnie większy przez dodatkowe koszty windykacyjne doliczone do kapitału.
+                </p>
+            </div>
+            <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                <h6 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <Ban size={18} className="text-red-600"/> Psychologia wypierania
+                </h6>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Ludzie mają tendencję do liniowego postrzegania długu. Myślą: "oddam te 1000 zł później". Matematyka wykładnicza sprawia jednak, że to "później" kosztuje 1500 zł szybciej, niż się spodziewasz.
+                </p>
+            </div>
+            <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                <h6 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <Navigation size={18} className="text-red-600"/> Wyjście z pętli
+                </h6>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Najskuteczniejszą walką z ujemnym procentem składanym jest metoda "śnieżnej kuli długu" – spłacanie najmniejszych zobowiązań najpierw, by uwolnić gotówkę na te najwyżej oprocentowane.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{/* SEKCJA: ARCHITEKTURA NAWYKÓW - AUTOMATYZACJA */}
+<div id="automatyzacja-nawyki" className="bg-slate-50 rounded-[3rem] p-8 md:p-16 border border-slate-200 shadow-inner relative overflow-hidden text-left scroll-mt-24 mt-16">
+    
+    {/* TŁO DEKORACYJNE - SIATKA TECHNICZNA */}
+    <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+
+    <div className="relative z-10 space-y-12">
+        
+        {/* NAGŁÓWEK W STYLU SCHEMATU */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-300 pb-8">
+            <div className="space-y-2">
+                <div className="flex items-center gap-2 text-indigo-600 font-black text-xs uppercase tracking-[0.3em]">
+                    <Cpu size={16}/> System Protocol v2.0
+                </div>
+                <h4 className="text-4xl font-black text-slate-900 tracking-tighter text-left">Architektura Nawyków</h4>
+                <p className="text-slate-500 font-medium text-left">Jak zaprogramować życie, by procent składany działał bez Twojej uwagi?</p>
+            </div>
+            <div className="hidden md:block text-right">
+                <div className="text-[10px] font-mono text-slate-400">STATUS: ACTIVE</div>
+                <div className="text-[10px] font-mono text-green-600">REVENUE_STREAM: COMPOUNDING</div>
+            </div>
+        </div>
+
+        {/* LOGIKA SYSTEMU - TRZY FILARY AUTOMATU */}
+        <div className="grid lg:grid-cols-3 gap-12">
+            
+            {/* KROK 1: TRIGGER */}
+            <div className="space-y-6 relative">
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full border-2 border-slate-900 flex items-center justify-center font-black text-sm">01</div>
+                    <h5 className="font-bold text-slate-900 uppercase tracking-widest text-xs">Płać najpierw sobie</h5>
+                </div>
+                <div className="p-8 bg-white rounded-2xl border border-slate-200 shadow-sm relative group">
+                    <div className="absolute -top-3 -right-3 bg-indigo-600 text-white p-2 rounded-lg rotate-12 group-hover:rotate-0 transition-transform">
+                        <Repeat size={16}/>
+                    </div>
+                    <p className="text-sm text-slate-600 leading-relaxed text-left">
+                        Nie oszczędzaj tego, co zostaje po wydatkach. <strong>Wydawaj to, co zostaje po oszczędnościach</strong>. Ustaw automatyczny przelew wychodzący w dniu wypłaty. To jedyny sposób, by uniknąć "inflacji stylu życia".
+                    </p>
+                </div>
+            </div>
+
+            {/* KROK 2: AUTOMATION */}
+            <div className="space-y-6 relative">
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full border-2 border-slate-900 flex items-center justify-center font-black text-sm">02</div>
+                    <h5 className="font-bold text-slate-900 uppercase tracking-widest text-xs">Portfel Wieczny</h5>
+                </div>
+                <div className="p-8 bg-white rounded-2xl border border-slate-200 shadow-sm relative group">
+                    <div className="absolute -top-3 -right-3 bg-indigo-600 text-white p-2 rounded-lg -rotate-12 group-hover:rotate-0 transition-transform">
+                        <Bot size={16}/>
+                    </div>
+                    <p className="text-sm text-slate-600 leading-relaxed text-left">
+                        Wybieraj instrumenty, które same <strong>reinwestują zyski</strong> (np. ETF typu Acc). Twoim jedynym zadaniem jest nie przeszkadzać procesowi. Każde zajrzenie na konto maklerskie to pokusa, by "coś zmienić" i zepsuć efekt kuli śnieżnej.
+                    </p>
+                </div>
+            </div>
+
+            {/* KROK 3: SCALE */}
+            <div className="space-y-6 relative">
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full border-2 border-slate-900 flex items-center justify-center font-black text-sm">03</div>
+                    <h5 className="font-bold text-slate-900 uppercase tracking-widest text-xs">Dyscyplina Nudy</h5>
+                </div>
+                <div className="p-8 bg-white rounded-2xl border border-slate-200 shadow-sm relative group">
+                    <div className="absolute -top-3 -right-3 bg-indigo-600 text-white p-2 rounded-lg rotate-6 group-hover:rotate-0 transition-transform">
+                        <Fingerprint size={16}/>
+                    </div>
+                    <p className="text-sm text-slate-600 leading-relaxed text-left">
+                        Inwestowanie powinno być jak oglądanie schnącej farby. Prawdziwa magia <strong>procentu składanego</strong> dzieje się w ostatniej dekadzie planu. Najtrudniejsze jest przetrwanie pierwszych 10 lat, gdy zyski wydają się mikroskopijne.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        {/* MODUŁ PSYCHOLOGICZNY - CZARNY TERMINAL */}
+        <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white font-mono relative overflow-hidden shadow-2xl">
+            <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center text-left">
+                <div className="space-y-6">
+                    <div className="flex items-center gap-2 text-green-500 text-xs">
+                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        SYSTEM_ADVICE: PSYCHOLOGY_HACK
+                    </div>
+                    <h5 className="text-2xl font-black font-sans">Zapomnij o haśle do konta</h5>
+                    <p className="text-slate-400 text-sm leading-relaxed font-sans">
+                        Najlepsi inwestorzy to ci... martwi (według badań Fidelity). Dlaczego? Bo nie logowali się do kont i nie ulegali panice rynkowej. Jeśli chcesz, by <strong>efekt kuli śnieżnej</strong> działał, musisz oddzielić swoje emocje od swoich pieniędzy.
+                    </p>
+                </div>
+                <div className="p-6 bg-white/5 border border-white/10 rounded-2xl">
+                    <div className="text-[10px] text-indigo-400 mb-4 uppercase tracking-widest font-bold">Logika sukcesu:</div>
+                    <ul className="space-y-3 text-xs text-slate-300 font-sans">
+                        <li className="flex items-center gap-3"><CheckCircle size={14} className="text-green-500"/> Automatyczny przelew (0% wysiłku)</li>
+                        <li className="flex items-center gap-3"><CheckCircle size={14} className="text-green-500"/> Brak sprawdzania kursów (100% spokoju)</li>
+                        <li className="flex items-center gap-3"><CheckCircle size={14} className="text-green-500"/> Akceptacja zmienności (Klucz do zysku)</li>
+                    </ul>
+                </div>
+            </div>
+            {/* Dekoracja techniczna */}
+            <LayoutGrid size={300} className="absolute -bottom-20 -right-20 text-white/5 rotate-12" />
+        </div>
+    </div>
+</div>
+
+{/* SEKCJA: PUNKT KRYTYCZNY I SYNERGIA AKTYWÓW */}
+<div id="punkt-krytyczny-nawigacja" className="bg-white rounded-[3rem] p-8 md:p-16 border border-slate-200 shadow-2xl relative overflow-hidden text-left scroll-mt-24 mt-16">
+    
+    {/* TŁO DEKORACYJNE: MAPA I KOMPAS */}
+    <div className="absolute -top-20 -right-20 opacity-[0.03] pointer-events-none rotate-12">
+        <Compass size={500} className="text-slate-900" />
+    </div>
+
+    <div className="relative z-10 space-y-16">
+        
+        {/* NAGŁÓWEK: STRATEGIC MISSION CONTROL */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 border-b border-slate-100 pb-12">
+            <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 bg-indigo-100 text-indigo-700 px-4 py-1 rounded-full text-xs font-black uppercase tracking-[0.2em]">
+                    <Navigation size={14}/> System Navigation: Freedom
+                </div>
+                <h4 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter text-left">
+                    Prędkość Ucieczki: <span className="text-indigo-600">Punkt Krytyczny</span>
+                </h4>
+                <p className="text-slate-500 text-lg max-w-2xl text-left">
+                    Moment, w którym Twoje aktywa generują więcej energii (zysku), niż potrzebuje Twój system (życie). Poznaj synergię narzędzi, które Cię tam dowiozą.
+                </p>
+            </div>
+            <div className="shrink-0">
+                 <div className="p-6 bg-slate-900 rounded-[2rem] text-white shadow-xl">
+                    <div className="text-[10px] text-indigo-400 font-black uppercase mb-2">Obecna Faza:</div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-xl font-bold">Akumulacja Wykładnicza</span>
+                    </div>
+                 </div>
+            </div>
+        </div>
+
+        {/* MACIERZ WOLNOŚCI - PORÓWNANIE I LINKOWANIE AKTYWÓW */}
+        <div className="grid lg:grid-cols-12 gap-8 items-stretch">
+            <div className="lg:col-span-8">
+                <div className="bg-slate-50 p-8 md:p-12 rounded-[3rem] border border-slate-100 h-full">
+                    <h5 className="text-2xl font-black text-slate-900 mb-8 text-left">Jak różne aktywa napędzają Punkt Krytyczny?</h5>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {/* LINK: ZŁOTO */}
+                        <div className="p-6 bg-white rounded-2xl border border-slate-200 hover:border-yellow-400 transition-all group">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-yellow-50 text-yellow-600 rounded-xl group-hover:bg-yellow-400 group-hover:text-white transition-colors">
+                                    <Coins size={24}/>
+                                </div>
+                                <button onClick={() => navigate('/zloto')} className="text-[10px] font-black uppercase text-slate-400 hover:text-indigo-600">Otwórz Widok &rarr;</button>
+                            </div>
+                            <h6 className="font-bold text-slate-900 mb-2 text-left">Złoto: Stabilizator Bazy</h6>
+                            <p className="text-[11px] text-slate-500 leading-relaxed text-left">
+                                Złoto nie generuje procentu składanego (nie wypłaca dywidend), ale chroni Twoją bazę kapitałową przed inflacją. To "bezpiecznik", który dba, by Punkt Krytyczny nie oddalił się w czasie kryzysu.
+                            </p>
+                        </div>
+
+                        {/* LINK: IKE/IKZE */}
+                        <div className="p-6 bg-white rounded-2xl border border-slate-200 hover:border-indigo-400 transition-all group">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                    <ShieldCheck size={24}/>
+                                </div>
+                                <button onClick={() => navigate('/ike-ikze')} className="text-[10px] font-black uppercase text-slate-400 hover:text-indigo-600">Otwórz Widok &rarr;</button>
+                            </div>
+                            <h6 className="font-bold text-slate-900 mb-2 text-left">IKE/IKZE: Akcelerator Podatkowy</h6>
+                            <p className="text-[11px] text-slate-500 leading-relaxed text-left">
+                                Klucz do <strong>maksymalizacji procentu składanego</strong>. Dzięki uniknięciu 19% podatku Belki, Twoja kula śnieżna osiąga masę krytyczną o 5-7 lat szybciej niż na zwykłym koncie.
+                            </p>
+                        </div>
+
+                        {/* LINK: NIERUCHOMOŚCI (Odniesienie do przyszłej podstrony) */}
+                        <div className="p-6 bg-white rounded-2xl border border-slate-200 hover:border-green-400 transition-all group">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-green-50 text-green-600 rounded-xl group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                    <Home size={24}/>
+                                </div>
+                                <div className="text-[10px] font-black uppercase text-slate-300">Wkrótce</div>
+                            </div>
+                            <h6 className="font-bold text-slate-900 mb-2 text-left">Nieruchomości: Dźwignia i Cashflow</h6>
+                            <p className="text-[11px] text-slate-500 leading-relaxed text-left">
+                                Pozwalają na użycie kredytu (lewarowanie), co gwałtownie zwiększa podstawę, od której liczy się wzrost Twojego majątku netto.
+                            </p>
+                        </div>
+
+                        {/* LINK: GIEŁDA / ETF */}
+                        <div className="p-6 bg-white rounded-2xl border border-slate-200 hover:border-purple-400 transition-all group">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-purple-50 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                    <CandlestickChart size={24}/>
+                                </div>
+                                <button onClick={() => navigate('/gielda')} className="text-[10px] font-black uppercase text-slate-400 hover:text-indigo-600">Otwórz Widok &rarr;</button>
+                            </div>
+                            <h6 className="font-bold text-slate-900 mb-2 text-left">ETF (Acc): Czysta Kapitalizacja</h6>
+                            <p className="text-[11px] text-slate-500 leading-relaxed text-left">
+                                Idealne narzędzie do realizacji <strong>procentu składanego</strong> w trybie "ustaw i zapomnij". Automatyczne reinwestowanie dywidend buduje Punkt Krytyczny bez Twojego udziału.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* PANEL KONTROLNY RESTRYKCJI */}
+            <div className="lg:col-span-4 space-y-8">
+                <div className="bg-slate-900 text-white p-10 rounded-[3rem] h-full shadow-2xl flex flex-col justify-between relative overflow-hidden">
+                    <div className="relative z-10 space-y-8">
+                        <h5 className="text-xl font-black border-b border-white/10 pb-4 text-left">Strategia Wypłaty (FIRE)</h5>
+                        
+                        <div className="space-y-6">
+                            <div className="flex gap-4 items-start">
+                                <div className="p-2 bg-indigo-500 rounded-lg shrink-0"><Percent size={18}/></div>
+                                <div>
+                                    <strong className="block text-sm">Reguła 4%</strong>
+                                    <p className="text-[10px] text-slate-400">Bezpieczna roczna stopa wypłaty, która pozwala zachować kapitał na dekady.</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-4 items-start">
+                                <div className="p-2 bg-indigo-500 rounded-lg shrink-0"><RefreshCcw size={18}/></div>
+                                <div>
+                                    <strong className="block text-sm">Cykliczność reinwestycji</strong>
+                                    <p className="text-[10px] text-slate-400">Pamiętaj: dopóki nie potrzebujesz kapitału, 100% zysków musi wrócić do silnika.</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-4 items-start">
+                                <div className="p-2 bg-indigo-500 rounded-lg shrink-0"><Activity size={18}/></div>
+                                <div>
+                                    <strong className="block text-sm">Dywersyfikacja wyjścia</strong>
+                                    <p className="text-[10px] text-slate-400">W Punkcie Krytycznym Twój portfel powinien być miksem złota, akcji i nieruchomości.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-12">
+                        <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                            <p className="text-[10px] text-slate-400 italic text-center">
+                                "Wolność finansowa to nie stan konta, to stan umysłu, w którym praca staje się hobby."
+                            </p>
+                        </div>
+                    </div>
+                    <Activity size={200} className="absolute -bottom-20 -right-20 text-white/5 rotate-12" />
+                </div>
+            </div>
+        </div>
+
+        {/* PODSUMOWANIE DROGI - FLOWCHART STYLE */}
+        <div className="bg-indigo-600 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden shadow-xl">
+             <div className="grid md:grid-cols-4 gap-8 relative z-10 text-center">
+                <div className="space-y-2">
+                    <div className="text-3xl font-black">01</div>
+                    <div className="text-xs font-bold uppercase tracking-widest text-indigo-200">Definicja Celu</div>
+                    <p className="text-[10px] text-indigo-100">Ustal swoją "Licznę FIRE" (Koszty x 25).</p>
+                </div>
+                <div className="space-y-2">
+                    <div className="text-3xl font-black">02</div>
+                    <div className="text-xs font-bold uppercase tracking-widest text-indigo-200">Budowa Silnika</div>
+                    <p className="text-[10px] text-indigo-100">Ustaw automatyczny procent składany (IKE/ETF).</p>
+                </div>
+                <div className="space-y-2">
+                    <div className="text-3xl font-black">03</div>
+                    <div className="text-xs font-bold uppercase tracking-widest text-indigo-200">Zabezpieczenie</div>
+                    <p className="text-[10px] text-indigo-100">Dodaj złoto jako bufor bezpieczeństwa portfela.</p>
+                </div>
+                <div className="space-y-2">
+                    <div className="text-3xl font-black">04</div>
+                    <div className="text-xs font-bold uppercase tracking-widest text-indigo-200">Start Rakiety</div>
+                    <p className="text-[10px] text-indigo-100">Przekrocz Punkt Krytyczny i ciesz się wolnością.</p>
+                </div>
+             </div>
+             <Sparkles size={300} className="absolute -bottom-24 -right-24 text-white/10" />
+        </div>
+    </div>
+</div>
+
+{/* --- SEKCJA SEO: CO WPISUJESZ W GOOGLE? --- */}
+<div className="mt-24 border-t border-slate-100 pt-16">
+    <div className="text-center mb-12">
+        <h3 className="text-2xl font-black text-slate-900 mb-2">Czego szukasz w Google?</h3>
+        <p className="text-sm text-slate-500 italic">Najpopularniejsze zapytania o procent składany 2026</p>
+    </div>
+    
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {[
+            { kw: "Procent składany kalkulator miesięczny", id: "kalkulator-skladany" },
+            { kw: "Jak działa reguła 72 wzór", id: "regula-72-kompletna" },
+            { kw: "Podatek Belki a procent składany", id: "cisi-zlodzieje-kapitalu" },
+            { kw: "Inflacja a realny zysk z lokaty", id: "cisi-zlodzieje-kapitalu" },
+            { kw: "Pętla zadłużenia a odsetki karne", id: "ciemna-strona-procentu" },
+            { kw: "Jak zautomatyzować oszczędzanie", id: "automatyzacja-nawyki" },
+            { kw: "Reguła 4% wolność finansowa", id: "punkt-krytyczny-nawigacja" },
+            { kw: "Ile odkładać na emeryturę kalkulator", id: "kalkulator-skladany" },
+            { kw: "ETF akumulujący a podatek Belki", id: "strategie-optymalizacji" },
+            { kw: "Koszt zwlekania z inwestowaniem", id: "automatyzacja-nawyki" }
+        ].map((item, i) => (
+            <button 
+                key={i}
+                onClick={() => scrollToSection(item.id)}
+                className="p-6 bg-white border border-slate-200 rounded-3xl text-left hover:border-indigo-400 hover:shadow-md transition-all group"
+            >
+                <div className="w-8 h-8 bg-slate-50 text-slate-400 rounded-lg flex items-center justify-center mb-4 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                    <Search size={14}/>
+                </div>
+                <span className="text-[11px] font-black text-slate-800 leading-tight block">
+                    {item.kw}
+                </span>
+            </button>
+        ))}
+    </div>
+</div>
+
+
           </div>
       </div>
     </>
   );
 };
+
+
+
 const StocksView = () => {
   // --- ZMIENNE ---
   const [etfAmount, setEtfAmount] = useState(10000);

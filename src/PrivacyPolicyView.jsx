@@ -32,7 +32,7 @@ export const PrivacyPolicyView = () => {
               </h3>
               <p>1. Niniejsza Polityka Prywatności określa zasady przetwarzania i ochrony danych osobowych przekazywanych przez Użytkowników w związku z korzystaniem z serwisu internetowego dostępnego pod adresem <strong>https://www.finanse-proste.pl/</strong> (dalej: „Serwis”).</p>
               <p>2. Administratorem danych osobowych w rozumieniu Rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO) jest Właściciel Serwisu.</p>
-              <p>3. Kontakt z Administratorem odbywa się wyłącznie drogą elektroniczną pod adresem e-mail: <strong className="text-blue-600">finanse-proste@gmail.com</strong>.</p>
+              <p>3. Kontakt z Administratorem odbywa się wyłącznie drogą elektroniczną pod adresem e-mail: <strong className="text-blue-600">finanseproste.kontakt@gmail.com</strong>.</p>
               <p>4. Serwis ma charakter wyłącznie edukacyjny i hobbystyczny. Administrator dokłada wszelkich starań, aby chronić prywatność Użytkowników.</p>
             </section>
 
@@ -63,7 +63,7 @@ export const PrivacyPolicyView = () => {
               <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
                 <Mail className="text-orange-600"/> § 5. Kontakt i Prawa Użytkownika
               </h3>
-              <p>W każdej sprawie dotyczącej Twoich danych osobowych możesz napisać na adres: <strong>finanse-proste@gmail.com</strong>.</p>
+              <p>W każdej sprawie dotyczącej Twoich danych osobowych możesz napisać na adres: <strong>finanseproste.kontakt@gmail.com</strong>.</p>
               <p>Masz prawo do żądania dostępu do swoich danych, ich sprostowania, usunięcia lub ograniczenia przetwarzania, a także wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych.</p>
             </section>
 
